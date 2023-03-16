@@ -64,14 +64,15 @@
 	<h2>Publications</h2>
 	<div id="publications"></div>
 
-	  <script src="https://cdn.jsdelivr.net/npm/bib2json@1.1.3/dist/bib2json.min.js"></script>
+	  <script src="bibtex-js/src/bibtex_js.js"></script>
+
 
 
 <script> 
 
 	async function displayPublications() {
   try {
-    const response = await fetch('path/to/your/bibtex_file.bib');
+    const response = await fetch('data/pubs.bib');
     
     if (!response.ok) {
       throw new Error(`Failed to fetch the BibTeX file: ${response.statusText}`);
