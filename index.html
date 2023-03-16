@@ -66,8 +66,9 @@
 
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/bibtex-js/0.0.8/bibtex.min.js"></script>
 <script> 
-try {
+
 	async function displayPublications() {
+	try {
   const response = await fetch('data/pubs.bib');
    if (!response.ok) {
       throw new Error(`Failed to fetch the BibTeX file: ${response.statusText}`);
