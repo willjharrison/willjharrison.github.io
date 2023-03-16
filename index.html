@@ -67,7 +67,7 @@
 	  <script src="https://cdnjs.cloudflare.com/ajax/libs/bibtex-js/0.0.8/bibtex.min.js"></script>
 <script> 
 	async function displayPublications() {
-  const response = await fetch('path/to/your/bibtex_file.bib');
+  const response = await fetch('data/pubs.bib');
   const bibtexText = await response.text();
 
   const bibtex = new BibTeX();
