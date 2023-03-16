@@ -73,15 +73,20 @@
 	<h2>Publications</h2>
 	<div id="publications"></div>
 
-	  <script src="https://cdn.jsdelivr.net/npm/bibtex-parse-js@1.0.0/bibtexParse.js"></script>
-
-
-
+	 <!-- <script src="bibtex_js.js"></script> -->
 
 <script> 
 
-	async function displayPublications() {
+	async function loadBibtexJsLibrary() {
+  const response = await fetch('bibtex_js.js');
+  const libraryText = await response.text();
+  eval(libraryText);
+}
+
+async function displayPublications() {
   try {
+    await loadBibtexJsLibrary();
+
     const response = await fetch('data/pubs.bib');
 
     if (!response.ok) {
@@ -90,17 +95,19 @@
 
     const bibtexText = await response.text();
     console.log('Fetched BibTeX content:', bibtexText);
-    const bibtexEntries = bibtexParse.toJSON(bibtexText);
+    const bibtex = new BibTeX();
+    bibtex.content = bibtexText;
+    bibtex.parse();
 
     const publicationsDiv = document.getElementById('publications');
-    publicationsDiv.innerHTML = bibtexEntries
+    publicationsDiv.innerHTML = bibtex.entries
       .map(entry => {
-        const title = entry.title || '';
-        const author = entry.author || '';
-        const journal = entry.journal || entry.booktitle || '';
-        const year = entry.year || '';
-        const url = entry.url;
-        const doi = entry.doi;
+        const title = entry.getField('title') || '';
+        const author = entry.getField('author') || '';
+        const journal = entry.getField('journal') || entry.getField('booktitle') || '';
+        const year = entry.getField('year') || '';
+        const url = entry.getField('url') || '';
+        const doi = entry.getField('doi') || '';
 
         return `
           <div class="publication">
@@ -120,6 +127,7 @@
 }
 
 displayPublications();
+
 
 
 	</script>
