@@ -42,21 +42,26 @@
     <style>
     .scroll-img {
         position: fixed;
-        max-width: 20px;
-        margin: 0 0 0 0;
-        top: 0;
-        left: 0;
+  
     height: auto;
 	width: auto
     display: block;
     
         z-index: -1;
     }
+    
+    .left-image {
+        float: left;
+        margin: 0 20px 20px 0;
+        max-width: calc(100% - 200px);
+        height: auto;
+    }
+    
 </style>
 </head>
 <body>
 
-	<img src="images/eyeIm.png" alt="Header image" class="scroll-img">
+	<img src="images/eyeIm.png" alt="Header image" class="scroll-img left-img">
     <h1>Will Harrison</h1>
 	
     <h2>Research Interests</h2>
