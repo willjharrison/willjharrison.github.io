@@ -79,6 +79,8 @@
     }
 
     const bibtexText = await response.text();
+    console.log('Fetched BibTeX content:', bibtexText); // Add this line to log the fetched content
+
     const bibtex = new BibTeX();
     bibtex.content = bibtexText;
     bibtex.parse();
