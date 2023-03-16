@@ -64,7 +64,8 @@
 	<h2>Publications</h2>
 	<div id="publications"></div>
 
-	  <script src="bibtex_js.js"></script>
+	  <script src="https://cdn.jsdelivr.net/npm/bibtex-parse-js@1.0.0/bibtexParse.js"></script>
+
 
 
 
@@ -79,21 +80,18 @@
     }
 
     const bibtexText = await response.text();
-    console.log('Fetched BibTeX content:', bibtexText); // Add this line to log the fetched content
-
-    const bibtex = new BibTeX();
-    bibtex.content = bibtexText;
-    bibtex.parse();
+    console.log('Fetched BibTeX content:', bibtexText);
+    const bibtexEntries = bibtexParse.toJSON(bibtexText);
 
     const publicationsDiv = document.getElementById('publications');
-    publicationsDiv.innerHTML = bibtex.entries
+    publicationsDiv.innerHTML = bibtexEntries
       .map(entry => {
-        const title = entry.getField('title') || '';
-        const author = entry.getField('author') || '';
-        const journal = entry.getField('journal') || entry.getField('booktitle') || '';
-        const year = entry.getField('year') || '';
-        const url = entry.getField('url');
-        const doi = entry.getField('doi');
+        const title = entry.title || '';
+        const author = entry.author || '';
+        const journal = entry.journal || entry.booktitle || '';
+        const year = entry.year || '';
+        const url = entry.url;
+        const doi = entry.doi;
 
         return `
           <div class="publication">
@@ -113,6 +111,7 @@
 }
 
 displayPublications();
+
 
 	</script>
 </body>
