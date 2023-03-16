@@ -64,47 +64,47 @@
 	<h2>Publications</h2>
 	<div id="publications"></div>
 
-	  <script src="https://cdn.jsdelivr.net/gh/pcooksey/bibtex-js/src/bibtex_js.js"></script>
+	  <script src="https://cdn.jsdelivr.net/npm/bib2json@1.1.3/dist/bib2json.min.js"></script>
+
 
 <script> 
 
 	async function displayPublications() {
-	try {
-  const response = await fetch('data/pubs.bib');
-   if (!response.ok) {
+  try {
+    const response = await fetch('path/to/your/bibtex_file.bib');
+    
+    if (!response.ok) {
       throw new Error(`Failed to fetch the BibTeX file: ${response.statusText}`);
     }
-  const bibtexText = await response.text();
+    
+    const bibtexText = await response.text();
+    const bibtex = bib2json.toJSON(bibtexText);
 
-  const bibtex = new BibTeX();
-  bibtex.content = bibtexText;
-  bibtex.parse();
+    const publicationsDiv = document.getElementById('publications');
+    publicationsDiv.innerHTML = bibtex.entries
+      .map(entry => {
+        const title = entry.getField('title');
+        const author = entry.getField('author');
+        const journal = entry.getField('journal') || entry.getField('booktitle');
+        const year = entry.getField('year');
+        const url = entry.getField('url');
+        const doi = entry.getField('doi');
 
-  const publicationsDiv = document.getElementById('publications');
-  publicationsDiv.innerHTML = bibtex.entries
-    .map(entry => {
-      const title = entry.getField('title');
-      const author = entry.getField('author');
-      const journal = entry.getField('journal') || entry.getField('booktitle');
-      const year = entry.getField('year');
-      const url = entry.getField('url');
-      const doi = entry.getField('doi');
-
-      return `
-        <div class="publication">
-          <p><strong>${title}</strong></p>
-          <p>${author}</p>
-          <p><em>${journal}</em>, ${year}</p>
-          ${url ? `<p><a href="${url}">Link</a></p>` : ''}
-          ${doi ? `<p>DOI: <a href="https://doi.org/${doi}">${doi}</a></p>` : ''}
-        </div>
-        <hr>
-      `;
-    })
-    .join('');
-    } catch (error){
-    	console.error('Error fetching or parsing the BibTeX file:', error);
-    }
+        return `
+          <div class="publication">
+            <p><strong>${title}</strong></p>
+            <p>${author}</p>
+            <p><em>${journal}</em>, ${year}</p>
+            ${url ? `<p><a href="${url}">Link</a></p>` : ''}
+            ${doi ? `<p>DOI: <a href="https://doi.org/${doi}">${doi}</a></p>` : ''}
+          </div>
+          <hr>
+        `;
+      })
+      .join('');
+  } catch (error) {
+    console.error('Error fetching or parsing the BibTeX file:', error);
+  }
 }
 
 displayPublications();
