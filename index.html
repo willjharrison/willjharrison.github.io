@@ -41,10 +41,10 @@
     </style>
 </head>
 <body>
-	
 
-    <h1>Will Harrison</h1>
 	<img src="images/eyeIm.png" alt="Header image" id="header-image">
+    <h1>Will Harrison</h1>
+	
     <h2>Research Interests</h2>
     <ul>
         <li>
@@ -60,5 +60,45 @@
             <strong>Neural encoding:</strong> My work in neural encoding investigates how the brain represents and processes visual information at the neural level. I aim to understand the coding principles and neural mechanisms that underlie our ability to perceive and interpret visual stimuli.
         </li>
     </ul>   
+	
+	<h2>Publications</h2>
+	<div id="publications"></div>
+
+	  <script src="https://cdnjs.cloudflare.com/ajax/libs/bibtex-js/0.0.8/bibtex.min.js"></script>
+<script> 
+	async function displayPublications() {
+  const response = await fetch('path/to/your/bibtex_file.bib');
+  const bibtexText = await response.text();
+
+  const bibtex = new BibTeX();
+  bibtex.content = bibtexText;
+  bibtex.parse();
+
+  const publicationsDiv = document.getElementById('publications');
+  publicationsDiv.innerHTML = bibtex.entries
+    .map(entry => {
+      const title = entry.getField('title');
+      const author = entry.getField('author');
+      const journal = entry.getField('journal') || entry.getField('booktitle');
+      const year = entry.getField('year');
+      const url = entry.getField('url');
+      const doi = entry.getField('doi');
+
+      return `
+        <div class="publication">
+          <p><strong>${title}</strong></p>
+          <p>${author}</p>
+          <p><em>${journal}</em>, ${year}</p>
+          ${url ? `<p><a href="${url}">Link</a></p>` : ''}
+          ${doi ? `<p>DOI: <a href="https://doi.org/${doi}">${doi}</a></p>` : ''}
+        </div>
+        <hr>
+      `;
+    })
+    .join('');
+}
+
+displayPublications();
+	</script>
 </body>
 </html>
