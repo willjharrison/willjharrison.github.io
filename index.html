@@ -43,7 +43,7 @@
         y: Math.random()*h,
         dx: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
         dy: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
-        r: 80,
+        r: 200,
         color: colors[i]
       });
     }
@@ -57,7 +57,7 @@
 
         ctx.fillStyle = s.color;
         ctx.shadowColor = s.color;
-        ctx.shadowBlur = 40; // softness of edges
+        ctx.shadowBlur = 90; // softness of edges
         ctx.fill();
         ctx.closePath();
 
