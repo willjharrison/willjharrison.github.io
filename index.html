@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <title>Will Harrison Lab</title>
   <style>
-    body { margin: 0; background: white; }
+    body { margin: 0; }
     canvas { position: fixed; top: 0; left: 0; z-index: -1; }
     main { max-width: 800px; margin: 2rem auto; font-family: sans-serif; }
   </style>
@@ -12,16 +12,30 @@
 <body>
   <canvas id="bg"></canvas>
 
-  <main>
+  <main id="content">
     <h1>Will Harrison Lab</h1>
     <p>Welcome to our lab website. We study vision and cognition.</p>
   </main>
 
   <script>
+    // --- CONFIG PARAMETERS (play with these!) ---
+    const CONFIG = {
+      gaussianSD: 90,              // standard deviation in px for edges
+      sphereRadius: 200,           // radius in px
+      speedSDsPerFrame: 0.02,      // motion speed in units of SD per frame
+      numSpheres: 6,               // how many spheres
+      backgroundColor: 'white',    // page background
+      textColor: 'black'           // main text colour
+    };
+
+    // apply background + text colours
+    document.body.style.background = CONFIG.backgroundColor;
+    document.getElementById('content').style.color = CONFIG.textColor;
+
     // --- canvas setup ---
     const cvs = document.getElementById('bg');
     const ctx = cvs.getContext('2d');
-    let W, H, DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2)); // cap for perf
+    let W, H, DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
 
     let BUF_W, BUF_H, buf, bctx, imgData, px;
 
@@ -31,7 +45,6 @@
       cvs.style.width  = window.innerWidth + 'px';
       cvs.style.height = window.innerHeight + 'px';
 
-      // recreate buffer at lower res for speed
       BUF_W = Math.max(Math.floor(W / SCALE), 1);
       BUF_H = Math.max(Math.floor(H / SCALE), 1);
 
@@ -39,18 +52,15 @@
         buf = new OffscreenCanvas(BUF_W, BUF_H);
       } else {
         buf = document.createElement('canvas');
-        buf.width = BUF_W;
-        buf.height = BUF_H;
+        buf.width = BUF_W; buf.height = BUF_H;
       }
 
       bctx = buf.getContext('2d');
       imgData = bctx.createImageData(BUF_W, BUF_H);
       px = imgData.data;
 
-      // force reallocation of accumulators
       step.R = step.G = step.B = null;
 
-      // keep spheres inside bounds
       for (const s of spheres) {
         s.x = Math.min(Math.max(s.r, s.x), (W/DPR) - s.r);
         s.y = Math.min(Math.max(s.r, s.y), (H/DPR) - s.r);
@@ -58,48 +68,48 @@
     }
     window.addEventListener('resize', resize);
 
-    // --- linear/sRGB helpers (IEC 61966-2-1) ---
+    // --- colour helpers ---
     const srgbToLin = c => (c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
     const linToSrgb = c => (c <= 0.0031308 ? 12.92*c : 1.055*Math.pow(c, 1/2.4) - 0.055);
     const clamp01 = x => x < 0 ? 0 : (x > 1 ? 1 : x);
 
     // --- simulation params ---
-    const RADIUS = 200;           // px in display space
-    const SIGMA  = RADIUS * 0.45; // Gaussian edge softness
-    const SCALE  = 2;             // render buffer downsamples (perf knob)
+    const RADIUS = CONFIG.sphereRadius;
+    const SIGMA  = CONFIG.gaussianSD;
+    const SCALE  = 2;
 
-    // spheres: positions/velocities in display px
-    const colorsSRGB = [
-      [255,105,180], // hotpink
-      [ 30,144,255], // dodgerblue
-      [ 50,205, 50], // limegreen
-      [255,165,  0]  // orange
-    ];
-    // convert colours to linear [0..1]
-    const colorsLIN = colorsSRGB.map(([r,g,b]) => [
-      srgbToLin(r/255), srgbToLin(g/255), srgbToLin(b/255)
-    ]);
+    // sphere colours
+    const baseColorsSRGB = [
+      [255,105,180], [30,144,255], [50,205,50], [255,165,0],
+      [148,0,211],   [0,255,255],  [255,20,147], [255,255,0]
+    ]; // enough to cover > numSpheres
+    const colorsLIN = baseColorsSRGB.map(([r,g,b]) =>
+      [srgbToLin(r/255), srgbToLin(g/255), srgbToLin(b/255)]
+    );
 
-    const spheres = colorsLIN.map(c => ({
-      x: 300 + Math.random()*600,
-      y: 200 + Math.random()*400,
-      dx: (Math.random()*2+0.6) * (Math.random()<0.5?-1:1),
-      dy: (Math.random()*2+0.6) * (Math.random()<0.5?-1:1),
-      r: RADIUS,
-      color: c
-    }));
+    const spheres = [];
+    for (let i=0; i<CONFIG.numSpheres; i++) {
+      const speed = CONFIG.speedSDsPerFrame * CONFIG.gaussianSD; // px/frame
+      const angle = Math.random() * 2 * Math.PI;
+      spheres.push({
+        x: Math.random()*800+200,
+        y: Math.random()*400+200,
+        dx: speed * Math.cos(angle),
+        dy: speed * Math.sin(angle),
+        r: RADIUS,
+        color: colorsLIN[i % colorsLIN.length]
+      });
+    }
 
-    resize(); // init
+    resize();
 
     function step() {
-      // move spheres (display space)
       for (const s of spheres) {
         s.x += s.dx; s.y += s.dy;
         if (s.x + s.r > W/DPR || s.x - s.r < 0) s.dx = -s.dx;
         if (s.y + s.r > H/DPR || s.y - s.r < 0) s.dy = -s.dy;
       }
 
-      // clear linear accumulators
       const N = BUF_W * BUF_H;
       if (!step.R || step.R.length !== N) {
         step.R = new Float32Array(N);
@@ -110,29 +120,27 @@
       }
       const Rlin = step.R, Glin = step.G, Blin = step.B;
 
-      // precompute constants
       const sigma2 = SIGMA*SIGMA;
       const inv2sigma2 = 1/(2*sigma2);
 
-      // rasterise each sphere into the linear accumulators
       for (const s of spheres) {
         const rBuf   = s.r / SCALE;
         const cxBuf  = (s.x * DPR) / SCALE;
         const cyBuf  = (s.y * DPR) / SCALE;
-        const rad    = Math.ceil(rBuf*1.6); // cut at ~1.6*R for gaussian tail
+        const rad    = Math.ceil(rBuf*1.6);
         const x0 = Math.max(0, Math.floor(cxBuf - rad));
         const y0 = Math.max(0, Math.floor(cyBuf - rad));
         const x1 = Math.min(BUF_W-1, Math.ceil(cxBuf + rad));
         const y1 = Math.min(BUF_H-1, Math.ceil(cyBuf + rad));
 
         for (let y=y0; y<=y1; y++) {
-          const dy = (y + 0.5 - cyBuf) * SCALE; // back to display px
+          const dy = (y + 0.5 - cyBuf) * SCALE;
           const dy2 = dy*dy;
           let idx = y*BUF_W + x0;
           for (let x=x0; x<=x1; x++, idx++) {
             const dx = (x + 0.5 - cxBuf) * SCALE;
             const d2 = dx*dx + dy2;
-            const I = Math.exp(-d2 * inv2sigma2); // Gaussian falloff
+            const I = Math.exp(-d2 * inv2sigma2);
             if (I < 1e-4) continue;
             Rlin[idx] += s.color[0] * I;
             Glin[idx] += s.color[1] * I;
@@ -141,8 +149,7 @@
         }
       }
 
-      // tone-map (soft clip) and gamma-encode to sRGB
-      const k = 0.9; // tweak brightness
+      const k = 0.9;
       let p = 0;
       for (let i=0; i<Rlin.length; i++) {
         const rl = 1 - Math.exp(-k * Rlin[i]);
@@ -154,7 +161,6 @@
         px[p++] = 255;
       }
 
-      // paint buffer scaled to screen
       bctx.putImageData(imgData, 0, 0);
       ctx.clearRect(0,0,W,H);
       ctx.imageSmoothingEnabled = true;
