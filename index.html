@@ -11,64 +11,139 @@
 </head>
 <body>
   <canvas id="bg"></canvas>
+<script>
+  // --- canvas setup ---
+  const cvs = document.getElementById('bg');
+  const ctx = cvs.getContext('2d');
+  let W, H, DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2)); // cap for perf
+  function resize() {
+    W = cvs.width  = Math.floor(window.innerWidth  * DPR);
+    H = cvs.height = Math.floor(window.innerHeight * DPR);
+    cvs.style.width  = window.innerWidth + 'px';
+    cvs.style.height = window.innerHeight + 'px';
+    // recreate buffer at lower res for speed
+    BUF_W = Math.max(Math.floor(W / SCALE), 1);
+    BUF_H = Math.max(Math.floor(H / SCALE), 1);
+    buf = new OffscreenCanvas(BUF_W, BUF_H);
+    bctx = buf.getContext('2d');
+    imgData = bctx.createImageData(BUF_W, BUF_H);
+    px = imgData.data; // Uint8ClampedArray
+  }
+  window.addEventListener('resize', resize);
 
-  <main>
-    <h1>Will Harrison Lab</h1>
-    <p>Welcome to our lab website. We study vision and cognition.</p>
-  </main>
+  // --- linear/sRGB helpers (IEC 61966-2-1) ---
+  const srgbToLin = c => (c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
+  const linToSrgb = c => (c <= 0.0031308 ? 12.92*c : 1.055*Math.pow(c, 1/2.4) - 0.055);
+  const clamp01 = x => x < 0 ? 0 : (x > 1 ? 1 : x);
 
-  <script>
-    const canvas = document.getElementById('bg');
-    const ctx = canvas.getContext('2d');
-    let w, h;
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
+  // --- simulation params ---
+  const RADIUS = 200;          // px in display space
+  const SIGMA  = RADIUS * 0.45; // Gaussian edge softness
+  const SCALE  = 2;            // render buffer downsamples (perf knob)
+  let BUF_W, BUF_H, buf, bctx, imgData, px;
+
+  // spheres: positions/velocities in display px
+  const colorsSRGB = [
+    [255,105,180], // hotpink
+    [ 30,144,255], // dodgerblue
+    [ 50,205, 50], // limegreen
+    [255,165,  0]  // orange
+  ];
+  // convert colours to linear [0..1]
+  const colorsLIN = colorsSRGB.map(([r,g,b]) => [
+    srgbToLin(r/255), srgbToLin(g/255), srgbToLin(b/255)
+  ]);
+
+  const spheres = colorsLIN.map(c => ({
+    x: 300 + Math.random()*600,        // will be reset after first resize
+    y: 200 + Math.random()*400,
+    dx: (Math.random()*2+0.6) * (Math.random()<0.5?-1:1),
+    dy: (Math.random()*2+0.6) * (Math.random()<0.5?-1:1),
+    r: RADIUS,
+    color: c
+  }));
+
+  resize(); // init after constants
+
+  function step() {
+    // move spheres (display space)
+    for (const s of spheres) {
+      s.x += s.dx; s.y += s.dy;
+      if (s.x + s.r > W/DPR || s.x - s.r < 0) s.dx = -s.dx;
+      if (s.y + s.r > H/DPR || s.y - s.r < 0) s.dy = -s.dy;
     }
-    window.addEventListener('resize', resize);
-    resize();
 
-    ctx.globalCompositeOperation = "lighter"; // additive blending ✨
-
-    const spheres = [];
-    const colors = [
-      'rgba(255, 105, 180, 0.6)', // hotpink
-      'rgba(30, 144, 255, 0.6)',  // dodgerblue
-      'rgba(50, 205, 50, 0.6)',   // limegreen
-      'rgba(255, 165, 0, 0.6)'    // orange
-    ];
-    for (let i=0; i<colors.length; i++) {
-      spheres.push({
-        x: Math.random()*w,
-        y: Math.random()*h,
-        dx: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
-        dy: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
-        r: 200,
-        color: colors[i]
-      });
+    // clear linear accumulators (we'll write directly into px after tone map)
+    // We'll compute per pixel in buffer space
+    // start from white background in linear space:
+    // We'll accumulate additive "radiance" L, then tone-map to [0..1] to avoid harsh clipping.
+    // Simple soft clip: out = 1 - exp(-L)
+    // Create float accum arrays once (cached on closure)
+    if (!step.R) {
+      step.R = new Float32Array(BUF_W*BUF_H);
+      step.G = new Float32Array(BUF_W*BUF_H);
+      step.B = new Float32Array(BUF_W*BUF_H);
+    } else {
+      step.R.fill(0); step.G.fill(0); step.B.fill(0);
     }
+    const Rlin = step.R, Glin = step.G, Blin = step.B;
 
-    function draw() {
-      ctx.clearRect(0,0,w,h);
+    // precompute constants
+    const sigma2 = SIGMA*SIGMA;
+    const inv2sigma2 = 1/(2*sigma2);
 
-      for (let s of spheres) {
-        ctx.beginPath();
-        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    // rasterise each sphere into the linear accumulators
+    for (const s of spheres) {
+      const rBuf   = s.r / SCALE;
+      const cxBuf  = (s.x * DPR) / SCALE;
+      const cyBuf  = (s.y * DPR) / SCALE;
+      const rad    = Math.ceil(rBuf*1.6); // cut at ~1.6*R for gaussian tail
+      const x0 = Math.max(0, Math.floor(cxBuf - rad));
+      const y0 = Math.max(0, Math.floor(cyBuf - rad));
+      const x1 = Math.min(BUF_W-1, Math.ceil(cxBuf + rad));
+      const y1 = Math.min(BUF_H-1, Math.ceil(cyBuf + rad));
 
-        ctx.fillStyle = s.color;
-        ctx.shadowColor = s.color;
-        ctx.shadowBlur = 90; // softness of edges
-        ctx.fill();
-        ctx.closePath();
-
-        s.x += s.dx; s.y += s.dy;
-        if (s.x + s.r > w || s.x - s.r < 0) s.dx = -s.dx;
-        if (s.y + s.r > h || s.y - s.r < 0) s.dy = -s.dy;
+      for (let y=y0; y<=y1; y++) {
+        const dy = (y + 0.5 - cyBuf) * SCALE; // back to display px for correct sigma
+        const dy2 = dy*dy;
+        let idx = y*BUF_W + x0;
+        for (let x=x0; x<=x1; x++, idx++) {
+          const dx = (x + 0.5 - cxBuf) * SCALE;
+          const d2 = dx*dx + dy2;
+          // Gaussian "opacity" profile (not alpha compositing; we're adding radiance)
+          const I = Math.exp(-d2 * inv2sigma2); // 0..1
+          if (I < 1e-4) continue; // small cutoff
+          Rlin[idx] += s.color[0] * I;
+          Glin[idx] += s.color[1] * I;
+          Blin[idx] += s.color[2] * I;
+        }
       }
-
-      requestAnimationFrame(draw);
     }
-    draw();
-  </script>
+
+    // tone-map (soft clip) and gamma-encode to sRGB over a white background look
+    // Radiance to display: C_lin = 1 - exp(-k * L) ; k controls intensity
+    const k = 0.9; // tweak brightness
+    let p = 0;
+    for (let i=0; i<Rlin.length; i++) {
+      const rl = 1 - Math.exp(-k * Rlin[i]);  // 0..1 linear
+      const gl = 1 - Math.exp(-k * Glin[i]);
+      const bl = 1 - Math.exp(-k * Blin[i]);
+      // convert to sRGB and write
+      px[p++] = Math.round(clamp01(linToSrgb(rl)) * 255);
+      px[p++] = Math.round(clamp01(linToSrgb(gl)) * 255);
+      px[p++] = Math.round(clamp01(linToSrgb(bl)) * 255);
+      px[p++] = 255; // opaque
+    }
+
+    // paint buffer scaled to screen
+    bctx.putImageData(imgData, 0, 0);
+    ctx.clearRect(0,0,W,H);
+    ctx.imageSmoothingEnabled = true;
+    ctx.drawImage(buf, 0, 0, W, H);
+
+    requestAnimationFrame(step);
+  }
+  step();
+</script>
 </body>
 </html>
