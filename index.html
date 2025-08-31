@@ -72,215 +72,212 @@
 
 <script>
 (() => {
+  // --- Platform heuristics ---
+  const isCoarse = matchMedia('(pointer:coarse)').matches;      // phones/tablets
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  // DPR cap: lighter on mobile
+  const DPR_CAP = isCoarse ? 1.5 : 2.0;
+  const DPR = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+
+  // Use visualViewport on iOS to avoid address-bar resize jitter
+  const vvw = () => (window.visualViewport ? window.visualViewport.width  : window.innerWidth);
+  const vvh = () => (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+
+  // Canvas + WebGL2
   const canvas = document.getElementById('view');
-  const gl = canvas.getContext('webgl2', { antialias:false, premultipliedAlpha:false });
-  if(!gl){
-    alert('WebGL2 not available in this browser.'); return;
+  const gl = canvas.getContext('webgl2', {antialias:false, premultipliedAlpha:false, powerPreference:'high-performance'});
+  if(!gl){ alert('WebGL2 not available'); return; }
+
+  // Offscreen framebuffer (render low res, then upscale)
+  let renderScale = isCoarse ? 0.7 : 1.0;   // start lower on phones
+  let fb, tex, rb;
+
+  function mkFBO(w,h){
+    // cleanup
+    if(fb){ gl.deleteFramebuffer(fb); gl.deleteTexture(tex); gl.deleteRenderbuffer(rb); }
+    // texture
+    tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    // depth (optional)
+    rb = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+    // framebuffer
+    fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   }
 
-  // DPR & resize
-  const DPR = Math.min(window.devicePixelRatio || 1, 2);
-  function resize(){
-    const w = Math.floor(window.innerWidth  * DPR);
-    const h = Math.floor(window.innerHeight * DPR);
-    if (canvas.width !== w || canvas.height !== h){
-      canvas.width = w; canvas.height = h;
-      canvas.style.width  = window.innerWidth + 'px';
-      canvas.style.height = window.innerHeight + 'px';
-      gl.viewport(0,0,w,h);
-    }
-  }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
-
-  // Shaders
-  const vsSrc = `#version 300 es
-  in vec2 p; out vec2 uv;
-  void main(){ uv = (p+1.0)*0.5; gl_Position = vec4(p,0.0,1.0); }`;
-
-  const fsSrc = `#version 300 es
-  precision highp float;
-  out vec4 frag;
-  in vec2 uv;
-  uniform vec2 u_res;                 // viewport (px)
-  uniform float u_gaussSD;            // glow SD (px)
-  uniform float u_edgeSD;             // edge blur SD (px)
-  uniform float u_brightK;
-  uniform int   u_n;                  // number of spheres
-
-  const int MAX_N = 16;
-  uniform vec2  u_pos[MAX_N];         // centers (px)
-  uniform float u_rad[MAX_N];         // hole radius (px)
-  uniform vec3  u_col[MAX_N];         // linear RGB
-
+  // Shaders: scene (same math as before) + blit pass
+  const vsQuad = `#version 300 es
+  in vec2 p; out vec2 uv; void main(){ uv=(p+1.0)*0.5; gl_Position=vec4(p,0,1); }`;
+  const fsScene = `#version 300 es
+  precision highp float; out vec4 frag; in vec2 uv;
+  uniform vec2 u_res; uniform float u_gaussSD, u_edgeSD, u_brightK; uniform int u_n;
+  const int MAX_N=16; uniform vec2 u_pos[MAX_N]; uniform float u_rad[MAX_N]; uniform vec3 u_col[MAX_N];
   float lin2srgb(float c){ return c<=0.0031308 ? 12.92*c : 1.055*pow(c,1.0/2.4)-0.055; }
-
   void main(){
-    vec2 p = uv * u_res;
-
-    vec3 acc = vec3(0.0);
-    float aMin = 1.0;
-
-    float inv2G = 1.0 / (2.0*u_gaussSD*u_gaussSD);
-    float inv2E = 1.0 / (2.0*u_edgeSD*u_edgeSD);
-
+    vec2 p=uv*u_res; vec3 acc=vec3(0.0); float aMin=1.0;
+    float inv2G=1.0/(2.0*u_gaussSD*u_gaussSD), inv2E=1.0/(2.0*u_edgeSD*u_edgeSD);
     for(int i=0;i<MAX_N;i++){
       if(i>=u_n) break;
-      vec2 d = p - u_pos[i];
-      float d2 = dot(d,d);
-
-      // Gaussian glow
-      float Ig = exp(-d2*inv2G);
-      acc += u_col[i] * Ig;
-
-      // Soft edge alpha
-      float dist = sqrt(d2);
-      float a = 1.0;
-      if(dist <= u_rad[i]) {
-        a = 0.0;
-      } else {
-        float t = dist - u_rad[i];
-        a = 1.0 - exp(-(t*t)*inv2E);
-      }
-      aMin = min(aMin, a);
+      vec2 d=p-u_pos[i]; float d2=dot(d,d);
+      float Ig=exp(-d2*inv2G); acc+=u_col[i]*Ig;
+      float dist=sqrt(d2), a=1.0; if(dist<=u_rad[i]) a=0.0; else { float t=dist-u_rad[i]; a=1.0-exp(-(t*t)*inv2E); }
+      aMin=min(aMin,a);
     }
-
-    vec3 lin = 1.0 - exp(-u_brightK * acc);
-    vec3 srgb = vec3(lin2srgb(lin.r), lin2srgb(lin.g), lin2srgb(lin.b));
-    frag = vec4(srgb, aMin);
+    vec3 lin=1.0-exp(-u_brightK*acc);
+    frag=vec4(lin2srgb(lin.r),lin2srgb(lin.g),lin2srgb(lin.b),aMin);
   }`;
+  const fsBlit = `#version 300 es
+  precision mediump float; out vec4 frag; in vec2 uv; uniform sampler2D u_tex;
+  void main(){ frag = texture(u_tex, uv); }`;
 
-  function compile(type, src){
-    const s = gl.createShader(type);
-    gl.shaderSource(s, src); gl.compileShader(s);
-    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
-      throw new Error(gl.getShaderInfoLog(s) || 'Shader compile error');
-    }
-    return s;
+  function prog(vs,fs){
+    const sh=(t,s)=>{const o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o);
+      if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(o); return o;};
+    const p=gl.createProgram(); gl.attachShader(p,sh(gl.VERTEX_SHADER,vs)); gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));
+    gl.linkProgram(p); if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw gl.getProgramInfoLog(p); return p;
   }
-  const prog = gl.createProgram();
-  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
-  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
-  gl.linkProgram(prog);
-  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
-    throw new Error(gl.getProgramInfoLog(prog) || 'Program link error');
-  }
-  gl.useProgram(prog);
+  const sceneP = prog(vsQuad, fsScene);
+  const blitP  = prog(vsQuad, fsBlit);
 
   // Fullscreen triangle
-  const buf = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-  const locP = gl.getAttribLocation(prog, 'p');
-  gl.enableVertexAttribArray(locP);
-  gl.vertexAttribPointer(locP, 2, gl.FLOAT, false, 0, 0);
+  function bindQuad(p){ const loc = gl.getAttribLocation(p,'p'); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0); }
 
-  // Uniform locs
-  const U = n => gl.getUniformLocation(prog, n);
-  const u_res     = U('u_res');
-  const u_gaussSD = U('u_gaussSD');
-  const u_edgeSD  = U('u_edgeSD');
-  const u_brightK = U('u_brightK');
-  const u_n       = U('u_n');
-
+  // Uniform locs (scene)
+  const U = n => gl.getUniformLocation(sceneP,n);
+  const u_res=U('u_res'), u_gaussSD=U('u_gaussSD'), u_edgeSD=U('u_edgeSD'), u_brightK=U('u_brightK'), u_n=U('u_n');
   const u_pos = Array.from({length:16},(_,i)=>U(`u_pos[${i}]`));
   const u_rad = Array.from({length:16},(_,i)=>U(`u_rad[${i}]`));
   const u_col = Array.from({length:16},(_,i)=>U(`u_col[${i}]`));
 
-  // Helpers
-  function hsvToRgb(h){ // s=v=1
-    const i = Math.floor(h*6);
-    const f = h*6 - i;
-    const q = 1 - f, t = f;
-    switch (i % 6){
-      case 0: return [1, t, 0];
-      case 1: return [q, 1, 0];
-      case 2: return [0, 1, t];
-      case 3: return [0, q, 1];
-      case 4: return [t, 0, 1];
-      default:return [1, 0, q];
-    }
-  }
-  const srgb2lin = c => (c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
+  // Params + scene
+  const srgb2lin = c => (c<=0.04045? c/12.92 : Math.pow((c+0.055)/1.055,2.4));
+  const hsv = h => { const i=Math.floor(h*6), f=h*6-i, q=1-f, t=f;
+    switch(i%6){case 0:return [1,t,0];case 1:return [q,1,0];case 2:return [0,1,t];
+      case 3:return [0,q,1];case 4:return [t,0,1];default:return [1,0,q];}};
+  let N = isCoarse ? 6 : 8;                 // fewer on phones
+  const spheres = Array.from({length:N},(_,i)=>({
+    x: Math.random()*vvw(), y: Math.random()*vvh(),
+    dx: (Math.random()*2-1)*2, dy: (Math.random()*2-1)*2,
+    r: (isCoarse? 220:270) * DPR,
+    col: hsv(i/N).map(srgb2lin)
+  }));
+  let glowSD = 135*DPR, edgeSD = 120*DPR, brightK = 0.9;
+  let speedScale = 0.06*135*DPR;
 
-  // Scene
-  let N = 8;
-  const spheres = Array.from({length:N},(_,i)=>{
-    const colSRGB = hsvToRgb(i/N);
-    return {
-      x: Math.random()*window.innerWidth,
-      y: Math.random()*window.innerHeight,
-      dx: (Math.random()*2-1)*2,   // px / frame (CSS px)
-      dy: (Math.random()*2-1)*2,
-      r: 270 * DPR,                 // px (device)
-      col: colSRGB.map(srgb2lin)    // linear for shader
-    };
-  });
-
-  // Parameters (slider-controlled)
-  let glowSD = 135.0 * DPR;
-  let edgeSD = 120.0 * DPR;
-  let brightK = 0.9;
-  let speedScale = 0.06 * 135.0 * DPR; // ~px/frame baseline
-
-  // Bind sliders
+  // UI bindings (reuse your sliders)
   function bind(knId, valId, fn){
-    const kn  = document.getElementById(knId);
-    const val = document.getElementById(valId);
-    if(!kn) return;
-    const upd = () => { if(val) val.value = kn.value; fn(+kn.value); };
-    kn.addEventListener('input', upd);
-    kn.addEventListener('change', upd);
-    upd();
+    const kn=document.getElementById(knId), val=document.getElementById(valId);
+    if(!kn) return; const upd=()=>{ val && (val.value=kn.value); fn(+kn.value); };
+    kn.addEventListener('input',upd); kn.addEventListener('change',upd); upd();
   }
-  bind('kn-glow','val-glow', v=>{
-    brightK = 0.5 + (v-1)*(1.5-0.5)/9;
-  });
-  bind('kn-edge','val-edge', v=>{
-    edgeSD  = (40 + (v-1)*(200-40)/9) * DPR;
-  });
-  bind('kn-hole','val-hole', v=>{
-    const R = (80 + (v-1)*(300-80)/9) * DPR;
-    for(const s of spheres) s.r = R;
-  });
-  bind('kn-speed','val-speed', v=>{
-    const mean = 0.012 + (v-1)*(0.12-0.012)/9;
-    speedScale = mean * 135.0 * DPR; // ~SD->px mapping
-    // reorient speeds but keep direction
-    for(const s of spheres){
-      const a = Math.atan2(s.dy, s.dx);
-      s.dx = Math.cos(a) * speedScale;
-      s.dy = Math.sin(a) * speedScale;
-    }
+  bind('kn-glow','val-glow', v=>{ brightK = 0.5 + (v-1)*(1.5-0.5)/9; });
+  bind('kn-edge','val-edge', v=>{ edgeSD  = (40 + (v-1)*(200-40)/9)*DPR; });
+  bind('kn-hole','val-hole', v=>{ const R = (80 + (v-1)*(300-80)/9)*DPR; for(const s of spheres) s.r=R; });
+  bind('kn-speed','val-speed',v=>{
+    const mean = 0.012+(v-1)*(0.12-0.012)/9; speedScale = mean*135*DPR;
+    for(const s of spheres){ const a=Math.atan2(s.dy,s.dx); s.dx=Math.cos(a)*speedScale; s.dy=Math.sin(a)*speedScale; }
   });
 
-  // Animate
-  function frame(){
-    // Move spheres in CSS pixels then convert to device px in uniforms
-    for(const s of spheres){
-      s.x += s.dx / DPR;
-      s.y += s.dy / DPR;
-      if(s.x<0 || s.x>window.innerWidth)  s.dx = -s.dx;
-      if(s.y<0 || s.y>window.innerHeight) s.dy = -s.dy;
-    }
+  // Resize + FBO sizing
+  function resize(){
+    const cssW = Math.floor(vvw());
+    const cssH = Math.floor(vvh());
+    const w = Math.max(1, Math.floor(cssW * DPR));
+    const h = Math.max(1, Math.floor(cssH * DPR));
+    canvas.width = w; canvas.height = h;
+    canvas.style.width = cssW + 'px';
+    canvas.style.height= cssH + 'px';
+    // offscreen size
+    const rw = Math.max(1, Math.floor(w * renderScale));
+    const rh = Math.max(1, Math.floor(h * renderScale));
+    mkFBO(rw, rh);
+  }
+  (window.visualViewport||window).addEventListener('resize', resize, {passive:true});
+  window.addEventListener('orientationchange', resize);
+  resize();
 
-    gl.useProgram(prog);
-    gl.uniform2f(u_res, canvas.width, canvas.height);
-    gl.uniform1f(u_gaussSD, glowSD);
-    gl.uniform1f(u_edgeSD,  edgeSD);
+  // FPS-based auto-scaler (aim ~55–60 on desktop, ~45–60 on mobile)
+  let fps=60, frames=0, lastT=performance.now();
+  function autoscale(dt){
+    frames++;
+    if(performance.now() - lastT > 1000){
+      fps = frames * 1000 / (performance.now()-lastT);
+      frames=0; lastT=performance.now();
+      // Adjust gently
+      const target = isCoarse ? 50 : 58;
+      if(fps < target-5 && renderScale > 0.5){ renderScale = Math.max(0.5, renderScale - 0.07); resize(); }
+      else if(fps > target+5 && renderScale < 1.0){ renderScale = Math.min(1.0, renderScale + 0.05); resize(); }
+    }
+  }
+
+  // Draw passes
+  function drawScene(){
+    // bind FBO
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    const rw = gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME) ? 
+               gl.getTexLevelParameter(gl.TEXTURE_2D, 0, gl.TEXTURE_WIDTH) : Math.floor(canvas.width*renderScale);
+    gl.viewport(0,0, Math.floor(canvas.width*renderScale), Math.floor(canvas.height*renderScale));
+
+    gl.useProgram(sceneP); bindQuad(sceneP);
+    gl.uniform2f(u_res, Math.floor(canvas.width*renderScale), Math.floor(canvas.height*renderScale));
+    gl.uniform1f(u_gaussSD, glowSD*renderScale);
+    gl.uniform1f(u_edgeSD,  edgeSD*renderScale);
     gl.uniform1f(u_brightK, brightK);
     gl.uniform1i(u_n, N);
-
     for(let i=0;i<N;i++){
-      gl.uniform2f(u_pos[i], spheres[i].x * DPR, spheres[i].y * DPR);
-      gl.uniform1f(u_rad[i], spheres[i].r);
+      gl.uniform2f(u_pos[i], spheres[i].x*DPR*renderScale, spheres[i].y*DPR*renderScale);
+      gl.uniform1f(u_rad[i], spheres[i].r*renderScale);
       gl.uniform3f(u_col[i], spheres[i].col[0], spheres[i].col[1], spheres[i].col[2]);
     }
-
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    // blit to screen
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0,0, canvas.width, canvas.height);
+    gl.useProgram(blitP); bindQuad(blitP);
+    const uTex = gl.getUniformLocation(blitP,'u_tex');
+    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.uniform1i(uTex, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+
+  // Animate
+  function frame(now){
+    // Move spheres in CSS px
+    for(const s of spheres){
+      s.x += s.dx / DPR; s.y += s.dy / DPR;
+      const W = vvw(), H = vvh();
+      if(s.x<0||s.x>W)  s.dx=-s.dx;
+      if(s.y<0||s.y>H) s.dy=-s.dy;
+    }
+    drawScene();
+    autoscale();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  // --- Small UI tweaks for mobile ---
+  if(isCoarse){
+    const panel = document.querySelector('.panel');
+    if(panel){
+      panel.style.transformOrigin = 'top right';
+      panel.style.transform = 'scale(1.1)';  // slightly larger touch targets
+      panel.style.right = 'env(safe-area-inset-right)';
+      panel.style.top   = 'calc(12px + env(safe-area-inset-top))';
+    }
+  }
 })();
 </script>
 </body>
