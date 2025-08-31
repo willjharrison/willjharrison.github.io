@@ -6,83 +6,37 @@
   <title>Computational Intelligence Research</title>
   <meta name="color-scheme" content="dark light" />
   <style>
-    :root {
-      --bg: #000;
-      --fg: #b6fdb6;
-      --scan: rgba(255,255,255,0.06);
-      --glow: #19ff19;
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--fg);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      overflow: hidden;
-    }
+    :root { --bg:#000; --fg:#b6fdb6; --glow:#19ff19; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:hidden}
 
-    #matrix {$1z-index: 0;
-      display: block; width: 100%; height: 100%;
-      background: radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%);
-    }
+    /* Fullscreen matrix canvas */
+    #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
 
-    .wrap {$1
-      z-index: 1;
-    }
+    /* Centered title */
+    .wrap{position:absolute;inset:0;display:grid;place-items:center;padding:4vmin;z-index:1}
 
-    h1 {
-      margin: 0;
-      text-align: center;
-      letter-spacing: 0.06em;
-      font-weight: 700;
-      font-size: clamp(28px, 7vw, 96px);
-      text-shadow:
-        0 0 .6rem var(--glow),
-        0 0 1.2rem var(--glow),
-        0 0 2.4rem var(--glow);
-      filter: contrast(1.05) saturate(1.1) drop-shadow(0 0 0.25rem #0a460a);
-    }
+    h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(28px,7vw,96px);text-shadow:0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
 
-    .crt { position: relative; isolation: isolate; }
-    .crt::before {
-      content: "";
-      position: absolute; inset: -2px; z-index: 2;
-      background: repeating-linear-gradient(
-        to bottom,
-        transparent 0 2px,
-        rgba(255,255,255,.03) 2px 3px
-      );
-      mix-blend-mode: overlay;
-      pointer-events: none;
-      animation: scan 7s linear infinite;
-    }
-    .crt::after {
-      content: "";
-      position: absolute; inset: -2px; z-index: 1;
-      background: radial-gradient(ellipse at center, rgba(0,255,0,0.12), transparent 60%);
-      pointer-events: none;
-      filter: blur(2px);
-    }
-    @keyframes scan {
-      0% { transform: translateY(-5%); opacity: .6; }
-      50% { opacity: .25; }
-      100% { transform: translateY(5%); opacity: .6; }
-    }
+    /* CRT scanlines */
+    .crt{position:relative;isolation:isolate}
+    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.03) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
+    .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.12), transparent 60%);pointer-events:none;filter:blur(2px)}
+    @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
 
-    .glitch::before, .glitch::after {
-      content: attr(data-text);
-      position: absolute; inset: 0;
-      clip-path: inset(0 0 0 0);
-      overflow: hidden; white-space: nowrap;
-      opacity: 0;
-    }
-    .glitch::before { left: 1px; text-shadow: -2px 0 #f0f; filter: blur(.4px); }
-    .glitch::after  { left: -1px; text-shadow: 2px 0 #0ff; filter: blur(.4px); }
+    /* Glitch layers */
+    .glitch{position:relative}
+    .glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;clip-path:inset(0 0 0 0);overflow:hidden;white-space:nowrap;opacity:0}
+    .glitch::before{left:1px;text-shadow:-2px 0 #f0f;filter:blur(.4px)}
+    .glitch::after{left:-1px;text-shadow:2px 0 #0ff;filter:blur(.4px)}
+    .glitch.active::before,.glitch.active::after{opacity:1}
+    .glitch.wild::before{ text-shadow:-3px 0 #ff55ff; filter:blur(.6px) contrast(1.2) }
+    .glitch.wild::after { text-shadow: 3px 0 #55ffff; filter:blur(.6px) contrast(1.2) }
 
-    footer {$1
-    z-index: 1;
-  }
+    footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
+
+    @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
   </style>
 </head>
 <body>
@@ -95,78 +49,110 @@
   <footer>© <span id="y"></span> CIR</footer>
 
   <script>
-    // Matrix rain with adjustable frequency
+    // ===== Matrix rain (robust sizing + tweakable knobs) =====
     (() => {
       const c = document.getElementById('matrix');
       const ctx = c.getContext('2d');
-      let w, h, cols, drops, dpr, fontSize;
+      let w, h, cols, drops, speeds, dpr, fontSize;
+
+      const RAIN = { speed: 1.0, variability: 0.9, resetChance: 0.975, trail: 0.08 };
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
-      function resize() {
-        dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-        w = c.clientWidth;
-        h = c.clientHeight;
-        c.width  = Math.floor(w * dpr);
-        c.height = Math.floor(h * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);$1ctx.font = fontSize + 'px monospace';
+
+      function resize(){
+        dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+        w = window.innerWidth; h = window.innerHeight;
+        c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+        ctx.setTransform(dpr,0,0,dpr,0,0);
+        fontSize = Math.max(12, Math.floor(w/90));
+        ctx.font = fontSize + 'px monospace';
         ctx.textBaseline = 'top';
-        cols = Math.ceil(w / fontSize);
-        drops = Array(cols).fill(0).map(() => Math.random() * -50);
+        cols = Math.max(1, Math.ceil(w / fontSize));
+        drops = Array(cols).fill(0).map(()=>Math.random()*-50);
+        speeds = Array(cols).fill(0).map(()=>0.6 + Math.random()*RAIN.variability);
       }
-      window.addEventListener('resize', resize, { passive: true });
+      window.addEventListener('resize', resize, {passive:true});
       resize();
 
-      function draw() {
-        if (!document.hidden) {
-          ctx.fillStyle = 'rgba(0, 20, 0, 0.08)';
-          ctx.fillRect(0, 0, w, h);
+      function draw(){
+        if(!document.hidden){
+          ctx.fillStyle = `rgba(0,20,0,${RAIN.trail})`;
+          ctx.fillRect(0,0,w,h);
           ctx.fillStyle = '#19ff19';
-          for (let i = 0; i < cols; i++) {
-            const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+          for(let i=0;i<cols;i++){
+            const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
             ctx.fillText(ch, x, y);
-            // debug: draw rect if needed
-            // ctx.strokeRect(x, y, step, step);
-            // frequency and variability tweak
-            if (y > h && Math.random() > 0.96) drops[i] = 0;
-            else drops[i] += 0.9 + Math.random()*0.6;
+            if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
+            else drops[i] += RAIN.speed * speeds[i];
           }
         }
         requestAnimationFrame(draw);
       }
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
+      // Always paint at least one frame
+      draw();
+
+      // Expose simple controls in console
+      window.CIR_RAIN = RAIN;
     })();
 
-    // Pulsing title
-    (() => {
+    // ===== Title pulse (random timing & amplitude) =====
+    (()=>{
       const el = document.getElementById('title');
-      function pulse() {
-        const scale = 1 + (Math.random() * 0.08);
-        el.style.transform = `scale(${scale})`;
-        setTimeout(() => { el.style.transform = ''; }, 300 + Math.random()*700);
+      function pulseOnce(){
+        const dur = 200 + Math.random()*1400; // 0.2–1.6s
+        const amp = 1 + Math.random()*0.08;   // subtle 1–1.08x
+        el.animate([
+          { transform:'scale(1)', filter:'brightness(1)' },
+          { transform:`scale(${amp})`, filter:'brightness(1.1)' },
+          { transform:'scale(1)', filter:'brightness(1)' }
+        ], { duration: dur, easing:'ease-in-out' });
       }
-      setInterval(pulse, 2000 + Math.random()*3000);
+      (function schedule(){
+        const wait = 500 + Math.random()*3500; // 0.5–4s
+        setTimeout(()=>{ pulseOnce(); schedule(); }, wait);
+      })();
     })();
 
-    // Stochastic glitching
-    (() => {
+    // ===== Stochastic glitch (Poisson intervals + bursts) =====
+    (()=>{
       const el = document.getElementById('title');
-      function glitch() {
+      const meanMs = 7000; // average interval
+      const expRand = m => -Math.log(1-Math.random())*m;
+
+      function jitterOnce(wild=false){
+        if(wild) el.classList.add('wild');
         el.classList.add('active');
-        el.style.transform = `translate(${(Math.random()*4-2)}px, ${(Math.random()*4-2)}px) skew(${Math.random()*5}deg)`;
-        el.style.textShadow = `${Math.random()*3-1}px 0 #f0f, ${Math.random()*-3+1}px 0 #0ff`;
-        setTimeout(() => {
+        const nudgeX = (Math.random()*2-1)*2;
+        const nudgeY = (Math.random()*2-1)*2;
+        const scale  = 1 + Math.random()*0.02;
+        el.style.transform = `translate(${nudgeX}px,${nudgeY}px) scale(${scale})`;
+        el.style.filter = Math.random()<0.35 ? 'contrast(1.25) saturate(1.2)' : '';
+        setTimeout(()=>{
           el.classList.remove('active');
+          el.classList.remove('wild');
           el.style.transform = '';
-          el.style.textShadow = '';
-        }, 150 + Math.random()*300);
+          el.style.filter = '';
+        }, 160 + Math.random()*260);
       }
-      function schedule() {
-        setTimeout(() => { glitch(); schedule(); }, 3000 + Math.random()*7000);
-      }
-      schedule();
+
+      (function schedule(){
+        setTimeout(()=>{
+          if(Math.random()<0.25){
+            jitterOnce(true); // wild
+          } else {
+            const burst = 1 + Math.floor(Math.random()*3);
+            let k=0; const tick=()=>{ jitterOnce(false); if(++k<burst) setTimeout(tick, 40+Math.random()*120); };
+            tick();
+          }
+          schedule();
+        }, expRand(meanMs));
+      })();
+
+      window.CIR_GLITCH = { setMean(ms){ this.mean = ms; }, get mean(){ return meanMs; } };
     })();
 
+    // Year stamp
     document.getElementById('y').textContent = new Date().getFullYear();
   </script>
 </body>
