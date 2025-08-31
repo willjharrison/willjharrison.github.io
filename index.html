@@ -1,40 +1,41 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Will Harrison Lab</title>
-  <style>
-    body { margin:0; background:#fff; }
-    canvas { position:fixed; inset:0; z-index:-1; }
-    main { max-width:800px; margin:2rem auto; font-family:sans-serif; color:#000; }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Will Harrison Lab</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin:0; background:#fff; }
+  canvas#view { position:fixed; inset:0; z-index:-1; display:block; }
+  main { max-width:800px; margin:2rem auto; font-family:sans-serif; color:#000; }
 
-    /* Retro 4-bit control panel */
-    .panel {
-      position: fixed; top: 12px; right: 12px; z-index: 10;
-      background: #111; color: #0f0; border: 2px solid #333; padding: 10px;
-      font-family: "Courier New", Courier, monospace; image-rendering: pixelated;
-      box-shadow: 0 0 0 2px #000, 0 0 12px rgba(0,0,0,.4);
-    }
-    .panel h3 {
-      margin: 0 0 8px 0; font-weight: 700; font-size: 12px; letter-spacing: 1px; color:#9f9;
-      text-transform: uppercase;
-    }
-    .row { display: grid; grid-template-columns: 80px 160px 26px; gap: 6px; align-items: center; margin: 6px 0; }
-    .lbl { font-size: 11px; color:#9f9; }
-    .val {
-      width: 26px; text-align:center; font-weight:700; font-size: 12px; color:#111; background:#9f9; border:1px solid #5c5;
-    }
-    input[type=range]{
-      -webkit-appearance:none; appearance:none; width:100%; height:10px; background:#222; border:1px solid #333;
-    }
-    input[type=range]::-webkit-slider-thumb{
-      -webkit-appearance:none; appearance:none; width:14px; height:14px; background:#9f9; border:2px solid #060;
-      box-shadow: 0 0 0 1px #000; cursor:pointer;
-    }
-    input[type=range]::-moz-range-thumb{
-      width:14px; height:14px; background:#9f9; border:2px solid #060; cursor:pointer;
-    }
-  </style>
+  /* Retro 4-bit control panel */
+  .panel {
+    position: fixed; top: 12px; right: 12px; z-index: 10;
+    background: #111; color: #0f0; border: 2px solid #333; padding: 10px;
+    font-family: "Courier New", Courier, monospace; image-rendering: pixelated;
+    box-shadow: 0 0 0 2px #000, 0 0 12px rgba(0,0,0,.4);
+    user-select: none;
+  }
+  .panel h3 {
+    margin: 0 0 8px 0; font-weight: 700; font-size: 12px; letter-spacing: 1px; color:#9f9;
+    text-transform: uppercase;
+  }
+  .row { display: grid; grid-template-columns: 80px 160px 26px; gap: 6px; align-items: center; margin: 6px 0; }
+  .lbl { font-size: 11px; color:#9f9; }
+  .val {
+    width: 26px; text-align:center; font-weight:700; font-size: 12px; color:#111; background:#9f9; border:1px solid #5c5;
+  }
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:10px; background:#222; border:1px solid #333;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:14px; height:14px; background:#9f9; border:2px solid #060;
+    box-shadow: 0 0 0 1px #000; cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{ width:14px; height:14px; background:#9f9; border:2px solid #060; cursor:pointer; }
+</style>
 </head>
 <body>
   <canvas id="view"></canvas>
@@ -69,75 +70,218 @@
     <p>Welcome to our lab website. We study vision and cognition.</p>
   </main>
 
-  <script>
-    // ===== CONFIG (tweak) =====
-    const CONFIG = {
-      gaussianSD: 135,              // glow SD
-      sphereRadius: 135*2.5,        // hole radius
-      edgeSD: 120,                  // mask edge blur SD
-      numSpheres: 8,
-      speedMeanSDsPerFrame: 0.06,   // motion speed mean
-      speedStdSDsPerFrame:  0.03,
-      speedMinSDsPerFrame:  0.012,
-      brightnessK: 0.9              // glow punch
+<script>
+(() => {
+  const canvas = document.getElementById('view');
+  const gl = canvas.getContext('webgl2', { antialias:false, premultipliedAlpha:false });
+  if(!gl){
+    alert('WebGL2 not available in this browser.'); return;
+  }
+
+  // DPR & resize
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  function resize(){
+    const w = Math.floor(window.innerWidth  * DPR);
+    const h = Math.floor(window.innerHeight * DPR);
+    if (canvas.width !== w || canvas.height !== h){
+      canvas.width = w; canvas.height = h;
+      canvas.style.width  = window.innerWidth + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      gl.viewport(0,0,w,h);
+    }
+  }
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+
+  // Shaders
+  const vsSrc = `#version 300 es
+  in vec2 p; out vec2 uv;
+  void main(){ uv = (p+1.0)*0.5; gl_Position = vec4(p,0.0,1.0); }`;
+
+  const fsSrc = `#version 300 es
+  precision highp float;
+  out vec4 frag;
+  in vec2 uv;
+  uniform vec2 u_res;                 // viewport (px)
+  uniform float u_gaussSD;            // glow SD (px)
+  uniform float u_edgeSD;             // edge blur SD (px)
+  uniform float u_brightK;
+  uniform int   u_n;                  // number of spheres
+
+  const int MAX_N = 16;
+  uniform vec2  u_pos[MAX_N];         // centers (px)
+  uniform float u_rad[MAX_N];         // hole radius (px)
+  uniform vec3  u_col[MAX_N];         // linear RGB
+
+  float lin2srgb(float c){ return c<=0.0031308 ? 12.92*c : 1.055*pow(c,1.0/2.4)-0.055; }
+
+  void main(){
+    vec2 p = uv * u_res;
+
+    vec3 acc = vec3(0.0);
+    float aMin = 1.0;
+
+    float inv2G = 1.0 / (2.0*u_gaussSD*u_gaussSD);
+    float inv2E = 1.0 / (2.0*u_edgeSD*u_edgeSD);
+
+    for(int i=0;i<MAX_N;i++){
+      if(i>=u_n) break;
+      vec2 d = p - u_pos[i];
+      float d2 = dot(d,d);
+
+      // Gaussian glow
+      float Ig = exp(-d2*inv2G);
+      acc += u_col[i] * Ig;
+
+      // Soft edge alpha
+      float dist = sqrt(d2);
+      float a = 1.0;
+      if(dist <= u_rad[i]) {
+        a = 0.0;
+      } else {
+        float t = dist - u_rad[i];
+        a = 1.0 - exp(-(t*t)*inv2E);
+      }
+      aMin = min(aMin, a);
+    }
+
+    vec3 lin = 1.0 - exp(-u_brightK * acc);
+    vec3 srgb = vec3(lin2srgb(lin.r), lin2srgb(lin.g), lin2srgb(lin.b));
+    frag = vec4(srgb, aMin);
+  }`;
+
+  function compile(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+      throw new Error(gl.getShaderInfoLog(s) || 'Shader compile error');
+    }
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog, gl.LINK_STATUS)){
+    throw new Error(gl.getProgramInfoLog(prog) || 'Program link error');
+  }
+  gl.useProgram(prog);
+
+  // Fullscreen triangle
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const locP = gl.getAttribLocation(prog, 'p');
+  gl.enableVertexAttribArray(locP);
+  gl.vertexAttribPointer(locP, 2, gl.FLOAT, false, 0, 0);
+
+  // Uniform locs
+  const U = n => gl.getUniformLocation(prog, n);
+  const u_res     = U('u_res');
+  const u_gaussSD = U('u_gaussSD');
+  const u_edgeSD  = U('u_edgeSD');
+  const u_brightK = U('u_brightK');
+  const u_n       = U('u_n');
+
+  const u_pos = Array.from({length:16},(_,i)=>U(`u_pos[${i}]`));
+  const u_rad = Array.from({length:16},(_,i)=>U(`u_rad[${i}]`));
+  const u_col = Array.from({length:16},(_,i)=>U(`u_col[${i}]`));
+
+  // Helpers
+  function hsvToRgb(h){ // s=v=1
+    const i = Math.floor(h*6);
+    const f = h*6 - i;
+    const q = 1 - f, t = f;
+    switch (i % 6){
+      case 0: return [1, t, 0];
+      case 1: return [q, 1, 0];
+      case 2: return [0, 1, t];
+      case 3: return [0, q, 1];
+      case 4: return [t, 0, 1];
+      default:return [1, 0, q];
+    }
+  }
+  const srgb2lin = c => (c<=0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
+
+  // Scene
+  let N = 8;
+  const spheres = Array.from({length:N},(_,i)=>{
+    const colSRGB = hsvToRgb(i/N);
+    return {
+      x: Math.random()*window.innerWidth,
+      y: Math.random()*window.innerHeight,
+      dx: (Math.random()*2-1)*2,   // px / frame (CSS px)
+      dy: (Math.random()*2-1)*2,
+      r: 270 * DPR,                 // px (device)
+      col: colSRGB.map(srgb2lin)    // linear for shader
     };
+  });
 
-    // ===== Canvas + buffers =====
-    const view = document.getElementById('view');
-    const vctx = view.getContext('2d');
-    let W, H, DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-    const SCALE = 2;
-    let glowCanvas, gctx, gImg, gPx, GW, GH;
-    let maskCanvas, mctx, mImg, mPx, MW, MH;
+  // Parameters (slider-controlled)
+  let glowSD = 135.0 * DPR;
+  let edgeSD = 120.0 * DPR;
+  let brightK = 0.9;
+  let speedScale = 0.06 * 135.0 * DPR; // ~px/frame baseline
 
-    function mkCanvas(w,h){ if(typeof OffscreenCanvas!=='undefined') return new OffscreenCanvas(w,h); const c=document.createElement('canvas'); c.width=w;c.height=h; return c; }
-
-    function resize(){
-      W = view.width  = Math.floor(innerWidth  * DPR);
-      H = view.height = Math.floor(innerHeight * DPR);
-      view.style.width  = innerWidth+'px'; view.style.height=innerHeight+'px';
-      GW=MW=Math.max(Math.floor(W/SCALE),1); GH=MH=Math.max(Math.floor(H/SCALE),1);
-      glowCanvas=mkCanvas(GW,GH); gctx=glowCanvas.getContext('2d'); gImg=gctx.createImageData(GW,GH); gPx=gImg.data;
-      maskCanvas=mkCanvas(MW,MH); mctx=maskCanvas.getContext('2d'); mImg=mctx.createImageData(MW,MH); mPx=mImg.data;
-      step.R=step.G=step.B=step.A=null;
+  // Bind sliders
+  function bind(knId, valId, fn){
+    const kn  = document.getElementById(knId);
+    const val = document.getElementById(valId);
+    if(!kn) return;
+    const upd = () => { if(val) val.value = kn.value; fn(+kn.value); };
+    kn.addEventListener('input', upd);
+    kn.addEventListener('change', upd);
+    upd();
+  }
+  bind('kn-glow','val-glow', v=>{
+    brightK = 0.5 + (v-1)*(1.5-0.5)/9;
+  });
+  bind('kn-edge','val-edge', v=>{
+    edgeSD  = (40 + (v-1)*(200-40)/9) * DPR;
+  });
+  bind('kn-hole','val-hole', v=>{
+    const R = (80 + (v-1)*(300-80)/9) * DPR;
+    for(const s of spheres) s.r = R;
+  });
+  bind('kn-speed','val-speed', v=>{
+    const mean = 0.012 + (v-1)*(0.12-0.012)/9;
+    speedScale = mean * 135.0 * DPR; // ~SD->px mapping
+    // reorient speeds but keep direction
+    for(const s of spheres){
+      const a = Math.atan2(s.dy, s.dx);
+      s.dx = Math.cos(a) * speedScale;
+      s.dy = Math.sin(a) * speedScale;
     }
-    addEventListener('resize', resize);
+  });
 
-    // ===== helpers =====
-    const srgbToLin=c=>(c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4));
-    const linToSrgb=c=>(c<=0.0031308?12.92*c:1.055*Math.pow(c,1/2.4)-0.055);
-    const clamp01=x=>x<0?0:x>1?1:x;
-    function hsvToRgb(h,s,v){const i=Math.floor(h*6),f=h*6-i;const p=v*(1-s),q=v*(1-f*s),t=v*(1-(1-f)*s);return [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i%6];}
-    function randn(m=0,s=1){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return m+s*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
-
-    // colours (even hues)
-    const colorsLIN = Array.from({length:CONFIG.numSpheres},(_,i)=>{const [r,g,b]=hsvToRgb(i/CONFIG.numSpheres,1,1);return [srgbToLin(r),srgbToLin(g),srgbToLin(b)];});
-
-    // spheres
-    const spheres=[];
-    for(let i=0;i<CONFIG.numSpheres;i++){let sSD=Math.abs(randn(CONFIG.speedMeanSDsPerFrame,CONFIG.speedStdSDsPerFrame));sSD=Math.max(sSD,CONFIG.speedMinSDsPerFrame);const speedPx=sSD*CONFIG.gaussianSD;const a=Math.random()*2*Math.PI;spheres.push({x:Math.random()*800+200,y:Math.random()*400+200,dx:speedPx*Math.cos(a),dy:speedPx*Math.sin(a),r:CONFIG.sphereRadius,color:colorsLIN[i%colorsLIN.length]});}
-    resize();
-
-    function step(){
-      for(const s of spheres){s.x+=s.dx;s.y+=s.dy;if(s.x+s.r>W/DPR||s.x-s.r<0) s.dx=-s.dx;if(s.y+s.r>H/DPR||s.y-s.r<0) s.dy=-s.dy;}
-      const N=GW*GH;
-      if(!step.R||step.R.length!==N){step.R=new Float32Array(N);step.G=new Float32Array(N);step.B=new Float32Array(N);step.A=new Float32Array(N);} else {step.R.fill(0);step.G.fill(0);step.B.fill(0);step.A.fill(1);}
-      const Rlin=step.R,Glin=step.G,Blin=step.B,Amsk=step.A;
-      const inv2Glow=1/(2*CONFIG.gaussianSD*CONFIG.gaussianSD), inv2Edge=1/(2*CONFIG.edgeSD*CONFIG.edgeSD);
-      for(const s of spheres){const cx=(s.x*DPR)/SCALE, cy=(s.y*DPR)/SCALE, rBuf=s.r/SCALE;const rad=Math.ceil(Math.max(rBuf*1.6,rBuf+(CONFIG.edgeSD/SCALE)*3));const x0=Math.max(0,Math.floor(cx-rad)),y0=Math.max(0,Math.floor(cy-rad)),x1=Math.min(GW-1,Math.ceil(cx+rad)),y1=Math.min(GH-1,Math.ceil(cy+rad));for(let y=y0;y<=y1;y++){const dy=(y+0.5-cy)*SCALE, dy2=dy*dy;let idx=y*GW+x0;for(let x=x0;x<=x1;x++,idx++){const dx=(x+0.5-cx)*SCALE;const d2=dx*dx+dy2;const d=Math.sqrt(d2);const Ig=Math.exp(-d2*inv2Glow);if(Ig>=1e-4){const c=s.color;Rlin[idx]+=c[0]*Ig;Glin[idx]+=c[1]*Ig;Blin[idx]+=c[2]*Ig;}let a; if(d<=s.r){a=0;} else {const t=d-s.r;a=1-Math.exp(-(t*t)*inv2Edge);} if(a<Amsk[idx])Amsk[idx]=a;}}}
-      const k=CONFIG.brightnessK; let p=0; for(let i=0;i<N;i++){const rl=1-Math.exp(-k*Rlin[i]);const gl=1-Math.exp(-k*Glin[i]);const bl=1-Math.exp(-k*Blin[i]);gPx[p++]=Math.round(clamp01(linToSrgb(rl))*255);gPx[p++]=Math.round(clamp01(linToSrgb(gl))*255);gPx[p++]=Math.round(clamp01(linToSrgb(bl))*255);gPx[p++]=255;} gctx.putImageData(gImg,0,0);
-      p=0; for(let i=0;i<N;i++){mPx[p++]=255;mPx[p++]=255;mPx[p++]=255;mPx[p++]=Math.round(clamp01(Amsk[i])*255);} mctx.putImageData(mImg,0,0);
-      vctx.clearRect(0,0,W,H); vctx.imageSmoothingEnabled=true; vctx.drawImage(glowCanvas,0,0,W,H); vctx.drawImage(maskCanvas,0,0,W,H);
-      requestAnimationFrame(step);
+  // Animate
+  function frame(){
+    // Move spheres in CSS pixels then convert to device px in uniforms
+    for(const s of spheres){
+      s.x += s.dx / DPR;
+      s.y += s.dy / DPR;
+      if(s.x<0 || s.x>window.innerWidth)  s.dx = -s.dx;
+      if(s.y<0 || s.y>window.innerHeight) s.dy = -s.dy;
     }
-    step();
 
-    // ===== knob bindings =====
-    function bind(kn,val,fn){const upd=()=>{val.value=kn.value;fn(+kn.value);};kn.addEventListener('input',upd);kn.addEventListener('change',upd);upd();}
-    bind(document.getElementById('kn-speed'),document.getElementById('val-speed'),lvl=>{const mean=0.012+(lvl-1)*(0.12-0.012)/9;CONFIG.speedMeanSDsPerFrame=mean;CONFIG.speedStdSDsPerFrame=mean*0.5;CONFIG.speedMinSDsPerFrame=mean*0.2;});
-    bind(document.getElementById('kn-glow'),document.getElementById('val-glow'),lvl=>{CONFIG.brightnessK=0.5+(lvl-1)*(1.5-0.5)/9;});
-    bind(document.getElementById('kn-hole'),document.getElementById('val-hole'),lvl=>{CONFIG.sphereRadius=80+(lvl-1)*(300-80)/9;});
-    bind(document.getElementById('kn-edge'),document.getElementById('val-edge'),lvl=>{CONFIG.edgeSD=40+(lvl-1)*(200-40)/9;});
-  </script>
+    gl.useProgram(prog);
+    gl.uniform2f(u_res, canvas.width, canvas.height);
+    gl.uniform1f(u_gaussSD, glowSD);
+    gl.uniform1f(u_edgeSD,  edgeSD);
+    gl.uniform1f(u_brightK, brightK);
+    gl.uniform1i(u_n, N);
+
+    for(let i=0;i<N;i++){
+      gl.uniform2f(u_pos[i], spheres[i].x * DPR, spheres[i].y * DPR);
+      gl.uniform1f(u_rad[i], spheres[i].r);
+      gl.uniform3f(u_col[i], spheres[i].col[0], spheres[i].col[1], spheres[i].col[2]);
+    }
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
 </body>
 </html>
