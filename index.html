@@ -5,7 +5,7 @@
   <title>Will Harrison Lab</title>
   <style>
     body { margin: 0; }
-    canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+    canvas { position: fixed; inset: 0; z-index: -1; }
     main { max-width: 800px; margin: 2rem auto; font-family: sans-serif; }
   </style>
 </head>
@@ -18,31 +18,75 @@
   </main>
 
   <script>
-    // --- CONFIG (tweak these) ---
+    // ======== CONFIG (tweak these) ========
     const CONFIG = {
       gaussianSD: 135,                 // Gaussian SD (px) for edge softness
-      sphereRadius: null,              // if null, we'll set = gaussianSD * 2.5
-      speedMeanSDsPerFrame: 0.02,      // mean speed in SDs per frame
-      speedStdSDsPerFrame: 0.01,       // std dev of speed in SDs per frame
-      speedMinSDsPerFrame: 0.005,      // minimum speed in SDs per frame
-      numSpheres: 6,                   // number of spheres
+      sphereRadius: null,              // if null, set = gaussianSD * 2.5
+      // Speeds: now ~3x faster with broader SD
+      speedMeanSDsPerFrame: 0.06,      // mean speed in SDs per frame (was 0.02)
+      speedStdSDsPerFrame: 0.03,       // std dev in SDs per frame (broader)
+      speedMinSDsPerFrame: 0.012,      // minimum speed in SDs per frame
+      numSpheres: 8,                   // number of spheres
       backgroundColor: 'white',        // page background
-      textColor: 'black'               // main text colour
+      textColor: 'black',              // main text colour
+      brightnessK: 0.9,                // glow strength (soft clip factor)
+      alphaK: 0.7                      // alpha strength for compositing over white
     };
     if (CONFIG.sphereRadius == null) {
       CONFIG.sphereRadius = CONFIG.gaussianSD * 2.5;
     }
-
-    // apply background + text colours
     document.body.style.background = CONFIG.backgroundColor;
     document.getElementById('content').style.color = CONFIG.textColor;
 
-    // --- canvas setup ---
+    // ======== Canvas setup ========
     const cvs = document.getElementById('bg');
     const ctx = cvs.getContext('2d');
+    const SCALE = 2; // render buffer downsampling (perf)
     let W, H, DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-
     let BUF_W, BUF_H, buf, bctx, imgData, px;
+
+    // sRGB <-> linear helpers
+    const srgbToLin = c => (c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
+    const linToSrgb = c => (c <= 0.0031308 ? 12.92*c : 1.055*Math.pow(c, 1/2.4) - 0.055);
+    const clamp01 = x => x < 0 ? 0 : (x > 1 ? 1 : x);
+
+    // HSV -> sRGB (0..1) helper for evenly spaced hues
+    function hsvToRgb(h, s, v){
+      const i = Math.floor(h*6), f = h*6 - i;
+      const p = v*(1-s), q = v*(1-f*s), t = v*(1-(1-f)*s);
+      const m = [[v,t,p],[q,v,p],[p,v,t],[p,q,v],[t,p,v],[v,p,q]][i%6];
+      return m;
+    }
+
+    // Normal sampler
+    function randn(m=0, s=1) {
+      let u=0, v=0; while(!u) u=Math.random(); while(!v) v=Math.random();
+      return m + s * Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+    }
+
+    // Build 8 evenly spaced colours on the hue wheel (s=1,v=1), convert to linear
+    const colorsLIN = Array.from({length: CONFIG.numSpheres}, (_,i) => {
+      const h = i / CONFIG.numSpheres;
+      const [r,g,b] = hsvToRgb(h, 1, 1);
+      return [srgbToLin(r), srgbToLin(g), srgbToLin(b)];
+    });
+
+    // Spheres
+    const spheres = [];
+    for (let i=0; i<CONFIG.numSpheres; i++) {
+      let speedSD = Math.abs(randn(CONFIG.speedMeanSDsPerFrame, CONFIG.speedStdSDsPerFrame));
+      speedSD = Math.max(speedSD, CONFIG.speedMinSDsPerFrame);
+      const speedPx = speedSD * CONFIG.gaussianSD;
+      const ang = Math.random()*2*Math.PI;
+      spheres.push({
+        x: Math.random()*800 + 200,
+        y: Math.random()*400 + 200,
+        dx: speedPx * Math.cos(ang),
+        dy: speedPx * Math.sin(ang),
+        r: CONFIG.sphereRadius,
+        color: colorsLIN[i % colorsLIN.length]
+      });
+    }
 
     function resize() {
       W = cvs.width  = Math.floor(window.innerWidth  * DPR);
@@ -59,7 +103,6 @@
         buf = document.createElement('canvas');
         buf.width = BUF_W; buf.height = BUF_H;
       }
-
       bctx = buf.getContext('2d');
       imgData = bctx.createImageData(BUF_W, BUF_H);
       px = imgData.data;
@@ -74,53 +117,6 @@
       }
     }
     window.addEventListener('resize', resize);
-
-    // --- colour helpers ---
-    const srgbToLin = c => (c <= 0.04045 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4));
-    const linToSrgb = c => (c <= 0.0031308 ? 12.92*c : 1.055*Math.pow(c, 1/2.4) - 0.055);
-    const clamp01 = x => x < 0 ? 0 : (x > 1 ? 1 : x);
-
-    // --- simulation params ---
-    const RADIUS = CONFIG.sphereRadius;
-    const SIGMA  = CONFIG.gaussianSD;
-    const SCALE  = 2; // render buffer downsampling (perf)
-
-    // Box–Muller normal sampler (mean m, std s)
-    function randn(m=0, s=1) {
-      let u=0, v=0;
-      while (u===0) u = Math.random();
-      while (v===0) v = Math.random();
-      return m + s * Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
-    }
-
-    // sphere colours (sRGB → linear)
-    const baseColorsSRGB = [
-      [255,105,180], [30,144,255], [50,205,50], [255,165,0],
-      [148,0,211],   [0,255,255],  [255,20,147], [255,255,0]
-    ];
-    const colorsLIN = baseColorsSRGB.map(([r,g,b]) =>
-      [srgbToLin(r/255), srgbToLin(g/255), srgbToLin(b/255)]
-    );
-
-    // init spheres with normally distributed speeds (>= min)
-    const spheres = [];
-    for (let i=0; i<CONFIG.numSpheres; i++) {
-      // speed in px/frame, derived from SD per frame
-      let speedSD = Math.abs(randn(CONFIG.speedMeanSDsPerFrame, CONFIG.speedStdSDsPerFrame));
-      speedSD = Math.max(speedSD, CONFIG.speedMinSDsPerFrame);
-      const speedPx = speedSD * CONFIG.gaussianSD;
-
-      const angle = Math.random() * 2 * Math.PI;
-      spheres.push({
-        x: Math.random()*800 + 200,
-        y: Math.random()*400 + 200,
-        dx: speedPx * Math.cos(angle),
-        dy: speedPx * Math.sin(angle),
-        r: RADIUS,
-        color: colorsLIN[i % colorsLIN.length]
-      });
-    }
-
     resize();
 
     function step() {
@@ -131,7 +127,7 @@
         if (s.y + s.r > H/DPR || s.y - s.r < 0) s.dy = -s.dy;
       }
 
-      // (re)alloc accumulators
+      // accumulators
       const N = BUF_W * BUF_H;
       if (!step.R || step.R.length !== N) {
         step.R = new Float32Array(N);
@@ -142,15 +138,14 @@
       }
       const Rlin = step.R, Glin = step.G, Blin = step.B;
 
-      const sigma2 = SIGMA*SIGMA;
+      // rasterise Gaussians (additive in linear light)
+      const sigma2 = CONFIG.gaussianSD * CONFIG.gaussianSD;
       const inv2sigma2 = 1/(2*sigma2);
-
-      // additive in linear space with Gaussian radial profile
       for (const s of spheres) {
         const rBuf   = s.r / SCALE;
         const cxBuf  = (s.x * DPR) / SCALE;
         const cyBuf  = (s.y * DPR) / SCALE;
-        const rad    = Math.ceil(rBuf*1.6); // cutoff for tail
+        const rad    = Math.ceil(rBuf*1.6);
         const x0 = Math.max(0, Math.floor(cxBuf - rad));
         const y0 = Math.max(0, Math.floor(cyBuf - rad));
         const x1 = Math.min(BUF_W-1, Math.ceil(cxBuf + rad));
@@ -172,23 +167,40 @@
         }
       }
 
-      // soft-clip & gamma encode
-      const k = 0.9;
+      // ---- Composite over WHITE via alpha ----
+      // Per-channel colour (linear): c = 1 - exp(-k * Lc)
+      // Alpha from total intensity:  a = 1 - exp(-alphaK * Lt)
+      const k = CONFIG.brightnessK;
+      const aK = CONFIG.alphaK;
       let p = 0;
-      for (let i=0; i<Rlin.length; i++) {
+      for (let i=0; i<N; i++) {
         const rl = 1 - Math.exp(-k * Rlin[i]);
         const gl = 1 - Math.exp(-k * Glin[i]);
         const bl = 1 - Math.exp(-k * Blin[i]);
-        px[p++] = Math.round(clamp01(linToSrgb(rl)) * 255);
-        px[p++] = Math.round(clamp01(linToSrgb(gl)) * 255);
-        px[p++] = Math.round(clamp01(linToSrgb(bl)) * 255);
-        px[p++] = 255;
+        const Lt = (Rlin[i] + Glin[i] + Blin[i]) / 3;
+        const al = 1 - Math.exp(-aK * Lt); // 0..1
+
+        // convert to sRGB
+        const Rs = Math.round(clamp01(linToSrgb(rl)) * 255);
+        const Gs = Math.round(clamp01(linToSrgb(gl)) * 255);
+        const Bs = Math.round(clamp01(linToSrgb(bl)) * 255);
+        const As = Math.round(clamp01(al) * 255);
+
+        px[p++] = Rs;
+        px[p++] = Gs;
+        px[p++] = Bs;
+        px[p++] = As; // < 255 lets white show through
       }
 
+      // write to offscreen, then draw over a white-cleared main canvas
       bctx.putImageData(imgData, 0, 0);
+      ctx.save();
       ctx.clearRect(0,0,W,H);
+      ctx.fillStyle = '#ffffff';        // ensure white background
+      ctx.fillRect(0,0,W,H);
       ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(buf, 0, 0, W, H);
+      ctx.drawImage(buf, 0, 0, W, H);   // uses source alpha
+      ctx.restore();
 
       requestAnimationFrame(step);
     }
