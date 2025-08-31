@@ -10,25 +10,13 @@
   </style>
 </head>
 <body>
-  <!-- dynamic canvas background -->
+  <!-- dynamic background -->
   <canvas id="bg"></canvas>
 
-  <!-- your main site content -->
+  <!-- site content -->
   <main>
     <h1>Will Harrison Lab</h1>
     <p>Welcome to our lab website. We study vision and cognition.</p>
-
-    <h2>About</h2>
-    <p>Our research explores visual perception, memory, and computational models of cognition.</p>
-
-    <h2>People</h2>
-    <ul>
-      <li>Will Harrison — PI</li>
-      <li>Students — etc.</li>
-    </ul>
-
-    <h2>Publications</h2>
-    <p>(We’ll hook this up to your BibTeX later.)</p>
   </main>
 
   <script>
@@ -42,23 +30,38 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // pink ball
-    let x = w/2, y = h/2;
-    let dx = 2, dy = 3;
-    const r = 40;
+    // make a few translucent coloured spheres
+    const spheres = [];
+    const colors = [
+      'rgba(255, 105, 180, 0.5)', // hotpink
+      'rgba(30, 144, 255, 0.5)',  // dodgerblue
+      'rgba(50, 205, 50, 0.5)',   // limegreen
+      'rgba(255, 165, 0, 0.5)'    // orange
+    ];
+    for (let i=0; i<colors.length; i++) {
+      spheres.push({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        dx: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
+        dy: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
+        r: 60,
+        color: colors[i]
+      });
+    }
 
     function draw() {
       ctx.clearRect(0,0,w,h);
-      ctx.beginPath();
-      ctx.arc(x,y,r,0,Math.PI*2);
-      ctx.fillStyle = 'pink';
-      ctx.fill();
-      ctx.closePath();
+      for (let s of spheres) {
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle = s.color;
+        ctx.fill();
+        ctx.closePath();
 
-      x += dx; y += dy;
-      if (x + r > w || x - r < 0) dx = -dx;
-      if (y + r > h || y - r < 0) dy = -dy;
-
+        s.x += s.dx; s.y += s.dy;
+        if (s.x + s.r > w || s.x - s.r < 0) s.dx = -s.dx;
+        if (s.y + s.r > h || s.y - s.r < 0) s.dy = -s.dy;
+      }
       requestAnimationFrame(draw);
     }
     draw();
