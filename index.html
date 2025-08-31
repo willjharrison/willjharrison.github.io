@@ -86,7 +86,7 @@
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
             else 
               // new: random per-frame pace (mean ~1)
-  const jitter = 0.5 + Math.random();   // 0.5–1.5
+  const jitter = 1; // 0.5 + Math.random();   // 0.5–1.5
   drops[i] += RAIN.speed * speeds[i] * jitter;
           }
         }
