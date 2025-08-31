@@ -19,21 +19,16 @@
       background: var(--bg);
       color: var(--fg);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      overflow: hidden; /* keep the vibe tight */
+      overflow: hidden;
     }
 
-    /* Fullscreen matrix canvas */
-    #matrix {
-      position: fixed; inset: 0; z-index: -1;
+    #matrix {$1z-index: 0;
       display: block; width: 100%; height: 100%;
       background: radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%);
     }
 
-    /* Center stage */
-    .wrap {
-      position: absolute; inset: 0;
-      display: grid; place-items: center;
-      padding: 4vmin;
+    .wrap {$1
+      z-index: 1;
     }
 
     h1 {
@@ -49,11 +44,7 @@
       filter: contrast(1.05) saturate(1.1) drop-shadow(0 0 0.25rem #0a460a);
     }
 
-    /* CRT scanlines & subtle flicker */
-    .crt {
-      position: relative;
-      isolation: isolate;
-    }
+    .crt { position: relative; isolation: isolate; }
     .crt::before {
       content: "";
       position: absolute; inset: -2px; z-index: 2;
@@ -79,61 +70,19 @@
       100% { transform: translateY(5%); opacity: .6; }
     }
 
-    /* Glitch slices */
-    .glitch {
-      position: relative;
-    }
     .glitch::before, .glitch::after {
       content: attr(data-text);
       position: absolute; inset: 0;
       clip-path: inset(0 0 0 0);
       overflow: hidden; white-space: nowrap;
-    }
-    .glitch::before {
-      left: 1px; text-shadow: -2px 0 #f0f; filter: blur(.4px);
-      animation: glitchTop 2s linear infinite alternate-reverse;
-      opacity: 0; /* only visible when class active */
-    }
-    .glitch::after  {
-      left: -1px; text-shadow: 2px 0 #0ff; filter: blur(.4px);
-      animation: glitchBot 2.2s linear infinite alternate;
       opacity: 0;
     }
-    .glitch.active::before,
-    .glitch.active::after { opacity: 1; }
+    .glitch::before { left: 1px; text-shadow: -2px 0 #f0f; filter: blur(.4px); }
+    .glitch::after  { left: -1px; text-shadow: 2px 0 #0ff; filter: blur(.4px); }
 
-    @keyframes glitchTop {
-      0%   { clip-path: inset(0 0 70% 0); transform: translateY(-1px); }
-      20%  { clip-path: inset(0 0 40% 0); transform: translateY(-2px); }
-      40%  { clip-path: inset(0 0 60% 0); transform: translateY(-1px); }
-      60%  { clip-path: inset(0 0 20% 0); transform: translateY(-3px); }
-      80%  { clip-path: inset(0 0 50% 0); transform: translateY(-2px); }
-      100% { clip-path: inset(0 0 65% 0); transform: translateY(-1px); }
-    }
-    @keyframes glitchBot {
-      0%   { clip-path: inset(70% 0 0 0); transform: translateY(1px); }
-      20%  { clip-path: inset(40% 0 0 0); transform: translateY(2px); }
-      40%  { clip-path: inset(60% 0 0 0); transform: translateY(1px); }
-      60%  { clip-path: inset(20% 0 0 0); transform: translateY(3px); }
-      80%  { clip-path: inset(50% 0 0 0); transform: translateY(2px); }
-      100% { clip-path: inset(65% 0 0 0); transform: translateY(1px); }
-    }
-
-    /* Respect reduced motion */
-    @media (prefers-reduced-motion: reduce) {
-      .crt::before { animation: none; }
-      #matrix { display: none; }
-    }
-
-    /* extra wild glitch state */
-    .glitch.wild::before { text-shadow: -3px 0 #ff55ff; filter: blur(.6px) contrast(1.2); }
-    .glitch.wild::after  { text-shadow: 3px 0 #55ffff;  filter: blur(.6px) contrast(1.2); }
-      #matrix { display: none; }
-    }
-
-    footer {
-      position: fixed; inset: auto 0 8px 0; text-align: center; font-size: 12px; opacity: .55;
-    }
+    footer {$1
+    z-index: 1;
+  }
   </style>
 </head>
 <body>
@@ -146,20 +95,11 @@
   <footer>© <span id="y"></span> CIR</footer>
 
   <script>
-    // ====== Matrix rain (performance-conscious) ======
+    // Matrix rain with adjustable frequency
     (() => {
       const c = document.getElementById('matrix');
       const ctx = c.getContext('2d');
-      let w, h, cols, drops, speeds, dpr;
-
-      // --- tweakable knobs ---
-      const RAIN = {
-        speed: 1.0,          // overall fall speed multiplier (↑ faster)
-        variability: 0.9,    // per-column speed spread (0–1+; ↑ more uneven)
-        resetChance: 0.975,  // chance to reset when off-screen (↑ sparser)
-        trail: 0.08          // 0–1; lower = longer trails
-      };
-
+      let w, h, cols, drops, dpr, fontSize;
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
       function resize() {
         dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
@@ -167,86 +107,64 @@
         h = c.clientHeight;
         c.width  = Math.floor(w * dpr);
         c.height = Math.floor(h * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // crisp
-        const fontSize = Math.max(12, Math.floor(w / 90));
-        ctx.font = fontSize + 'px monospace';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);$1ctx.font = fontSize + 'px monospace';
+        ctx.textBaseline = 'top';
         cols = Math.ceil(w / fontSize);
         drops = Array(cols).fill(0).map(() => Math.random() * -50);
-        // per-column speeds with variability
-        speeds = Array(cols).fill(0).map(() => 0.6 + Math.random() * RAIN.variability);
       }
       window.addEventListener('resize', resize, { passive: true });
       resize();
 
       function draw() {
         if (!document.hidden) {
-          // fade trail
-          ctx.fillStyle = `rgba(0, 20, 0, ${RAIN.trail})`;
+          ctx.fillStyle = 'rgba(0, 20, 0, 0.08)';
           ctx.fillRect(0, 0, w, h);
-          // draw glyphs
           ctx.fillStyle = '#19ff19';
-          const step = parseInt(ctx.font, 10);
           for (let i = 0; i < cols; i++) {
             const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
-            const x = i * step;
-            const y = drops[i] * step;
+            const x = i * fontSize;
+            const y = drops[i] * fontSize;
             ctx.fillText(ch, x, y);
-            // reset or advance
-            if (y > h && Math.random() > RAIN.resetChance) drops[i] = 0 - Math.random()*20;
-            else drops[i] += RAIN.speed * speeds[i];
+            // frequency and variability tweak
+            if (y > h && Math.random() > 0.96) drops[i] = 0;
+            else drops[i] += 0.9 + Math.random()*0.6;
           }
         }
         requestAnimationFrame(draw);
       }
-      // honor reduced motion
-      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-      if (!mq.matches) requestAnimationFrame(draw);
-
-      // expose simple controls in the console if needed
-      window.CIR_RAIN = RAIN; // e.g., CIR_RAIN.speed = 1.5
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) requestAnimationFrame(draw);
     })();
 
-    // ====== Title pulse (random amplitude/timing) ======
+    // Pulsing title
     (() => {
       const el = document.getElementById('title');
-      const baseShadow = getComputedStyle(el).textShadow;
-      function pulseOnce() {
-        const dur = 200 + Math.random()*1400; // 0.2–1.6s
-        const amp = 1 + Math.random()*0.06;   // subtle 1–1.06x
-        el.animate([
-          { transform: 'scale(1)', filter: 'brightness(1)' },
-          { transform: `scale(${amp})`, filter: 'brightness(1.1)' },
-          { transform: 'scale(1)', filter: 'brightness(1)' }
-        ], { duration: dur, easing: 'ease-in-out' });
+      function pulse() {
+        const scale = 1 + (Math.random() * 0.08);
+        el.style.transform = `scale(${scale})`;
+        setTimeout(() => { el.style.transform = ''; }, 300 + Math.random()*700);
       }
-      (function schedule(){
-        const wait = 500 + Math.random()*3500; // 0.5–4s
-        setTimeout(() => { pulseOnce(); schedule(); }, wait);
-      })();
+      setInterval(pulse, 2000 + Math.random()*3000);
     })();
 
-    // ====== Occasional glitch on the title ======
+    // Stochastic glitching
     (() => {
       const el = document.getElementById('title');
-      const jitter = () => {
+      function glitch() {
         el.classList.add('active');
-        const nudgeX = (Math.random() * 2 - 1) * 1.5;
-        const nudgeY = (Math.random() * 2 - 1) * 1.5;
-        const scale  = 1 + (Math.random() * 0.01);
-        el.style.transform = `translate(${nudgeX}px, ${nudgeY}px) scale(${scale})`;
+        el.style.transform = `translate(${(Math.random()*4-2)}px, ${(Math.random()*4-2)}px) skew(${Math.random()*5}deg)`;
+        el.style.textShadow = `${Math.random()*3-1}px 0 #f0f, ${Math.random()*-3+1}px 0 #0ff`;
         setTimeout(() => {
           el.classList.remove('active');
           el.style.transform = '';
-        }, 220 + Math.random()*180);
-      };
-      const schedule = () => setTimeout(() => {
-        jitter();
-        schedule();
-      }, 4000 + Math.random() * 8000); // every 4–12s
+          el.style.textShadow = '';
+        }, 150 + Math.random()*300);
+      }
+      function schedule() {
+        setTimeout(() => { glitch(); schedule(); }, 3000 + Math.random()*7000);
+      }
       schedule();
     })();
 
-    // Year stamp
     document.getElementById('y').textContent = new Date().getFullYear();
   </script>
 </body>
