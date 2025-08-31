@@ -84,7 +84,10 @@
             const y = drops[i] * fontSize;
             ctx.fillText(ch, x, y);
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
-            else drops[i] += RAIN.speed * speeds[i];
+            else 
+              // new: random per-frame pace (mean ~1)
+  const jitter = 0.5 + Math.random();   // 0.5–1.5
+  drops[i] += RAIN.speed * speeds[i] * jitter;
           }
         }
         requestAnimationFrame(draw);
