@@ -1,284 +1,215 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Will Harrison Lab</title>
-<style>
-  :root { color-scheme: light dark; }
-  body { margin:0; background:#fff; }
-  canvas#view { position:fixed; inset:0; z-index:-1; display:block; }
-  main { max-width:800px; margin:2rem auto; font-family:sans-serif; color:#000; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Computational Intelligence Research</title>
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root {
+      --bg: #000;
+      --fg: #b6fdb6;
+      --scan: rgba(255,255,255,0.06);
+      --glow: #19ff19;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      overflow: hidden; /* keep the vibe tight */
+    }
 
-  /* Retro 4-bit control panel */
-  .panel {
-    position: fixed; top: 12px; right: 12px; z-index: 10;
-    background: #111; color: #0f0; border: 2px solid #333; padding: 10px;
-    font-family: "Courier New", Courier, monospace; image-rendering: pixelated;
-    box-shadow: 0 0 0 2px #000, 0 0 12px rgba(0,0,0,.4);
-    user-select: none;
-  }
-  .panel h3 {
-    margin: 0 0 8px 0; font-weight: 700; font-size: 12px; letter-spacing: 1px; color:#9f9;
-    text-transform: uppercase;
-  }
-  .row { display: grid; grid-template-columns: 80px 160px 26px; gap: 6px; align-items: center; margin: 6px 0; }
-  .lbl { font-size: 11px; color:#9f9; }
-  .val {
-    width: 26px; text-align:center; font-weight:700; font-size: 12px; color:#111; background:#9f9; border:1px solid #5c5;
-  }
-  input[type=range]{
-    -webkit-appearance:none; appearance:none; width:100%; height:10px; background:#222; border:1px solid #333;
-  }
-  input[type=range]::-webkit-slider-thumb{
-    -webkit-appearance:none; appearance:none; width:14px; height:14px; background:#9f9; border:2px solid #060;
-    box-shadow: 0 0 0 1px #000; cursor:pointer;
-  }
-  input[type=range]::-moz-range-thumb{ width:14px; height:14px; background:#9f9; border:2px solid #060; cursor:pointer; }
-</style>
+    /* Fullscreen matrix canvas */
+    #matrix {
+      position: fixed; inset: 0; z-index: -1;
+      display: block; width: 100%; height: 100%;
+      background: radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%);
+    }
+
+    /* Center stage */
+    .wrap {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      padding: 4vmin;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      font-size: clamp(28px, 7vw, 96px);
+      text-shadow:
+        0 0 .6rem var(--glow),
+        0 0 1.2rem var(--glow),
+        0 0 2.4rem var(--glow);
+      filter: contrast(1.05) saturate(1.1) drop-shadow(0 0 0.25rem #0a460a);
+    }
+
+    /* CRT scanlines & subtle flicker */
+    .crt {
+      position: relative;
+      isolation: isolate;
+    }
+    .crt::before {
+      content: "";
+      position: absolute; inset: -2px; z-index: 2;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0 2px,
+        rgba(255,255,255,.03) 2px 3px
+      );
+      mix-blend-mode: overlay;
+      pointer-events: none;
+      animation: scan 7s linear infinite;
+    }
+    .crt::after {
+      content: "";
+      position: absolute; inset: -2px; z-index: 1;
+      background: radial-gradient(ellipse at center, rgba(0,255,0,0.12), transparent 60%);
+      pointer-events: none;
+      filter: blur(2px);
+    }
+    @keyframes scan {
+      0% { transform: translateY(-5%); opacity: .6; }
+      50% { opacity: .25; }
+      100% { transform: translateY(5%); opacity: .6; }
+    }
+
+    /* Glitch slices */
+    .glitch {
+      position: relative;
+    }
+    .glitch::before, .glitch::after {
+      content: attr(data-text);
+      position: absolute; inset: 0;
+      clip-path: inset(0 0 0 0);
+      overflow: hidden; white-space: nowrap;
+    }
+    .glitch::before {
+      left: 1px; text-shadow: -2px 0 #f0f; filter: blur(.4px);
+      animation: glitchTop 2s linear infinite alternate-reverse;
+      opacity: 0; /* only visible when class active */
+    }
+    .glitch::after  {
+      left: -1px; text-shadow: 2px 0 #0ff; filter: blur(.4px);
+      animation: glitchBot 2.2s linear infinite alternate;
+      opacity: 0;
+    }
+    .glitch.active::before,
+    .glitch.active::after { opacity: 1; }
+
+    @keyframes glitchTop {
+      0%   { clip-path: inset(0 0 70% 0); transform: translateY(-1px); }
+      20%  { clip-path: inset(0 0 40% 0); transform: translateY(-2px); }
+      40%  { clip-path: inset(0 0 60% 0); transform: translateY(-1px); }
+      60%  { clip-path: inset(0 0 20% 0); transform: translateY(-3px); }
+      80%  { clip-path: inset(0 0 50% 0); transform: translateY(-2px); }
+      100% { clip-path: inset(0 0 65% 0); transform: translateY(-1px); }
+    }
+    @keyframes glitchBot {
+      0%   { clip-path: inset(70% 0 0 0); transform: translateY(1px); }
+      20%  { clip-path: inset(40% 0 0 0); transform: translateY(2px); }
+      40%  { clip-path: inset(60% 0 0 0); transform: translateY(1px); }
+      60%  { clip-path: inset(20% 0 0 0); transform: translateY(3px); }
+      80%  { clip-path: inset(50% 0 0 0); transform: translateY(2px); }
+      100% { clip-path: inset(65% 0 0 0); transform: translateY(1px); }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .crt::before { animation: none; }
+      #matrix { display: none; }
+    }
+
+    footer {
+      position: fixed; inset: auto 0 8px 0; text-align: center; font-size: 12px; opacity: .55;
+    }
+  </style>
 </head>
 <body>
-  <canvas id="view"></canvas>
+  <canvas id="matrix" aria-hidden="true"></canvas>
 
-  <!-- Retro control panel -->
-  <div class="panel">
-    <h3>Controls</h3>
-    <div class="row">
-      <div class="lbl">Speed</div>
-      <input id="kn-speed" type="range" min="1" max="10" value="6">
-      <input id="val-speed" class="val" type="text" value="6" readonly>
-    </div>
-    <div class="row">
-      <div class="lbl">Glow</div>
-      <input id="kn-glow" type="range" min="1" max="10" value="6">
-      <input id="val-glow" class="val" type="text" value="6" readonly>
-    </div>
-    <div class="row">
-      <div class="lbl">Hole Size</div>
-      <input id="kn-hole" type="range" min="1" max="10" value="6">
-      <input id="val-hole" class="val" type="text" value="6" readonly>
-    </div>
-    <div class="row">
-      <div class="lbl">Edge Soft</div>
-      <input id="kn-edge" type="range" min="1" max="10" value="6">
-      <input id="val-edge" class="val" type="text" value="6" readonly>
-    </div>
+  <div class="wrap">
+    <h1 id="title" class="crt glitch" data-text="Computational Intelligence Research">Computational Intelligence Research</h1>
   </div>
 
-  <main>
-    <h1>Will Harrison Lab</h1>
-    <p>Welcome to our lab website. We study vision and cognition.</p>
-  </main>
+  <footer>© <span id="y"></span> CIR</footer>
 
-<script>
-(() => {
-  // --- Platform heuristics ---
-  const isCoarse = matchMedia('(pointer:coarse)').matches;      // phones/tablets
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  <script>
+    // ====== Matrix rain (performance-conscious) ======
+    (() => {
+      const c = document.getElementById('matrix');
+      const ctx = c.getContext('2d');
+      let w, h, cols, drops, dpr;
 
-  // DPR cap: lighter on mobile
-  const DPR_CAP = isCoarse ? 1.5 : 2.0;
-  const DPR = Math.min(window.devicePixelRatio || 1, DPR_CAP);
+      const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+      function resize() {
+        dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+        w = c.clientWidth;
+        h = c.clientHeight;
+        c.width  = Math.floor(w * dpr);
+        c.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // crisp
+        const fontSize = Math.max(12, Math.floor(w / 90));
+        ctx.font = fontSize + 'px monospace';
+        cols = Math.ceil(w / fontSize);
+        drops = Array(cols).fill(0).map(() => Math.random() * -50);
+      }
+      window.addEventListener('resize', resize, { passive: true });
+      resize();
 
-  // Use visualViewport on iOS to avoid address-bar resize jitter
-  const vvw = () => (window.visualViewport ? window.visualViewport.width  : window.innerWidth);
-  const vvh = () => (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      let last = 0;
+      function draw(ts) {
+        if (!document.hidden) {
+          // fade trail
+          ctx.fillStyle = 'rgba(0, 20, 0, 0.08)';
+          ctx.fillRect(0, 0, w, h);
+          // draw glyphs
+          ctx.fillStyle = '#19ff19';
+          for (let i = 0; i < cols; i++) {
+            const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
+            const x = i * parseInt(ctx.font);
+            const y = drops[i] * parseInt(ctx.font);
+            ctx.fillText(ch, x, y);
+            // reset or advance
+            if (y > h && Math.random() > 0.975) drops[i] = 0;
+            else drops[i]++;
+          }
+        }
+        requestAnimationFrame(draw);
+      }
+      // honor reduced motion
+      const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (!mq.matches) requestAnimationFrame(draw);
+    })();
 
-  // Canvas + WebGL2
-  const canvas = document.getElementById('view');
-  const gl = canvas.getContext('webgl2', {antialias:false, premultipliedAlpha:false, powerPreference:'high-performance'});
-  if(!gl){ alert('WebGL2 not available'); return; }
+    // ====== Occasional glitch on the title ======
+    (() => {
+      const el = document.getElementById('title');
+      const jitter = () => {
+        el.classList.add('active');
+        const nudgeX = (Math.random() * 2 - 1) * 1.5;
+        const nudgeY = (Math.random() * 2 - 1) * 1.5;
+        const scale  = 1 + (Math.random() * 0.01);
+        el.style.transform = `translate(${nudgeX}px, ${nudgeY}px) scale(${scale})`;
+        setTimeout(() => {
+          el.classList.remove('active');
+          el.style.transform = '';
+        }, 220 + Math.random()*180);
+      };
+      const schedule = () => setTimeout(() => {
+        jitter();
+        schedule();
+      }, 4000 + Math.random() * 8000); // every 4–12s
+      schedule();
+    })();
 
-  // Offscreen framebuffer (render low res, then upscale)
-  let renderScale = isCoarse ? 0.7 : 1.0;   // start lower on phones
-  let fb, tex, rb;
-
-  function mkFBO(w,h){
-    // cleanup
-    if(fb){ gl.deleteFramebuffer(fb); gl.deleteTexture(tex); gl.deleteRenderbuffer(rb); }
-    // texture
-    tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    // depth (optional)
-    rb = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
-    // framebuffer
-    fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
-    gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  }
-
-  // Shaders: scene (same math as before) + blit pass
-  const vsQuad = `#version 300 es
-  in vec2 p; out vec2 uv; void main(){ uv=(p+1.0)*0.5; gl_Position=vec4(p,0,1); }`;
-  const fsScene = `#version 300 es
-  precision highp float; out vec4 frag; in vec2 uv;
-  uniform vec2 u_res; uniform float u_gaussSD, u_edgeSD, u_brightK; uniform int u_n;
-  const int MAX_N=16; uniform vec2 u_pos[MAX_N]; uniform float u_rad[MAX_N]; uniform vec3 u_col[MAX_N];
-  float lin2srgb(float c){ return c<=0.0031308 ? 12.92*c : 1.055*pow(c,1.0/2.4)-0.055; }
-  void main(){
-    vec2 p=uv*u_res; vec3 acc=vec3(0.0); float aMin=1.0;
-    float inv2G=1.0/(2.0*u_gaussSD*u_gaussSD), inv2E=1.0/(2.0*u_edgeSD*u_edgeSD);
-    for(int i=0;i<MAX_N;i++){
-      if(i>=u_n) break;
-      vec2 d=p-u_pos[i]; float d2=dot(d,d);
-      float Ig=exp(-d2*inv2G); acc+=u_col[i]*Ig;
-      float dist=sqrt(d2), a=1.0; if(dist<=u_rad[i]) a=0.0; else { float t=dist-u_rad[i]; a=1.0-exp(-(t*t)*inv2E); }
-      aMin=min(aMin,a);
-    }
-    vec3 lin=1.0-exp(-u_brightK*acc);
-    frag=vec4(lin2srgb(lin.r),lin2srgb(lin.g),lin2srgb(lin.b),aMin);
-  }`;
-  const fsBlit = `#version 300 es
-  precision mediump float; out vec4 frag; in vec2 uv; uniform sampler2D u_tex;
-  void main(){ frag = texture(u_tex, uv); }`;
-
-  function prog(vs,fs){
-    const sh=(t,s)=>{const o=gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o);
-      if(!gl.getShaderParameter(o,gl.COMPILE_STATUS)) throw gl.getShaderInfoLog(o); return o;};
-    const p=gl.createProgram(); gl.attachShader(p,sh(gl.VERTEX_SHADER,vs)); gl.attachShader(p,sh(gl.FRAGMENT_SHADER,fs));
-    gl.linkProgram(p); if(!gl.getProgramParameter(p,gl.LINK_STATUS)) throw gl.getProgramInfoLog(p); return p;
-  }
-  const sceneP = prog(vsQuad, fsScene);
-  const blitP  = prog(vsQuad, fsBlit);
-
-  // Fullscreen triangle
-  const buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
-  function bindQuad(p){ const loc = gl.getAttribLocation(p,'p'); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0); }
-
-  // Uniform locs (scene)
-  const U = n => gl.getUniformLocation(sceneP,n);
-  const u_res=U('u_res'), u_gaussSD=U('u_gaussSD'), u_edgeSD=U('u_edgeSD'), u_brightK=U('u_brightK'), u_n=U('u_n');
-  const u_pos = Array.from({length:16},(_,i)=>U(`u_pos[${i}]`));
-  const u_rad = Array.from({length:16},(_,i)=>U(`u_rad[${i}]`));
-  const u_col = Array.from({length:16},(_,i)=>U(`u_col[${i}]`));
-
-  // Params + scene
-  const srgb2lin = c => (c<=0.04045? c/12.92 : Math.pow((c+0.055)/1.055,2.4));
-  const hsv = h => { const i=Math.floor(h*6), f=h*6-i, q=1-f, t=f;
-    switch(i%6){case 0:return [1,t,0];case 1:return [q,1,0];case 2:return [0,1,t];
-      case 3:return [0,q,1];case 4:return [t,0,1];default:return [1,0,q];}};
-  let N = isCoarse ? 6 : 8;                 // fewer on phones
-  const spheres = Array.from({length:N},(_,i)=>({
-    x: Math.random()*vvw(), y: Math.random()*vvh(),
-    dx: (Math.random()*2-1)*2, dy: (Math.random()*2-1)*2,
-    r: (isCoarse? 220:270) * DPR,
-    col: hsv(i/N).map(srgb2lin)
-  }));
-  let glowSD = 135*DPR, edgeSD = 120*DPR, brightK = 0.9;
-  let speedScale = 0.06*135*DPR;
-
-  // UI bindings (reuse your sliders)
-  function bind(knId, valId, fn){
-    const kn=document.getElementById(knId), val=document.getElementById(valId);
-    if(!kn) return; const upd=()=>{ val && (val.value=kn.value); fn(+kn.value); };
-    kn.addEventListener('input',upd); kn.addEventListener('change',upd); upd();
-  }
-  bind('kn-glow','val-glow', v=>{ brightK = 0.5 + (v-1)*(1.5-0.5)/9; });
-  bind('kn-edge','val-edge', v=>{ edgeSD  = (40 + (v-1)*(200-40)/9)*DPR; });
-  bind('kn-hole','val-hole', v=>{ const R = (80 + (v-1)*(300-80)/9)*DPR; for(const s of spheres) s.r=R; });
-  bind('kn-speed','val-speed',v=>{
-    const mean = 0.012+(v-1)*(0.12-0.012)/9; speedScale = mean*135*DPR;
-    for(const s of spheres){ const a=Math.atan2(s.dy,s.dx); s.dx=Math.cos(a)*speedScale; s.dy=Math.sin(a)*speedScale; }
-  });
-
-  // Resize + FBO sizing
-  function resize(){
-    const cssW = Math.floor(vvw());
-    const cssH = Math.floor(vvh());
-    const w = Math.max(1, Math.floor(cssW * DPR));
-    const h = Math.max(1, Math.floor(cssH * DPR));
-    canvas.width = w; canvas.height = h;
-    canvas.style.width = cssW + 'px';
-    canvas.style.height= cssH + 'px';
-    // offscreen size
-    const rw = Math.max(1, Math.floor(w * renderScale));
-    const rh = Math.max(1, Math.floor(h * renderScale));
-    mkFBO(rw, rh);
-  }
-  (window.visualViewport||window).addEventListener('resize', resize, {passive:true});
-  window.addEventListener('orientationchange', resize);
-  resize();
-
-  // FPS-based auto-scaler (aim ~55–60 on desktop, ~45–60 on mobile)
-  let fps=60, frames=0, lastT=performance.now();
-  function autoscale(dt){
-    frames++;
-    if(performance.now() - lastT > 1000){
-      fps = frames * 1000 / (performance.now()-lastT);
-      frames=0; lastT=performance.now();
-      // Adjust gently
-      const target = isCoarse ? 50 : 58;
-      if(fps < target-5 && renderScale > 0.5){ renderScale = Math.max(0.5, renderScale - 0.07); resize(); }
-      else if(fps > target+5 && renderScale < 1.0){ renderScale = Math.min(1.0, renderScale + 0.05); resize(); }
-    }
-  }
-
-  // Draw passes
-  function drawScene(){
-    // bind FBO
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-    const rw = gl.getFramebufferAttachmentParameter(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME) ? 
-               gl.getTexLevelParameter(gl.TEXTURE_2D, 0, gl.TEXTURE_WIDTH) : Math.floor(canvas.width*renderScale);
-    gl.viewport(0,0, Math.floor(canvas.width*renderScale), Math.floor(canvas.height*renderScale));
-
-    gl.useProgram(sceneP); bindQuad(sceneP);
-    gl.uniform2f(u_res, Math.floor(canvas.width*renderScale), Math.floor(canvas.height*renderScale));
-    gl.uniform1f(u_gaussSD, glowSD*renderScale);
-    gl.uniform1f(u_edgeSD,  edgeSD*renderScale);
-    gl.uniform1f(u_brightK, brightK);
-    gl.uniform1i(u_n, N);
-    for(let i=0;i<N;i++){
-      gl.uniform2f(u_pos[i], spheres[i].x*DPR*renderScale, spheres[i].y*DPR*renderScale);
-      gl.uniform1f(u_rad[i], spheres[i].r*renderScale);
-      gl.uniform3f(u_col[i], spheres[i].col[0], spheres[i].col[1], spheres[i].col[2]);
-    }
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-    // blit to screen
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.viewport(0,0, canvas.width, canvas.height);
-    gl.useProgram(blitP); bindQuad(blitP);
-    const uTex = gl.getUniformLocation(blitP,'u_tex');
-    gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.uniform1i(uTex, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
-  }
-
-  // Animate
-  function frame(now){
-    // Move spheres in CSS px
-    for(const s of spheres){
-      s.x += s.dx / DPR; s.y += s.dy / DPR;
-      const W = vvw(), H = vvh();
-      if(s.x<0||s.x>W)  s.dx=-s.dx;
-      if(s.y<0||s.y>H) s.dy=-s.dy;
-    }
-    drawScene();
-    autoscale();
-    requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
-
-  // --- Small UI tweaks for mobile ---
-  if(isCoarse){
-    const panel = document.querySelector('.panel');
-    if(panel){
-      panel.style.transformOrigin = 'top right';
-      panel.style.transform = 'scale(1.1)';  // slightly larger touch targets
-      panel.style.right = 'env(safe-area-inset-right)';
-      panel.style.top   = 'calc(12px + env(safe-area-inset-top))';
-    }
-  }
-})();
-</script>
+    // Year stamp
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
