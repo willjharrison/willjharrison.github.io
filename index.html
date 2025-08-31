@@ -20,15 +20,18 @@
   <script>
     // --- CONFIG (tweak these) ---
     const CONFIG = {
-      gaussianSD: 135,                // Gaussian SD (px) for edge softness
-      sphereRadius: gaussianSD * 2.5,             // radius (px)
-      speedMeanSDsPerFrame: 0.02,    // mean speed in SDs per frame
-      speedStdSDsPerFrame: 0.01,     // std dev of speed in SDs per frame
-      speedMinSDsPerFrame: 0.005,    // minimum speed in SDs per frame
-      numSpheres: 6,                 // number of spheres
-      backgroundColor: 'white',      // page background (default white)
-      textColor: 'black'             // main text colour (default black)
+      gaussianSD: 135,                 // Gaussian SD (px) for edge softness
+      sphereRadius: null,              // if null, we'll set = gaussianSD * 2.5
+      speedMeanSDsPerFrame: 0.02,      // mean speed in SDs per frame
+      speedStdSDsPerFrame: 0.01,       // std dev of speed in SDs per frame
+      speedMinSDsPerFrame: 0.005,      // minimum speed in SDs per frame
+      numSpheres: 6,                   // number of spheres
+      backgroundColor: 'white',        // page background
+      textColor: 'black'               // main text colour
     };
+    if (CONFIG.sphereRadius == null) {
+      CONFIG.sphereRadius = CONFIG.gaussianSD * 2.5;
+    }
 
     // apply background + text colours
     document.body.style.background = CONFIG.backgroundColor;
@@ -61,6 +64,7 @@
       imgData = bctx.createImageData(BUF_W, BUF_H);
       px = imgData.data;
 
+      // force reallocation of accumulators next frame
       step.R = step.G = step.B = null;
 
       // keep spheres inside new bounds
@@ -81,7 +85,7 @@
     const SIGMA  = CONFIG.gaussianSD;
     const SCALE  = 2; // render buffer downsampling (perf)
 
-    // Box-Muller normal sampler (mean m, std s), returns a single draw
+    // Box–Muller normal sampler (mean m, std s)
     function randn(m=0, s=1) {
       let u=0, v=0;
       while (u===0) u = Math.random();
@@ -98,7 +102,7 @@
       [srgbToLin(r/255), srgbToLin(g/255), srgbToLin(b/255)]
     );
 
-    // init spheres with normally-distributed speeds (>= min)
+    // init spheres with normally distributed speeds (>= min)
     const spheres = [];
     for (let i=0; i<CONFIG.numSpheres; i++) {
       // speed in px/frame, derived from SD per frame
