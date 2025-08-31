@@ -20,32 +20,30 @@
   <script>
     // ======== CONFIG (tweak these) ========
     const CONFIG = {
-      // glow / geometry
+      // geometry / blur
       gaussianSD: 135,                 // SD (px) for coloured glow edges
       sphereRadius: null,              // if null, set = gaussianSD * 2.5
 
-      // speeds (3x baseline, broader SD)
+      // black-hole (shadow) shape
+      holeEdgeSD: null,                // SD (px) of the *edge* blur; null => gaussianSD * 0.9
+      holeCoreMarginSDs: 2.0,          // core radius = sphereRadius - holeCoreMarginSDs*holeEdgeSD
+      holeMax: 1.0,                    // 1.0 = true black core; lower to soften
+
+      // motion (3× faster with broader SD)
       speedMeanSDsPerFrame: 0.06,
       speedStdSDsPerFrame:  0.03,
       speedMinSDsPerFrame:  0.012,
 
       // counts & colours
-      numSpheres: 8,                   // spheres to render (also sets hue count)
+      numSpheres: 8,
       backgroundColor: 'white',
       textColor: 'black',
 
-      // tone/alpha for glow
-      brightnessK: 0.9,                // higher = brighter overlaps
-      alphaK: 0.7,                     // alpha strength (unused now but kept)
-
-      // --- BLACK-HOLE SHADOW behind each sphere ---
-      holeEnabled: true,               // toggle shadow
-      holeSD: null,                    // SD (px) for shadow; null => gaussianSD * 0.9
-      holeStrengthK: 1.2,              // growth of darkness (exp factor)
-      holeMax: 0.90                    // max darkness (0..1), 0.90 ~ very black centre
+      // glow tonemapping
+      brightnessK: 0.9                 // higher = brighter glow
     };
     if (CONFIG.sphereRadius == null) CONFIG.sphereRadius = CONFIG.gaussianSD * 2.5;
-    if (CONFIG.holeSD == null)       CONFIG.holeSD       = CONFIG.gaussianSD * 0.9;
+    if (CONFIG.holeEdgeSD == null)   CONFIG.holeEdgeSD   = CONFIG.gaussianSD * 0.9;
 
     // apply page colours
     document.body.style.background = CONFIG.backgroundColor;
@@ -77,7 +75,7 @@
       return m + s * Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
     }
 
-    // Build evenly spaced hues; convert to linear
+    // Evenly spaced hues; convert to linear
     const colorsLIN = Array.from({length: CONFIG.numSpheres}, (_,i) => {
       const h = i / CONFIG.numSpheres;
       const [r,g,b] = hsvToRgb(h, 1, 1);
@@ -121,7 +119,7 @@
       px = imgData.data;
 
       // reallocate accumulators next frame
-      step.R = step.G = step.B = step.H = null;
+      step.R = step.G = step.B = step.M = null;
 
       // keep spheres inside bounds
       for (const s of spheres) {
@@ -146,38 +144,44 @@
         step.R = new Float32Array(N); // glow R
         step.G = new Float32Array(N); // glow G
         step.B = new Float32Array(N); // glow B
-        step.H = new Float32Array(N); // hole accumulator (scalar)
+        step.M = new Float32Array(N); // black-hole mask (max per-pixel)
       } else {
-        step.R.fill(0); step.G.fill(0); step.B.fill(0); step.H.fill(0);
+        step.R.fill(0); step.G.fill(0); step.B.fill(0); step.M.fill(0);
       }
-      const Rlin = step.R, Glin = step.G, Blin = step.B, Hlin = step.H;
+      const Rlin = step.R, Glin = step.G, Blin = step.B, Mask = step.M;
 
       // precompute
       const glowSigma2 = CONFIG.gaussianSD * CONFIG.gaussianSD;
       const inv2Glow   = 1 / (2*glowSigma2);
-      const holeSigma2 = CONFIG.holeSD   * CONFIG.holeSD;
-      const inv2Hole   = 1 / (2*holeSigma2);
+      const edgeSD     = CONFIG.holeEdgeSD;
+      const inv2Edge   = 1 / (2*edgeSD*edgeSD);
 
-      // rasterise: additive glow + additive hole intensity (both Gaussian)
       for (const s of spheres) {
         const rBuf   = s.r / SCALE;
         const cxBuf  = (s.x * DPR) / SCALE;
         const cyBuf  = (s.y * DPR) / SCALE;
-        const rad    = Math.ceil(Math.max(rBuf*1.6, (CONFIG.holeSD/SCALE)*3)); // cover tails
+
+        // Black-hole: flat black core up to coreR, then Gaussian to white
+        const coreR   = Math.max(0, s.r - CONFIG.holeCoreMarginSDs * edgeSD);
+        const coreR_b = coreR / SCALE;
+
+        // cover both glow and hole tails
+        const rad = Math.ceil(Math.max(rBuf*1.6, coreR_b + (edgeSD/SCALE)*3));
         const x0 = Math.max(0, Math.floor(cxBuf - rad));
         const y0 = Math.max(0, Math.floor(cyBuf - rad));
         const x1 = Math.min(BUF_W-1, Math.ceil(cxBuf + rad));
         const y1 = Math.min(BUF_H-1, Math.ceil(cyBuf + rad));
 
         for (let y=y0; y<=y1; y++) {
-          const dy = (y + 0.5 - cyBuf) * SCALE;
+          const dy = (y + 0.5 - cyBuf) * SCALE;     // back to display px
           const dy2 = dy*dy;
           let idx = y*BUF_W + x0;
           for (let x=x0; x<=x1; x++, idx++) {
             const dx = (x + 0.5 - cxBuf) * SCALE;
             const d2 = dx*dx + dy2;
+            const d  = Math.sqrt(d2);
 
-            // glow intensity
+            // ---- coloured glow (additive in linear) ----
             const Ig = Math.exp(-d2 * inv2Glow);
             if (Ig >= 1e-4) {
               Rlin[idx] += s.color[0] * Ig;
@@ -185,26 +189,33 @@
               Blin[idx] += s.color[2] * Ig;
             }
 
-            // hole intensity
-            if (CONFIG.holeEnabled) {
-              const Ih = Math.exp(-d2 * inv2Hole);
-              if (Ih >= 1e-4) Hlin[idx] += Ih;
+            // ---- black-hole mask: 1 at centre (black), 0 outside the sphere edge ----
+            let m;
+            if (d <= coreR) {
+              m = 1; // solid black core
+            } else {
+              const t = d - coreR; // distance into the edge region
+              m = Math.exp(- (t*t) * inv2Edge); // Gaussian falloff to 0
             }
+            // clamp to 0 beyond the sphere radius + ~3*edgeSD
+            if (d > s.r + 3*edgeSD) m = 0;
+
+            // combine masks by max (any blob can blacken a pixel)
+            if (m > Mask[idx]) Mask[idx] = m;
           }
         }
       }
 
-      // compose over WHITE in linear light:
-      // base (white darkened by hole): base = 1 - holeMax * (1 - exp(-holeK * H))
-      // glow per channel: cGlow = 1 - exp(-brightnessK * Lc)
-      // final: c = clamp(base + cGlow, 0..1)
+      // Compose over WHITE in linear light:
+      // 1) Start from white (1). Apply black-hole mask as: base = (1 - holeMax*Mask).
+      // 2) Add glow (soft-clipped radiance): cGlow = 1 - exp(-k*L).
+      // 3) final = clamp(base + cGlow, 0..1). Then gamma encode.
       const kGlow  = CONFIG.brightnessK;
-      const kHole  = CONFIG.holeStrengthK;
       const holeMx = CONFIG.holeMax;
 
       let p = 0;
       for (let i=0; i<N; i++) {
-        const base = 1 - holeMx * (1 - Math.exp(-kHole * Hlin[i]));
+        const base = 1 - holeMx * Mask[i]; // 1→white, 0→black in masked areas
         const r = Math.min(1, Math.max(0, base + (1 - Math.exp(-kGlow * Rlin[i]))));
         const g = Math.min(1, Math.max(0, base + (1 - Math.exp(-kGlow * Glin[i]))));
         const b = Math.min(1, Math.max(0, base + (1 - Math.exp(-kGlow * Blin[i]))));
@@ -212,18 +223,16 @@
         px[p++] = Math.round(clamp01(linToSrgb(r)) * 255);
         px[p++] = Math.round(clamp01(linToSrgb(g)) * 255);
         px[p++] = Math.round(clamp01(linToSrgb(b)) * 255);
-        px[p++] = 255; // opaque; we already composed over white
+        px[p++] = 255; // opaque (already composed over white)
       }
 
       // blit
       bctx.putImageData(imgData, 0, 0);
-      ctx.save();
       ctx.clearRect(0,0,W,H);
-      ctx.fillStyle = '#ffffff';  // ensure white page base
+      ctx.fillStyle = '#ffffff';
       ctx.fillRect(0,0,W,H);
       ctx.imageSmoothingEnabled = true;
       ctx.drawImage(buf, 0, 0, W, H);
-      ctx.restore();
 
       requestAnimationFrame(step);
     }
