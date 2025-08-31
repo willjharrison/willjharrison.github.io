@@ -10,10 +10,8 @@
   </style>
 </head>
 <body>
-  <!-- dynamic background -->
   <canvas id="bg"></canvas>
 
-  <!-- site content -->
   <main>
     <h1>Will Harrison Lab</h1>
     <p>Welcome to our lab website. We study vision and cognition.</p>
@@ -30,13 +28,14 @@
     window.addEventListener('resize', resize);
     resize();
 
-    // make a few translucent coloured spheres
+    ctx.globalCompositeOperation = "lighter"; // additive blending ✨
+
     const spheres = [];
     const colors = [
-      'rgba(255, 105, 180, 0.5)', // hotpink
-      'rgba(30, 144, 255, 0.5)',  // dodgerblue
-      'rgba(50, 205, 50, 0.5)',   // limegreen
-      'rgba(255, 165, 0, 0.5)'    // orange
+      'rgba(255, 105, 180, 0.6)', // hotpink
+      'rgba(30, 144, 255, 0.6)',  // dodgerblue
+      'rgba(50, 205, 50, 0.6)',   // limegreen
+      'rgba(255, 165, 0, 0.6)'    // orange
     ];
     for (let i=0; i<colors.length; i++) {
       spheres.push({
@@ -44,17 +43,21 @@
         y: Math.random()*h,
         dx: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
         dy: (Math.random()*2+1) * (Math.random()<0.5?-1:1),
-        r: 200,
+        r: 80,
         color: colors[i]
       });
     }
 
     function draw() {
       ctx.clearRect(0,0,w,h);
+
       for (let s of spheres) {
         ctx.beginPath();
         ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+
         ctx.fillStyle = s.color;
+        ctx.shadowColor = s.color;
+        ctx.shadowBlur = 40; // softness of edges
         ctx.fill();
         ctx.closePath();
 
@@ -62,6 +65,7 @@
         if (s.x + s.r > w || s.x - s.r < 0) s.dx = -s.dx;
         if (s.y + s.r > h || s.y - s.r < 0) s.dy = -s.dy;
       }
+
       requestAnimationFrame(draw);
     }
     draw();
