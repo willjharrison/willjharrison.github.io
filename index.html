@@ -125,6 +125,12 @@
       #matrix { display: none; }
     }
 
+    /* extra wild glitch state */
+    .glitch.wild::before { text-shadow: -3px 0 #ff55ff; filter: blur(.6px) contrast(1.2); }
+    .glitch.wild::after  { text-shadow: 3px 0 #55ffff;  filter: blur(.6px) contrast(1.2); }
+      #matrix { display: none; }
+    }
+
     footer {
       position: fixed; inset: auto 0 8px 0; text-align: center; font-size: 12px; opacity: .55;
     }
@@ -144,7 +150,15 @@
     (() => {
       const c = document.getElementById('matrix');
       const ctx = c.getContext('2d');
-      let w, h, cols, drops, dpr;
+      let w, h, cols, drops, speeds, dpr;
+
+      // --- tweakable knobs ---
+      const RAIN = {
+        speed: 1.0,          // overall fall speed multiplier (↑ faster)
+        variability: 0.9,    // per-column speed spread (0–1+; ↑ more uneven)
+        resetChance: 0.975,  // chance to reset when off-screen (↑ sparser)
+        trail: 0.08          // 0–1; lower = longer trails
+      };
 
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
       function resize() {
@@ -158,26 +172,28 @@
         ctx.font = fontSize + 'px monospace';
         cols = Math.ceil(w / fontSize);
         drops = Array(cols).fill(0).map(() => Math.random() * -50);
+        // per-column speeds with variability
+        speeds = Array(cols).fill(0).map(() => 0.6 + Math.random() * RAIN.variability);
       }
       window.addEventListener('resize', resize, { passive: true });
       resize();
 
-      let last = 0;
-      function draw(ts) {
+      function draw() {
         if (!document.hidden) {
           // fade trail
-          ctx.fillStyle = 'rgba(0, 20, 0, 0.08)';
+          ctx.fillStyle = `rgba(0, 20, 0, ${RAIN.trail})`;
           ctx.fillRect(0, 0, w, h);
           // draw glyphs
           ctx.fillStyle = '#19ff19';
+          const step = parseInt(ctx.font, 10);
           for (let i = 0; i < cols; i++) {
             const ch = glyphs[Math.floor(Math.random() * glyphs.length)];
-            const x = i * parseInt(ctx.font);
-            const y = drops[i] * parseInt(ctx.font);
+            const x = i * step;
+            const y = drops[i] * step;
             ctx.fillText(ch, x, y);
             // reset or advance
-            if (y > h && Math.random() > 0.975) drops[i] = 0;
-            else drops[i]++;
+            if (y > h && Math.random() > RAIN.resetChance) drops[i] = 0 - Math.random()*20;
+            else drops[i] += RAIN.speed * speeds[i];
           }
         }
         requestAnimationFrame(draw);
@@ -185,6 +201,28 @@
       // honor reduced motion
       const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
       if (!mq.matches) requestAnimationFrame(draw);
+
+      // expose simple controls in the console if needed
+      window.CIR_RAIN = RAIN; // e.g., CIR_RAIN.speed = 1.5
+    })();
+
+    // ====== Title pulse (random amplitude/timing) ======
+    (() => {
+      const el = document.getElementById('title');
+      const baseShadow = getComputedStyle(el).textShadow;
+      function pulseOnce() {
+        const dur = 200 + Math.random()*1400; // 0.2–1.6s
+        const amp = 1 + Math.random()*0.06;   // subtle 1–1.06x
+        el.animate([
+          { transform: 'scale(1)', filter: 'brightness(1)' },
+          { transform: `scale(${amp})`, filter: 'brightness(1.1)' },
+          { transform: 'scale(1)', filter: 'brightness(1)' }
+        ], { duration: dur, easing: 'ease-in-out' });
+      }
+      (function schedule(){
+        const wait = 500 + Math.random()*3500; // 0.5–4s
+        setTimeout(() => { pulseOnce(); schedule(); }, wait);
+      })();
     })();
 
     // ====== Occasional glitch on the title ======
