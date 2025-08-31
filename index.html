@@ -125,6 +125,8 @@
             const x = i * fontSize;
             const y = drops[i] * fontSize;
             ctx.fillText(ch, x, y);
+            // debug: draw rect if needed
+            // ctx.strokeRect(x, y, step, step);
             // frequency and variability tweak
             if (y > h && Math.random() > 0.96) drops[i] = 0;
             else drops[i] += 0.9 + Math.random()*0.6;
