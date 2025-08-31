@@ -1,145 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will Harrison</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            max-width: 800px;
-            margin: 20px auto;
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        h2 {
-            color: #555;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-        
-        #header-image {
-    max-width: 50%;
-    height: auto;
-	width: auto
-    display: block;
-    margin: 0 auto;
-}
-
-
-    </style>
-    <style>
-    .scroll-img {
-        position: fixed;
-  
-    height: auto;
-	width: auto
-    display: block;
-    
-        z-index: -1;
-    }
-    
-    .left-image {
-        float: left;
-        margin: 0 20px 20px 0;
-        max-width: calc(100% - 200px);
-        height: auto;
-    }
-    
-</style>
+  <meta charset="utf-8">
+  <title>Will Harrison Lab</title>
+  <style>
+    body { margin: 0; background: white; }
+    canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+    main { max-width: 800px; margin: 2rem auto; font-family: sans-serif; }
+  </style>
 </head>
 <body>
+  <!-- dynamic canvas background -->
+  <canvas id="bg"></canvas>
 
-	<img src="images/eyeIm.png" alt="Header image" id="header-image">	
-    <h1>Will Harrison</h1>
+  <!-- your main site content -->
+  <main>
+    <h1>Will Harrison Lab</h1>
+    <p>Welcome to our lab website. We study vision and cognition.</p>
 
-    <h2>Research Interests</h2>
+    <h2>About</h2>
+    <p>Our research explores visual perception, memory, and computational models of cognition.</p>
+
+    <h2>People</h2>
     <ul>
-        <li>
-            <strong>Active visual perception:</strong> In my research on active visual perception, I strive to understand how we actively explore and perceive our environment using vision. I investigate the mechanisms that drive our attention and eye movements and how these factors influence our visual perception.
-        </li>
-        <li>
-            <strong>Visual working memory:</strong> My work in visual working memory explores the cognitive processes that allow us to temporarily store and manipulate visual information. I aim to understand the capacity, limitations, and neural basis of visual working memory.
-        </li>
-        <li>
-            <strong>Natural image statistics:</strong> My research on natural image statistics examines the statistical properties of natural images and how they shape our visual processing. I seek to reveal how the brain has adapted to efficiently process the visual environment in which we live.
-        </li>
-        <li>
-            <strong>Neural encoding:</strong> My work in neural encoding investigates how the brain represents and processes visual information at the neural level. I aim to understand the coding principles and neural mechanisms that underlie our ability to perceive and interpret visual stimuli.
-        </li>
-    </ul>   
-	
-	<h2>Publications</h2>
-	<div id="publications"></div>
+      <li>Will Harrison — PI</li>
+      <li>Students — etc.</li>
+    </ul>
 
-	 <!-- <script src="bibtex_js.js"></script> -->
+    <h2>Publications</h2>
+    <p>(We’ll hook this up to your BibTeX later.)</p>
+  </main>
 
-<script> 
-
-	async function loadBibtexJsLibrary() {
-  const response = await fetch('bibtex_js.js');
-  const libraryText = await response.text();
-  eval(libraryText);
-}
-
-async function displayPublications() {
-  try {
-    await loadBibtexJsLibrary();
-
-    const response = await fetch('data/pubs.bib');
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch the BibTeX file: ${response.statusText}`);
+  <script>
+    const canvas = document.getElementById('bg');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
     }
+    window.addEventListener('resize', resize);
+    resize();
 
-    const bibtexText = await response.text();
-    console.log('Fetched BibTeX content:', bibtexText);
-    const bibtex = new BibTeX();
-    bibtex.content = bibtexText;
-    bibtex.parse();
+    // pink ball
+    let x = w/2, y = h/2;
+    let dx = 2, dy = 3;
+    const r = 40;
 
-    const publicationsDiv = document.getElementById('publications');
-    publicationsDiv.innerHTML = bibtex.entries
-      .map(entry => {
-        const title = entry.getField('title') || '';
-        const author = entry.getField('author') || '';
-        const journal = entry.getField('journal') || entry.getField('booktitle') || '';
-        const year = entry.getField('year') || '';
-        const url = entry.getField('url') || '';
-        const doi = entry.getField('doi') || '';
+    function draw() {
+      ctx.clearRect(0,0,w,h);
+      ctx.beginPath();
+      ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle = 'pink';
+      ctx.fill();
+      ctx.closePath();
 
-        return `
-          <div class="publication">
-            <p><strong>${title}</strong></p>
-            <p>${author}</p>
-            <p><em>${journal}</em>${year ? ', ' + year : ''}</p>
-            ${url ? `<p><a href="${url}">Link</a></p>` : ''}
-            ${doi ? `<p>DOI: <a href="https://doi.org/${doi}">${doi}</a></p>` : ''}
-          </div>
-          <hr>
-        `;
-      })
-      .join('');
-  } catch (error) {
-    console.error('Error fetching or parsing the BibTeX file:', error);
-  }
-}
+      x += dx; y += dy;
+      if (x + r > w || x - r < 0) dx = -dx;
+      if (y + r > h || y - r < 0) dy = -dy;
 
-displayPublications();
-
-
-
-	</script>
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
 </body>
 </html>
