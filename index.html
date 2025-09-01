@@ -87,8 +87,8 @@
             // ----- Red pulse effect -----
             if (pulseTimers[i] > 0) {
               ctx.fillStyle = `rgba(255,60,60,${pulseTimers[i].toFixed(3)})`;
-              pulseTimers[i] = Math.max(0, pulseTimers[i] - 0.05); // decay
-            } else if (Math.random() < 0.006) { // trigger probability per frame/column
+              pulseTimers[i] = Math.max(0, pulseTimers[i] - 0.02); // decay
+            } else if (Math.random() < 0.06) { // trigger probability per frame/column
               pulseTimers[i] = 1; // start at full red
               ctx.fillStyle = 'rgba(255,60,60,1)';
             } else {
