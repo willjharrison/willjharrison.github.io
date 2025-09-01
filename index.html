@@ -145,8 +145,10 @@ if (row > maxRow) {
   lastRow[i] = -1;
   rowFrac[i] = 0;
   velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
+
+  if (velRows[i] < 0.2) {velRows[i] = .2}
   pulseA[i]  = 0;
-  velRows[i] = sampleVel();   // ← ensure fresh, non-stalling speed
+  
   continue; // move on to next consumed row (if any)
 }
               } else {
