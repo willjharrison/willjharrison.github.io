@@ -45,11 +45,11 @@
   <footer>© <span id="y"></span> CIR</footer>
 
   <script>
-    // ===== Matrix rain (robust sizing + tweakable knobs) =====
+    // ===== Matrix rain (robust sizing + tweakable knobs + red pulse) =====
     (() => {
       const c = document.getElementById('matrix');
       const ctx = c.getContext('2d');
-      let w, h, cols, drops, speeds, dpr, fontSize;
+      let w, h, cols, drops, speeds, dpr, fontSize, pulseTimers;
 
       /* Decay rate of trails: lower = longer trails, higher = quicker fade */
       const RAIN = { speed: .4, variability: 1.2, resetChance: 0.975, trail: 0.10 };
@@ -66,6 +66,7 @@
         cols = Math.max(1, Math.ceil(w / fontSize));
         drops = Array(cols).fill(0).map(()=>Math.random()*-50);
         speeds = Array(cols).fill(0).map(()=>0.6 + Math.random()*RAIN.variability);
+        pulseTimers = Array(cols).fill(0); // per-column red pulse alpha (0..1)
       }
       window.addEventListener('resize', resize, {passive:true});
       resize();
@@ -75,15 +76,30 @@
           // Background fade — tied to RAIN.trail above
           ctx.fillStyle = `rgba(0,20,0,${RAIN.trail})`;
           ctx.fillRect(0,0,w,h);
-          // Rain color from CSS variable
-          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+
+          const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+
           for(let i=0;i<cols;i++){
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
+
+            // ----- Red pulse effect -----
+            if (pulseTimers[i] > 0) {
+              ctx.fillStyle = `rgba(255,60,60,${pulseTimers[i].toFixed(3)})`;
+              pulseTimers[i] = Math.max(0, pulseTimers[i] - 0.05); // decay
+            } else if (Math.random() < 0.006) { // trigger probability per frame/column
+              pulseTimers[i] = 1; // start at full red
+              ctx.fillStyle = 'rgba(255,60,60,1)';
+            } else {
+              ctx.fillStyle = rainColor; // normal green
+            }
+
             ctx.fillText(ch, x, y);
-            if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
-            else {
+
+            if(y > h && Math.random() > RAIN.resetChance) {
+              drops[i] = -Math.random()*20;
+            } else {
               const jitter = Math.random()*2; // extra variability in pace
               drops[i] += RAIN.speed * speeds[i] * jitter;
             }
@@ -99,13 +115,13 @@
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 200 + Math.random()*200;
+        const dur = 200 + Math.random()*200; // quick, subtle
         const amp = 1 + Math.random()*0.08;
-        const bright = .75 + Math.random()*0.5;
+        const bright = 0.85 + Math.random()*0.3; // 0.85–1.15
         el.animate([
-          { transform:'scale(1)', filter:`scale(${bright})` },
-          { transform:`scale(${amp})`, `scale(${bright})` },
-          { transform:'scale(1)', `scale(${bright})` }
+          { transform:'scale(1)',           filter:`brightness(${bright})` },
+          { transform:`scale(${amp})`,      filter:`brightness(${Math.min(1.25, bright+0.1)})` },
+          { transform:'scale(1)',           filter:`brightness(${bright})` }
         ], { duration: dur, easing:'ease-in-out' });
       }
       (function schedule(){
@@ -114,7 +130,7 @@
       })();
     })();
 
-    // ===== Stochastic micro-jitter (kept, but without ghost layers) =====
+    // ===== Subtle micro-jitter (no ghost layers) =====
     (()=>{
       const el = document.getElementById('title');
       const meanMs = 1200; // average interval (lower = more frequent)
@@ -126,9 +142,7 @@
         el.style.transform = `translate(${nudgeX}px,${nudgeY}px) scale(${scale})`;
         setTimeout(()=>{ el.style.transform=''; }, 140 + Math.random()*180);
       }
-      (function schedule(){
-        setTimeout(()=>{ jitterOnce(); schedule(); }, expRand(meanMs));
-      })();
+      (function schedule(){ setTimeout(()=>{ jitterOnce(); schedule(); }, expRand(meanMs)); })();
     })();
 
     // Year stamp
