@@ -191,7 +191,7 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
           { transform:'scale(1)',      filter:`brightness(${bright})` },
           { transform:`scale(${amp})`,  filter:`brightness(${Math.min(1.25, bright+0.1)})` },
           { transform:'scale(1)',      filter:`brightness(${bright})` }
-        ], { duration: dur, easing:'ease-in-out' });
+        ], { duration: dur, easing:'ease-out' });
       }
       (function schedule(){
         const wait = 500 + Math.random()*3500;
