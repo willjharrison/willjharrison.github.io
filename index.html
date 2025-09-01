@@ -95,7 +95,7 @@
           const dx = x - cx, dy = y - cy;
           const a = GLOW.maxAlpha * Math.exp(-(dx*dx + dy*dy) / s2);
           const i = (y * pxSize + x) * 4;
-          img.data[i] = 205; img.data[i+1] = 255; img.data[i+2] = 205; img.data[i+3] = Math.round(a * 200);
+          img.data[i] = 155; img.data[i+1] = 225; img.data[i+2] = 155; img.data[i+3] = Math.round(a * 200);
         }
       }
       octx.putImageData(img, 0, 0);
