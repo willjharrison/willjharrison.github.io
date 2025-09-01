@@ -32,8 +32,8 @@
 
     /* CRT scanlines */
     .crt{position:relative;isolation:isolate}
-    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.3) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
-    .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.0), transparent 60%);pointer-events:none;filter:blur(2px)}
+    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.73) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
+    .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.05), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
 
     footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
