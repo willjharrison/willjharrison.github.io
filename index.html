@@ -67,8 +67,8 @@
         variability: 2,      // keep your big variability
         spacing: 0.85,       // 1.0 = tight; >1 looser vertical spacing
         trail: 0.03,         // lower = longer trails
-        pulseLambda: 0.85,   // red pulses per second per column
-        pulseDecay: 0.8,     // red alpha decay per second
+        pulseLambda: 0.05,   // red pulses per second per column
+        pulseDecay: 1.8,     // red alpha decay per second
         minRowsPerSec: 10,    // <<< clamp: absolute minimum speed
         minFactor: 0.10      // <<< clamp: minimum multiplicative factor for variability
       };
@@ -161,7 +161,7 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
                 const y = row * glyphSpacing;
 
                 ctx.fillStyle = (pulseA[i] > 0)
-                  ? `rgba(80,180,95,${pulseA[i].toFixed(3)})`
+                  ? `rgba(0,255,05,${pulseA[i].toFixed(3)})`
                   : rainColor;
 
                 const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
