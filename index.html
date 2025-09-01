@@ -127,7 +127,7 @@
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 200 + Math.random()*1400; // 0.2–1.6s
+        const dur = 200 + Math.random()*400; // 0.2–1.6s
         const amp = 1 + Math.random()*0.08;   // subtle 1–1.08x
         el.animate([
           { transform:'scale(1)', filter:'brightness(1)' },
@@ -150,11 +150,11 @@
       function jitterOnce(wild=false){
         if(wild) el.classList.add('wild');
         el.classList.add('active');
-        const nudgeX = (Math.random()*2-1)*2;
-        const nudgeY = (Math.random()*2-1)*2;
+        const nudgeX = (Math.random()*2-1)*1;
+        const nudgeY = (Math.random()*2-1)*1;
         const scale  = 1 + Math.random()*0.02;
         el.style.transform = `translate(${nudgeX}px,${nudgeY}px) scale(${scale})`;
-        el.style.filter = Math.random()<0.35 ? 'contrast(1.25) saturate(1.2)' : '';
+        el.style.filter = Math.random()<0.35 ? 'contrast(1.25) saturate(.2)' : '';
         setTimeout(()=>{
           el.classList.remove('active');
           el.classList.remove('wild');
