@@ -103,9 +103,9 @@
         const amp = 1 + Math.random()*0.08;
         const bright = .75 + Math.random()*0.5;
         el.animate([
-          { transform:'scale(1)', filter:`scale(${bright}) },
-          { transform:`scale(${amp})`, `scale(${bright}) },
-          { transform:'scale(1)', `scale(${bright}) }
+          { transform:'scale(1)', filter:`scale(${bright})` },
+          { transform:`scale(${amp})`, `scale(${bright})` },
+          { transform:'scale(1)', `scale(${bright})` }
         ], { duration: dur, easing:'ease-in-out' });
       }
       (function schedule(){
