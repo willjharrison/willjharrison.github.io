@@ -73,6 +73,40 @@
         minFactor: 0.10      // <<< clamp: minimum multiplicative factor for variability
       };
 
+      // ==== Mouse Gaussian glow (overlay) ====
+const GLOW = {
+  sigma: 90,          // Gaussian SD in px (spread)
+  maxAlpha: 0.22,     // peak opacity at the cursor
+  blend: 'screen'     // 'screen' (preferred) or 'lighter' as fallback
+};
+const mouse = { x: null, y: null, active: false };
+window.addEventListener('pointermove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; }, {passive:true});
+window.addEventListener('pointerenter', () => mouse.active = true, {passive:true});
+window.addEventListener('pointerleave', () => mouse.active = false, {passive:true});
+
+function drawMouseGlow(ctx){
+  if (!mouse.active || mouse.x==null) return;
+
+  const mx = mouse.x, my = mouse.y;
+  const R = Math.max(60, Math.floor(GLOW.sigma*3)); // ~3σ radius
+
+  // Radial gradient approximating a Gaussian falloff
+  const grad = ctx.createRadialGradient(mx,my,0, mx,my,R);
+  // map offsets 0..1 → radius 0..3σ; alpha ~ exp(-(r/σ)^2/2)
+  const stops = [0, 0.25, 0.5, 0.75, 1];
+  for (const off of stops){
+    const t = off * 3; // 0..3
+    const a = GLOW.maxAlpha * Math.exp(-(t*t)/2);
+    grad.addColorStop(off, `rgba(255,255,255,${a.toFixed(4)})`);
+  }
+
+  const prevOp = ctx.globalCompositeOperation;
+  ctx.globalCompositeOperation = ( 'screen' in ctx ? GLOW.blend : 'lighter' );
+  ctx.fillStyle = grad;
+  ctx.fillRect(mx-R, my-R, R*2, R*2);
+  ctx.globalCompositeOperation = prevOp;
+}
+      
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
       function sampleVel(){
@@ -171,6 +205,9 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
             }
           }
         }
+        
+drawMouseGlow(ctx);
+requestAnimationFrame(frame);
         requestAnimationFrame(frame);
       }
       requestAnimationFrame(frame);
