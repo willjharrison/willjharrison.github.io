@@ -27,6 +27,10 @@
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.05), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
     footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
+
+    /* Keep demo anchor sections hidden so the menu is truly invisible */
+    #about, #pubs { display:none; }
+
     @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
   </style>
 </head>
@@ -152,6 +156,19 @@
       return maskData[idx + 3]; // alpha
     }
 
+    // === robust glyph hit test: center + 4 offsets ===
+    function glyphHitsMenu(x, y, gw, gh){
+      const cx = x + gw*0.5, cy = y + gh*0.55;
+      if (onMenuLetter(cx, cy) > 0) return true;
+      const off = 0.25;
+      return (
+        onMenuLetter(x + gw*(0.5+off), cy) > 0 ||
+        onMenuLetter(x + gw*(0.5-off), cy) > 0 ||
+        onMenuLetter(cx, y + gh*(0.55+off)) > 0 ||
+        onMenuLetter(cx, y + gh*(0.55-off)) > 0
+      );
+    }
+
     // click → only when clicking real letter pixels, then route by word box
     c.addEventListener('click', (e) => {
       const x = e.clientX, y = e.clientY;
@@ -185,7 +202,7 @@
 
       rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
       buildGlowSprite();
-      buildMenuMask(); // << build the invisible words mask
+      buildMenuMask(); // rebuild invisible words mask after font/DPR
     }
     window.addEventListener('resize', resize, {passive:true});
     resize();
@@ -253,13 +270,11 @@
                 const ch = glyphs[(Math.random() * glyphs.length) | 0];
                 ctx.fillText(ch, x, y);
 
-                // MENU mask-driven glow: if glyph center hits a letter pixel, brighten it
-                const a = onMenuLetter(x + glyphSpacing*0.4, y + fontSize*0.6);
-                if (a > 0) {
+                // MENU mask-driven glow: if glyph overlaps a letter pixel, brighten it
+                if (glyphHitsMenu(x, y, glyphSpacing, fontSize)) {
                   const prev = ctx.globalCompositeOperation;
-                  ctx.globalCompositeOperation = 'screen';
-                  const boost = Math.min(0.45, 0.10 + (a/255) * 0.35);
-                  ctx.fillStyle = `rgba(255,255,255,${boost.toFixed(3)})`;
+                  ctx.globalCompositeOperation = 'screen'; // brighten toward white
+                  ctx.fillStyle = 'rgba(255,255,255,0.55)'; // stronger so it's obvious
                   ctx.fillText(ch, x, y);
                   ctx.globalCompositeOperation = prev;
                 }
@@ -283,21 +298,18 @@
     }
     requestAnimationFrame(frame);
 
-    // Title micro-pulse
+    // Title brightness flicker (no scale bounce)
     (()=>{
-      const el = document.getElementById('title');
       function pulseOnce(){
-  const dur = 80 + Math.random()*220;
-  const dim  = 0.1;           // how dark it gets (0–1)
-  const bright = 1.0;         // baseline = no change
-
-  // No scale changes → no bounce; only brightness flicker
-  document.getElementById('title').animate([
-    { filter:`brightness(${bright})` },
-    { filter:`brightness(${dim})` },
-    { filter:`brightness(${bright})` }
-  ], { duration: dur, easing:'steps(2,end)' }); // snappy on/off
-}
+        const dur = 80 + Math.random()*220;
+        const dim  = 0.1;
+        const bright = 1.0;
+        document.getElementById('title').animate([
+          { filter:`brightness(${bright})` },
+          { filter:`brightness(${dim})` },
+          { filter:`brightness(${bright})` }
+        ], { duration: dur, easing:'steps(2,end)' });
+      }
       (function schedule(){ setTimeout(()=>{ pulseOnce(); schedule(); }, 500 + Math.random()*3500); })();
     })();
 
@@ -309,7 +321,7 @@
   })();
   </script>
 
-  <!-- Optional anchor targets; style to taste -->
+  <!-- Optional anchor targets remain in DOM but hidden by CSS above -->
   <section id="about" style="position:relative; z-index:2; margin-top:60vh; padding:2rem; color:#b6fdb6;">
     <h2>About</h2>
     <p>Short blurb…</p>
