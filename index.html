@@ -18,7 +18,7 @@
     #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;
       background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
 
-    /* Foreground glass text overlay */
+    /* Foreground “glass text” overlay canvas */
     #glass{position:fixed;inset:0;z-index:1;display:block;width:100%;height:100%;pointer-events:auto}
 
     .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:2}
@@ -52,15 +52,21 @@
     const ctx  = c.getContext('2d');
     const gtx  = gC.getContext('2d');
 
-    // ==== Menu spec (positions in CSS px) ====
+    // ==== Menu spec (CSS px positions; bigger font via scale) ====
     const MENU = [
-      { text: 'ABOUT',         x: 80, y: 140, href: '#about' },
-      { text: 'PUBLICATIONS',  x: 80, y: 200, href: '#pubs' },
+      { text: 'ABOUT',        x: 80,  y: 160, href: '#about' },
+      { text: 'PUBLICATIONS', x: 80,  y: 240, href: '#pubs'  },
     ];
-    let wordBoxes = []; // for clicks
 
     // ----- knobs -----
-    const USE_DPR_1 = false;          // set true for max perf
+    const USE_DPR_1 = false;            // set true for max perf
+    const MENU_FONT_SCALE = 2.6;        // menu text size relative to rain font
+    const GLASS = {
+      blurPx: 1.6,                      // blur radius inside letters
+      tint: 'rgba(60,220,120,0.22)',    // “green glass” tint
+      stroke: 'rgba(140,255,180,0.6)',  // edge highlight
+      strokeWidthFactor: 0.08           // of menu font size
+    };
     const RAIN = {
       rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
       pulseLambda: 0.15, pulseDecay: 0.4,
@@ -75,6 +81,9 @@
     let yRows, velRows, pulseA, rowFrac, lastRow;
     let lastSweep = 0, lastTs = 0;
     let rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+
+    // clickable boxes for menu (in CSS px)
+    let wordBoxes = [];
 
     // tiny mouse glow sprite (DPR-aware)
     const mouse = { x: null, y: null, active: false, movedAt: 0 };
@@ -107,8 +116,8 @@
     const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
     function sampleVel(){
-      const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
-      const clamped = Math.max(RAIN.minFactor, rawFactor);
+      const raw = 1 + (Math.random()*2 - 1) * RAIN.variability;
+      const clamped = Math.max(RAIN.minFactor, raw);
       return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clamped);
     }
 
@@ -122,9 +131,15 @@
 
       fontSize = Math.max(12, Math.floor(w/70));
       glyphSpacing = Math.round(fontSize * RAIN.spacing);
+
+      // Rain font
       ctx.font = fontSize + 'px monospace';
       ctx.textBaseline = 'top'; ctx.textAlign = 'left';
-      gtx.font = ctx.font; gtx.textBaseline = 'top'; gtx.textAlign = 'left';
+
+      // Menu font (bigger)
+      const menuPx = Math.round(fontSize * MENU_FONT_SCALE);
+      gtx.font = menuPx + 'px monospace';
+      gtx.textBaseline = 'top'; gtx.textAlign = 'left';
 
       cols   = Math.max(1, Math.ceil(w / glyphSpacing));
       yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
@@ -136,49 +151,54 @@
       rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
       buildGlowSprite();
 
-      // update clickable word boxes (CSS px)
+      // update clickable word boxes (CSS px, based on menu font)
       wordBoxes = MENU.map(m => {
         const mw = gtx.measureText(m.text).width;
-        return { x:m.x, y:m.y, w:Math.ceil(mw), h:Math.ceil(fontSize*1.1), href:m.href, text:m.text };
+        return { x:m.x, y:m.y, w:Math.ceil(mw), h:Math.ceil(menuPx*1.1), href:m.href, text:m.text, menuPx };
       });
     }
     window.addEventListener('resize', resize, {passive:true});
     resize();
 
-    function drawGlassMenu(){
-      // Clear overlay
-      gtx.setTransform(dpr,0,0,dpr,0,0);
-      gtx.clearRect(0,0,w,h);
+    // Draw glass effect for a single word (per-word bounding box; DPR-correct)
+    function drawGlassWord(m){
+      const menuPx = gtx.measureText('M').fontBoundingBoxAscent ? (gtx.measureText('M').fontBoundingBoxAscent + gtx.measureText('M').fontBoundingBoxDescent) : parseInt(gtx.font,10);
+      const metrics = gtx.measureText(m.text);
+      const wBox = Math.ceil(metrics.width);
+      const hBox = Math.ceil(wordBoxes[0]?.menuPx ? wordBoxes[0].menuPx*1.1 : parseInt(gtx.font,10)*1.1);
 
-      // 1) Draw text shapes as a mask (solid white)
+      // Clear just this word's region on overlay
+      gtx.clearRect(m.x - 4, m.y - 4, wBox + 8, hBox + 8);
+
+      // 1) Paint text (white) to become the destination mask
+      gtx.globalCompositeOperation = 'source-over';
       gtx.fillStyle = '#fff';
-      for (const m of MENU) gtx.fillText(m.text, m.x, m.y);
+      gtx.fillText(m.text, m.x, m.y);
 
-      // 2) Keep only text area and draw blurred copy of background rain into it
+      // 2) Clip background into letters using 'source-in' (blurred & saturated)
       gtx.globalCompositeOperation = 'source-in';
-      gtx.filter = 'blur(1.2px) saturate(1.2)';
-      // draw the background canvas into the overlay (same size)
-      gtx.drawImage(c, 0, 0, w, h);
+      gtx.filter = `blur(${GLASS.blurPx}px) saturate(1.2)`;
+      // Copy only the needed background sub-rect (device px for source)
+      const sx = Math.round(m.x * dpr), sy = Math.round(m.y * dpr);
+      const sw = Math.round(wBox * dpr), sh = Math.round(hBox * dpr);
+      gtx.drawImage(c, sx, sy, sw, sh, m.x, m.y, wBox, hBox);
       gtx.filter = 'none';
 
-      // 3) Tint the text area “transparent green glass”
+      // 3) Tint the clipped background to green glass
       gtx.globalCompositeOperation = 'source-atop';
-      gtx.fillStyle = 'rgba(60, 220, 120, 0.22)';
-      gtx.fillRect(0,0,w,h);
+      gtx.fillStyle = GLASS.tint;
+      gtx.fillRect(m.x, m.y, wBox, hBox);
 
-      // 4) Edge highlight (subtle green stroke)
+      // 4) Edge highlight
       gtx.globalCompositeOperation = 'source-over';
-      gtx.lineWidth = Math.max(1, fontSize * 0.08);
-      gtx.strokeStyle = 'rgba(140, 255, 180, 0.6)';
-      for (const m of MENU) gtx.strokeText(m.text, m.x, m.y);
+      gtx.lineWidth = Math.max(1, (parseInt(gtx.font,10) * GLASS.strokeWidthFactor));
+      gtx.strokeStyle = GLASS.stroke;
+      gtx.strokeText(m.text, m.x, m.y);
+    }
 
-      // 5) Optional soft inner glow
-      gtx.save();
-      gtx.shadowColor = 'rgba(150,255,180,0.35)';
-      gtx.shadowBlur = Math.max(2, fontSize*0.15);
-      gtx.globalCompositeOperation = 'lighter';
-      for (const m of MENU) gtx.strokeText(m.text, m.x, m.y);
-      gtx.restore();
+    function drawGlassMenu(){
+      // Redraw each word’s filtered region
+      for (const m of MENU) drawGlassWord(m);
     }
 
     function frame(ts){
@@ -276,7 +296,7 @@
       (function schedule(){ setTimeout(()=>{ pulseOnce(); schedule(); }, 500 + Math.random()*3500); })();
     })();
 
-    // Click routing for the glass text
+    // Click routing for the glass text (bounding boxes)
     gC.addEventListener('click', (e) => {
       const x = e.clientX, y = e.clientY;
       for (const b of wordBoxes){
@@ -294,7 +314,7 @@
   })();
   </script>
 
-  <!-- Optional anchor targets (now visible when navigated to) -->
+  <!-- Optional targets -->
   <section id="about" style="position:relative; z-index:3; margin-top:60vh; padding:2rem; color:#b6fdb6;">
     <h2>About</h2>
     <p>Short blurb…</p>
