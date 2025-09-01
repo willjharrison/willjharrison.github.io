@@ -1,167 +1,181 @@
+You broke it;
+
+
 <script>
-(() => {
-  const c = document.getElementById('matrix');
-  const ctx = c.getContext('2d');
-  let w, h, cols, dpr;
-  let fontSize, glyphSpacing;
-  let rainColor = '#19ff19';
+  // ===== Matrix rain with per-column top->bottom fade (random durations) =====
+  (() => {
+    const c = document.getElementById('matrix');
+    const ctx = c.getContext('2d');
+    let w, h, cols, dpr;
+    let fontSize, glyphSpacing;
 
-  // rows state
-  let yRows, velRows, pulseA, rowFrac, lastRow;
+    // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
+    let yRows, velRows, pulseA, rowFrac, lastRow;
 
-  // per-column fade state
-  let wipeY, fadeDur, wipeV;
+    // per-column fade state
+    let wipeY, fadeDur, wipeV;
 
-  const RAIN = {
-    rowsPerSec: 20,
-    variability: 2,
-    spacing: 0.95,
-    trail: 0.03,
-    pulseLambda: 0.85,
-    pulseDecay: 0.8,
-    minRowsPerSec: 6,
-    minFactor: 0.10,
+    /* Controls */
+    const RAIN = {
+      rowsPerSec: 20,       // baseline spatial speed (rows/second)
+      variability: 2,       // keep your big variability
+      spacing: 0.95,        // 1.0 = tight; >1 looser vertical spacing
+      trail: 0.03,          // lower = longer trails
+      pulseLambda: 0.85,    // red pulses per second per column
+      pulseDecay: 0.8,      // red alpha decay per second
+      minRowsPerSec: 6,     // absolute minimum speed clamp
+      minFactor: 0.10,      // minimum multiplicative factor for variability
 
-    // fade controls
-    fadeMinSec: 10,
-    fadeMaxSec: 25,
-    fadeStrength: 0.25
-  };
+      // NEW: per-column fading (wipe from top to bottom)
+      fadeMinSec: 10,       // shortest wipe duration per column (seconds)
+      fadeMaxSec: 25,       // longest  wipe duration per column (seconds)
+      fadeStrength: 0.25    // opacity of the fading pass per frame on the wiped region
+    };
 
-  const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+    const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
-  function sampleVel(){
-    const raw = 1 + (Math.random()*2 - 1)*RAIN.variability;
-    const f = Math.max(RAIN.minFactor, raw);
-    return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * f);
-  }
-  function sampleFadeSec(){
-    return RAIN.fadeMinSec + Math.random()*(RAIN.fadeMaxSec - RAIN.fadeMinSec);
-  }
+    function sampleVel(){
+      const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
+      const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
+      return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
+    }
 
-  function initFade() {
-    wipeY   = Array(cols).fill(0);
-    fadeDur = Array(cols).fill(0).map(sampleFadeSec);
-    wipeV   = fadeDur.map(d => h / d);
-  }
+    function sampleFadeSec(){
+      const a = RAIN.fadeMinSec, b = RAIN.fadeMaxSec;
+      return a + Math.random()*(b - a);
+    }
 
-  function resize(){
-    dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-    w = window.innerWidth; h = window.innerHeight;
-    c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+    function initFade(){
+      wipeY  = Array(cols).fill(0);
+      fadeDur= Array(cols).fill(0).map(sampleFadeSec);
+      // px per second; set after we know canvas height
+      wipeV  = Array(cols).fill(0).map((_,i)=> h / fadeDur[i]);
+    }
 
-    // cache rain color with fallback
-    try {
-      const css = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
-      if (css) rainColor = css;
-    } catch(_) {}
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      w = window.innerWidth; h = window.innerHeight;
+      c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
 
-    fontSize = Math.max(12, Math.floor(w/70));
-    glyphSpacing = Math.max(6, Math.round(fontSize * RAIN.spacing));
-    ctx.font = fontSize + 'px monospace';
-    ctx.textBaseline = 'top';
+      // Font metrics
+      fontSize = Math.max(12, Math.floor(w/70));
+      glyphSpacing = Math.round(fontSize * RAIN.spacing);
+      ctx.font = fontSize + 'px monospace';
+      ctx.textBaseline = 'top';
 
-    cols   = Math.max(1, Math.ceil(w / glyphSpacing));
-    yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
-    velRows= Array(cols).fill(0).map(()=> sampleVel());
-    pulseA = Array(cols).fill(0);
-    rowFrac= Array(cols).fill(0);
-    lastRow= Array(cols).fill(-1);
+      cols   = Math.max(1, Math.ceil(w / glyphSpacing));
+      yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
+      velRows= Array(cols).fill(0).map(()=> sampleVel());
+      pulseA = Array(cols).fill(0);
+      rowFrac= Array(cols).fill(0);
+      lastRow= Array(cols).fill(-1);
 
-    initFade();
-  }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
+      initFade();
+    }
+    window.addEventListener('resize', resize, {passive:true});
+    resize();
 
-  let lastTs = 0;
-  function frame(ts){
-    if(!lastTs) lastTs = ts;
-    const dt = (ts - lastTs) / 1000;
-    lastTs = ts;
+    let lastTs = 0;
+    function frame(ts){
+      if(!lastTs) lastTs = ts;
+      const dt = (ts - lastTs) / 1000; // seconds since last frame
+      lastTs = ts;
 
-    if (!document.hidden) {
-      // global trail fade
-      ctx.fillStyle = `rgba(4,10,4,${RAIN.trail})`;
-      ctx.fillRect(0,0,w,h);
+      if (!document.hidden) {
+        // Global trail fade (kept as-is)
+        ctx.fillStyle = `rgba(4,10,4,${RAIN.trail})`;
+        ctx.fillRect(0,0,w,h);
 
-      const maxRow = Math.ceil(h / glyphSpacing);
+        const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+        const maxRow = Math.ceil(h / glyphSpacing);
 
-      // draw glyphs
-      for (let i=0;i<cols;i++) {
-        rowFrac[i] += velRows[i] * dt;
+        // Render glyphs (unchanged)
+        for (let i=0;i<cols;i++) {
+          rowFrac[i] += velRows[i] * dt;
 
-        // Poisson pulse
-        const p = 1 - Math.exp(-RAIN.pulseLambda * dt);
-        if (pulseA[i] <= 0 && Math.random() < p) pulseA[i] = 1;
-        if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
+          // Red pulse: Poisson triggers
+          const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
+          if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1;
+          if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
 
-        while (rowFrac[i] >= 1) {
-          rowFrac[i] -= 1;
-          yRows[i] += 1;
+          while (rowFrac[i] >= 1) {
+            rowFrac[i] -= 1;
+            yRows[i] += 1;
 
-          const row = Math.floor(yRows[i]);
-          if (row > maxRow) {
-            yRows[i]   = - (10 + Math.random()*40);
-            lastRow[i] = -1;
-            rowFrac[i] = 0;
-            pulseA[i]  = 0;
-            velRows[i] = sampleVel();
-            continue;
+            const row = Math.floor(yRows[i]);
+
+            if (row > maxRow) {
+              yRows[i]   = - (10 + Math.random()*40);
+              lastRow[i] = -1;
+              rowFrac[i] = 0;
+              pulseA[i]  = 0;
+              velRows[i] = sampleVel();
+              continue;
+            }
+
+            if (row !== lastRow[i]) {
+              const x = i * glyphSpacing;
+              const y = row * glyphSpacing;
+
+              ctx.fillStyle = (pulseA[i] > 0)
+                ? `rgba(50,180,125,${pulseA[i].toFixed(3)})`
+                : rainColor;
+
+              const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
+              ctx.fillText(ch, x, y);
+              lastRow[i] = row;
+            }
           }
+        }
 
-          if (row !== lastRow[i]) {
+        // NEW: Per-column top->bottom fade (soft wipe)
+        for (let i=0;i<cols;i++){
+          // advance wipe
+          wipeY[i] += wipeV[i] * dt;
+
+          // softly darken the wiped region (only this column)
+          if (wipeY[i] > 0) {
             const x = i * glyphSpacing;
-            const y = row * glyphSpacing;
-            ctx.fillStyle = (pulseA[i] > 0)
-              ? `rgba(20,180,155,${pulseA[i].toFixed(3)})`
-              : rainColor;
-            const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
-            ctx.fillText(ch, x, y);
-            lastRow[i] = row;
+            ctx.fillStyle = `rgba(0,0,0,${RAIN.fadeStrength})`;
+            ctx.fillRect(x, 0, glyphSpacing, Math.min(wipeY[i], h));
+          }
+
+          // when reached bottom, re-roll a new random duration and restart
+          if (wipeY[i] >= h) {
+            wipeY[i] = 0;
+            fadeDur[i] = sampleFadeSec();
+            wipeV[i] = h / fadeDur[i];
           }
         }
       }
-
-      // per-column top->bottom fade
-      ctx.fillStyle = `rgba(0,0,0,${RAIN.fadeStrength})`;
-      for (let i=0;i<cols;i++){
-        wipeY[i] += wipeV[i] * dt;
-        if (wipeY[i] > 0) {
-          const x = i * glyphSpacing;
-          ctx.fillRect(x, 0, glyphSpacing, Math.min(wipeY[i], h));
-        }
-        if (wipeY[i] >= h) {
-          wipeY[i] = 0;
-          fadeDur[i] = sampleFadeSec();
-          wipeV[i] = h / fadeDur[i];
-        }
-      }
+      requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
 
-  // Title pulse (unchanged)
-  (() => {
-    const el = document.getElementById('title');
-    function pulseOnce(){
-      const dur = 180 + Math.random()*220;
-      const amp = 1 + Math.random()*0.02;
-      const bright = 0.9 + Math.random()*0.05;
-      el.animate([
-        { transform:'scale(1)',      filter:`brightness(${bright})` },
-        { transform:`scale(${amp})`, filter:`brightness(${Math.min(1.25, bright+0.1)})` },
-        { transform:'scale(1)',      filter:`brightness(${bright})` }
-      ], { duration: dur, easing:'ease-in-out' });
-    }
-    (function schedule(){
-      const wait = 500 + Math.random()*3500;
-      setTimeout(()=>{ pulseOnce(); schedule(); }, wait);
+    // ===== Title pulse (unchanged) =====
+    (()=>{
+      const el = document.getElementById('title');
+      function pulseOnce(){
+        const dur = 180 + Math.random()*220;
+        const amp = 1 + Math.random()*0.02;
+        const bright = 0.9 + Math.random()*0.05;
+        el.animate([
+          { transform:'scale(1)',      filter:`brightness(${bright})` },
+          { transform:`scale(${amp})`, filter:`brightness(${Math.min(1.25, bright+0.1)})` },
+          { transform:'scale(1)',      filter:`brightness(${bright})` }
+        ], { duration: dur, easing:'ease-in-out' });
+      }
+      (function schedule(){
+        const wait = 500 + Math.random()*3500;
+        setTimeout(()=>{ pulseOnce(); schedule(); }, wait);
+      })();
     })();
-  })();
 
-  document.getElementById('y').textContent = new Date().getFullYear();
-  window.CIR_RAIN = RAIN;
-})();
+    // Year stamp
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    // Expose knobs
+    window.CIR_RAIN = RAIN;
+  })();
 </script>
