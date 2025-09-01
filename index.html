@@ -9,7 +9,7 @@
     :root {
       --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
       /* Rain color: lower saturation = more desaturated */
-      --rainColor: hsla(120, 60%, 60%, 1);
+      --rainColor: hsla(120, 20%, 90%, 1);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -59,7 +59,8 @@
       let fontSize, glyphSpacing;
       // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
       let yRows, velRows, pulseA, rowFrac, lastRow;
-
+      let lastSweep = 0;
+      
       /* Controls */
       const RAIN = {
         rowsPerSec: 14,      // baseline spatial speed (rows/second)
@@ -109,6 +110,16 @@
       function frame(ts){
         if(!lastTs) lastTs = ts;
         const dt = (ts - lastTs) / 1000; // seconds since last frame
+        
+        const SWEEP_EVERY_MS = 4000;            // how often
+const SWEEP_HEIGHT   = Math.max(2, Math.floor(glyphSpacing * 0.6)); // band height
+
+if (ts - lastSweep > SWEEP_EVERY_MS) {
+  const y0 = Math.floor(Math.random() * h); // random band start
+  ctx.clearRect(0, y0, w, SWEEP_HEIGHT);
+  lastSweep = ts;
+}
+        
         lastTs = ts;
 
         if (!document.hidden) {
