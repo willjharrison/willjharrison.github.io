@@ -72,7 +72,7 @@
       /* ▼ Decay rate of rainfall trails:
            RAIN.trail controls fade per frame: lower = longer trails (slower decay),
            higher = quicker fade (faster decay). */
-      const RAIN = { speed: .8, variability: .2, resetChance: 0.975, trail: 0.1 };
+      const RAIN = { speed: .4, variability: 1.2, resetChance: 0.975, trail: 0.1 };
 
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
@@ -110,7 +110,7 @@
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
             else {
               // optional timing jitter (keep if you like the variability)
-              const jitter = Math.random(); // 0–1
+              const jitter = Math.random()*2; // 0–1
               drops[i] += RAIN.speed * speeds[i] * jitter;
             }
           }
