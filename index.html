@@ -169,7 +169,7 @@
       function pulseOnce(){
         const dur = 180 + Math.random()*220; // 180–400ms
         const amp = 1 + Math.random()*0.02;   // subtle scale
-        const bright = 0.9 + Math.random()*0.25; // 0.9–1.15
+        const bright = 0.9 + Math.random()*0.05; // 0.9–1.15
         el.animate([
           { transform:'scale(1)',      filter:`brightness(${bright})` },
           { transform:`scale(${amp})`,  filter:`brightness(${Math.min(1.25, bright+0.1)})` },
