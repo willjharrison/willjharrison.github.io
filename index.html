@@ -10,6 +10,8 @@
     :root {
       --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
       --rainColor: hsla(120, 80%, 20%, 1);
+      --panelBg: rgba(10, 25, 10, 0.85);
+      --panelBorder: rgba(80, 200, 120, 0.3);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -24,16 +26,59 @@
 
     .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:2}
 
-    h1{font-family: 'VT323', monospace; margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);
-      color:#D4EB8E;text-shadow:0 0 .2rem #66ccff,0 0 .2rem #66ccff,0 0 .4rem #66ccff,0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);
+    h1{font-family:'VT323', monospace; margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);
+      color:#D4EB8E;
+      text-shadow:
+        0 0 .2rem #66ccff,
+        0 0 .2rem #66ccff,
+        0 0 .4rem #66ccff,
+        0 0 .6rem var(--glow),
+        0 0 1.2rem var(--glow),
+        0 0 2.4rem var(--glow);
       filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
+
     .crt{position:relative;isolation:isolate}
     .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.3) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.05), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
     footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:2}
-
     @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
+
+    /* Expanding content panel */
+    .panel-backdrop{
+      position:fixed; inset:0; z-index:3; display:none;
+      background: rgba(0,0,0,0.35); backdrop-filter: blur(1px);
+    }
+    .panel-backdrop.show{ display:block; }
+    .panel{
+      position:absolute; left:50%; top:10vh; transform:translateX(-50%);
+      width:min(900px, 88vw); max-height:80vh; overflow:auto;
+      background:var(--panelBg);
+      border:1px solid var(--panelBorder);
+      border-radius:14px;
+      box-shadow:0 10px 40px rgba(0,0,0,.6), 0 0 30px rgba(25,255,60,.08) inset;
+      padding:20px 22px;
+      opacity:0; scale:.98; transition:opacity .18s ease, scale .18s ease;
+    }
+    .panel.show{ opacity:1; scale:1; }
+    .panel h2{
+      font-family:'VT323', monospace; margin:0 0 10px 0; font-size:42px; letter-spacing:.04em; color:#D4EB8E;
+      text-shadow:
+        0 0 .2rem #66ccff,
+        0 0 .2rem #66ccff,
+        0 0 .4rem #66ccff,
+        0 0 .6rem var(--glow),
+        0 0 1.2rem var(--glow),
+        0 0 2.4rem var(--glow);
+    }
+    .panel .meta{font-size:13px; opacity:.7; margin-bottom:10px}
+    .panel .content{white-space:pre-wrap; line-height:1.45; font-size:16px}
+    .panel .actions{display:flex; gap:10px; margin-top:14px}
+    .btn{
+      font:inherit; color:#c7ffd7; background:rgba(0,60,0,.35);
+      border:1px solid rgba(60,255,160,.35); border-radius:8px; padding:8px 12px; cursor:pointer
+    }
+    .btn:hover{ background:rgba(0,80,0,.5) }
   </style>
 </head>
 <body>
@@ -42,6 +87,19 @@
 
   <div class="wrap">
     <h1 id="title" class="crt">Sensory Intelligence Research Group</h1>
+  </div>
+
+  <!-- Expanding content panel -->
+  <div id="backdrop" class="panel-backdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div id="panel" class="panel" role="document">
+      <h2 id="panelTitle">Section</h2>
+      <div class="meta" id="panelMeta"></div>
+      <div class="content" id="panelContent">Loading…</div>
+      <div class="actions">
+        <button class="btn" id="closeBtn">Close</button>
+        <a class="btn" id="editHint" href="#" target="_blank" rel="noopener">Open text file</a>
+      </div>
+    </div>
   </div>
 
   <footer>© <span id="y"></span> SIRG </footer>
@@ -54,19 +112,63 @@
     const gtx  = gC.getContext('2d');
 
     // ==== Menu spec (CSS px positions; bigger font via scale) ====
+    // Place items in a vertical stack; tweak x/y to taste.
     const MENU = [
-      { text: 'ABOUT',        x: 80,  y: 160, href: '#about' },
-      { text: 'PUBLICATIONS', x: 80,  y: 240, href: '#pubs'  },
+      { key:'about',         text:'ABOUT',          x: 80, y: 140, href:'#about',
+        file:'content/about.txt',
+        defaultText:
+`Sensory Intelligence Research Group (SIRG)
+School of Health, University of the Sunshine Coast
+
+We’re an interdisciplinary team led by [Your Name]. We study how biological sensory systems
+construct meaningful representations of the world — from computations in neural populations
+through to human decision making — and apply these insights to improve health.` },
+
+      { key:'research-topics', text:'RESEARCH TOPICS', x: 80, y: 210, href:'#research-topics',
+        file:'content/research-topics.txt',
+        defaultText:
+`Our interests span:
+• Population coding & probabilistic inference
+• Visual perception: crowding, illusory contours, attentional cueing
+• Eye movements & perception
+• Working memory limits & decision processes
+• Bayesian models of perception and choice
+• Translational links to disorders and rehabilitation` },
+
+      { key:'publications',  text:'PUBLICATIONS',   x: 80, y: 280, href:'#publications',
+        file:'content/publications.txt',
+        defaultText:
+`Selected publications:
+• (2023) Crowding and the limits of peripheral vision. Journal …
+• (2022) Eye movements reshape perceptual inference. Vision Research …
+• (2021) Illusory contours and neural population coding. PLoS …
+(Replace this with your real list. You can paste BibTex/links here.)` },
+
+      { key:'collaborators', text:'COLLABORATORS',  x: 80, y: 350, href:'#collaborators',
+        file:'content/collaborators.txt',
+        defaultText:
+`We collaborate with colleagues across neuroscience, psychology, engineering,
+and computer science. Add names, labs, and links here.` },
+
+      { key:'opportunities', text:'OPPORTUNITIES',  x: 80, y: 420, href:'#opportunities',
+        file:'content/opportunities.txt',
+        defaultText:
+`Interested in joining? We welcome enquiries from honours, PhD, and postdoctoral
+researchers, as well as clinical collaborators. Include project ideas and funding info here.` },
     ];
 
     // ----- knobs -----
     const USE_DPR_1 = false;            // set true for max perf
-    const MENU_FONT_SCALE = 2.6;        // menu text size relative to rain font
+    const MENU_FONT_SCALE = 2.8;        // menu text size relative to rain font
     const GLASS = {
       blurPx: 1.6,                      // blur radius inside letters
       tint: 'rgba(60,220,120,0.22)',    // “green glass” tint
-      stroke: 'rgba(140,255,180,0.6)',  // edge highlight
-      strokeWidthFactor: 0.08           // of menu font size
+      stroke: 'rgba(140,255,180,0.75)', // edge highlight
+      strokeWidthFactor: 0.09           // of menu font size
+    };
+    const TITLE_GLOW = {                 // mimic h1 glow on canvas
+      shadowColor: 'rgba(25,255,25,0.55)',
+      shadowBlur: 16
     };
     const RAIN = {
       rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
@@ -139,7 +241,7 @@
 
       // Menu font (bigger)
       const menuPx = Math.round(fontSize * MENU_FONT_SCALE);
-      gtx.font = menuPx + 'px monospace';
+      gtx.font = `bold ${menuPx}px VT323, monospace`;
       gtx.textBaseline = 'top'; gtx.textAlign = 'left';
 
       cols   = Math.max(1, Math.ceil(w / glyphSpacing));
@@ -155,53 +257,108 @@
       // update clickable word boxes (CSS px, based on menu font)
       wordBoxes = MENU.map(m => {
         const mw = gtx.measureText(m.text).width;
-        return { x:m.x, y:m.y, w:Math.ceil(mw), h:Math.ceil(menuPx*1.1), href:m.href, text:m.text, menuPx };
+        return { x:m.x, y:m.y, w:Math.ceil(mw), h:Math.ceil(menuPx*1.1), href:m.href, text:m.text, key:m.key, file:m.file };
       });
     }
     window.addEventListener('resize', resize, {passive:true});
     resize();
 
-    // Draw glass effect for a single word (per-word bounding box; DPR-correct)
+    // Draw glass effect for a single word with title-like glow
     function drawGlassWord(m){
-      const menuPx = gtx.measureText('M').fontBoundingBoxAscent ? (gtx.measureText('M').fontBoundingBoxAscent + gtx.measureText('M').fontBoundingBoxDescent) : parseInt(gtx.font,10);
       const metrics = gtx.measureText(m.text);
       const wBox = Math.ceil(metrics.width);
-      const hBox = Math.ceil(wordBoxes[0]?.menuPx ? wordBoxes[0].menuPx*1.1 : parseInt(gtx.font,10)*1.1);
+      const hBox = Math.ceil(parseInt(gtx.font,10) * 1.1);
 
       // Clear just this word's region on overlay
-      gtx.clearRect(m.x - 4, m.y - 4, wBox + 8, hBox + 8);
+      gtx.clearRect(m.x - 6, m.y - 6, wBox + 12, hBox + 12);
 
-      // 1) Paint text (white) to become the destination mask
+      // 1) Base mask (white text)
       gtx.globalCompositeOperation = 'source-over';
       gtx.fillStyle = '#fff';
       gtx.fillText(m.text, m.x, m.y);
 
-      // 2) Clip background into letters using 'source-in' (blurred & saturated)
+      // 2) Insert blurred background into the mask
       gtx.globalCompositeOperation = 'source-in';
       gtx.filter = `blur(${GLASS.blurPx}px) saturate(1.2)`;
-      // Copy only the needed background sub-rect (device px for source)
       const sx = Math.round(m.x * dpr), sy = Math.round(m.y * dpr);
       const sw = Math.round(wBox * dpr), sh = Math.round(hBox * dpr);
       gtx.drawImage(c, sx, sy, sw, sh, m.x, m.y, wBox, hBox);
       gtx.filter = 'none';
 
-      // 3) Tint the clipped background to green glass
+      // 3) Tint
       gtx.globalCompositeOperation = 'source-atop';
       gtx.fillStyle = GLASS.tint;
       gtx.fillRect(m.x, m.y, wBox, hBox);
 
-      // 4) Edge highlight
+      // 4) Title-like glow (shadow + multiple strokes)
       gtx.globalCompositeOperation = 'source-over';
-      gtx.lineWidth = Math.max(1, (parseInt(gtx.font,10) * GLASS.strokeWidthFactor));
+      gtx.save();
+      gtx.shadowColor = TITLE_GLOW.shadowColor;
+      gtx.shadowBlur  = TITLE_GLOW.shadowBlur;
+      gtx.lineWidth = Math.max(1, parseInt(gtx.font,10) * GLASS.strokeWidthFactor);
       gtx.strokeStyle = GLASS.stroke;
+      gtx.strokeText(m.text, m.x, m.y);
+      gtx.restore();
+
+      // 5) Thin bright edge
+      gtx.lineWidth = 1;
+      gtx.strokeStyle = 'rgba(255,255,255,0.35)';
       gtx.strokeText(m.text, m.x, m.y);
     }
 
     function drawGlassMenu(){
-      // Redraw each word’s filtered region
       for (const m of MENU) drawGlassWord(m);
     }
 
+    // ===== Expanding panel logic =====
+    const backdrop = document.getElementById('backdrop');
+    const panel    = document.getElementById('panel');
+    const pTitle   = document.getElementById('panelTitle');
+    const pMeta    = document.getElementById('panelMeta');
+    const pContent = document.getElementById('panelContent');
+    const closeBtn = document.getElementById('closeBtn');
+    const editHint = document.getElementById('editHint');
+
+    async function openSection(item){
+      pTitle.textContent = item.text.replace(/_/g,' ');
+      pMeta.textContent  = 'Loaded from: ' + item.file + ' (edit this file to change content)';
+      pContent.textContent = 'Loading…';
+      editHint.href = item.file;
+
+      // Try to load external text; fall back to defaultText
+      try{
+        const res = await fetch(item.file, {cache:'no-cache'});
+        if(!res.ok) throw new Error('Not found');
+        const txt = await res.text();
+        pContent.textContent = txt.trim() ? txt : (MENU.find(m=>m.key===item.key).defaultText || '');
+      }catch(e){
+        pContent.textContent = MENU.find(m=>m.key===item.key).defaultText || '(No content)';
+      }
+
+      backdrop.classList.add('show');
+      panel.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+    }
+    function closePanel(){
+      panel.classList.remove('show');
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+    }
+    closeBtn.addEventListener('click', closePanel, {passive:true});
+    backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) closePanel(); }, {passive:true});
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closePanel(); });
+
+    // Click routing for the glass text (bounding boxes)
+    gC.addEventListener('click', (e) => {
+      const x = e.clientX, y = e.clientY;
+      for (const b of wordBoxes){
+        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h){
+          openSection(b); break;
+        }
+      }
+    }, {passive:true});
+
+    // ===== Rain =====
     function frame(ts){
       if(!lastTs) lastTs = ts;
       let dt = (ts - lastTs) / 1000;
@@ -280,7 +437,19 @@
 
       requestAnimationFrame(frame);
     }
-    requestAnimationFrame(frame);
+
+    let dpr, w, h, cols, fontSize, glyphSpacing, yRows, velRows, pulseA, rowFrac, lastRow, lastSweep, lastTs;
+
+    function initRain(){
+      // (vars are already declared above; just ensuring clarity for readers)
+    }
+
+    function setup(){
+      resize();
+      buildGlowSprite();
+      requestAnimationFrame(frame);
+    }
+    setup();
 
     // Title brightness flicker (no scale bounce)
     (()=>{
@@ -297,21 +466,12 @@
       (function schedule(){ setTimeout(()=>{ pulseOnce(); schedule(); }, 500 + Math.random()*3500); })();
     })();
 
-    // Click routing for the glass text (bounding boxes)
-    gC.addEventListener('click', (e) => {
-      const x = e.clientX, y = e.clientY;
-      for (const b of wordBoxes){
-        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h){
-          window.location.hash = b.href; break;
-        }
-      }
-    }, {passive:true});
-
     // Year
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // expose
-    window.CIR_RAIN = RAIN;
+    // Hard-refresh overlay when window resizes
+    window.addEventListener('resize', ()=>{ drawGlassMenu(); }, {passive:true});
+
   })();
   </script>
 </body>
