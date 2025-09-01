@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Computational Intelligence Research</title>
+  <title>Sensory Intelligence Research Group</title>
   <meta name="color-scheme" content="dark light" />
   <style>
     :root {
@@ -101,7 +101,7 @@
 
         if (!document.hidden) {
           // Trail fade
-          ctx.fillStyle = `rgba(0,20,0,${RAIN.trail})`;
+          ctx.fillStyle = `rgba(10,40,20,${RAIN.trail})`;
           ctx.fillRect(0,0,w,h);
 
           const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
@@ -127,7 +127,7 @@
 
                 // choose color
                 if (pulseA[i] > 0) {
-                  ctx.fillStyle = `rgba(55,150,60,${pulseA[i].toFixed(3)})`;
+                  ctx.fillStyle = `rgba(15,100,16,${pulseA[i].toFixed(3)})`;
                 } else {
                   ctx.fillStyle = rainColor;
                 }
