@@ -25,7 +25,7 @@
 
     /* CRT scanlines */
     .crt{position:relative;isolation:isolate}
-    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.03) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
+    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.13) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.12), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
 
@@ -59,7 +59,7 @@
          - pulseLambda: expected red-pulse events per second per column */
       const RAIN = {
         rowsPerSec: 18,     // ≈ spatial update rate (rows/s)
-        variability: 0.20,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
+        variability: 0.50,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
         spacing: 1.00,      // 1.0 = tight; >1 looser vertical spacing
         trail: 0.06,
         pulseLambda: 0.35,  // pulses/sec/column
@@ -116,7 +116,7 @@
             const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt); // per-frame prob
             if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1; // trigger
             if (pulseA[i] > 0) {
-              ctx.fillStyle = `rgba(255,60,60,${pulseA[i].toFixed(3)})`;
+              ctx.fillStyle = `rgba(55,160,60,${pulseA[i].toFixed(3)})`;
               pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
             } else {
               ctx.fillStyle = rainColor;
