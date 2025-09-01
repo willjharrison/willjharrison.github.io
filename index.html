@@ -44,7 +44,7 @@
   <footer>© <span id="y"></span> SIRG </footer>
 
   <script>
-    // ===== Matrix rain (equal SPATIAL rate + red pulse + row smoothing) =====
+    // ===== Matrix rain (equal SPATIAL rate + red pulse + row smoothing + min speed clamp) =====
     (() => {
       const c = document.getElementById('matrix');
       const ctx = c.getContext('2d');
@@ -53,23 +53,28 @@
       // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
       let yRows, velRows, pulseA, rowFrac, lastRow;
 
-      /* Controls
-         - rowsPerSec: target spatial rate in ROWS/second (≈ equal across columns)
-         - variability: ± jitter across columns (0 = identical)
-         - spacing: vertical spacing relative to font size (1.0 = tight)
-         - trail: background fade per frame (lower = longer trails)
-         - pulseLambda: expected red-pulse events per second per column
-         - pulseDecay: red alpha decay per second */
+      /* Controls */
       const RAIN = {
-        rowsPerSec: 24,
-        variability: 2,
-        spacing: 1.00,
-        trail: 0.02,
-        pulseLambda: 0.35,
-        pulseDecay: 1.8
+        rowsPerSec: 24,      // baseline spatial speed (rows/second)
+        variability: 2,      // keep your big variability
+        spacing: 1.00,       // 1.0 = tight; >1 looser vertical spacing
+        trail: 0.02,         // lower = longer trails
+        pulseLambda: 0.35,   // red pulses per second per column
+        pulseDecay: 1.8,     // red alpha decay per second
+        minRowsPerSec: 6,    // <<< clamp: absolute minimum speed
+        minFactor: 0.10      // <<< clamp: minimum multiplicative factor for variability
       };
 
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+
+      function sampleVel(){
+        // raw factor from variability in [-variability, +variability] around 1
+        const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
+        // ensure factor is never below minFactor (prevents stalls/negatives)
+        const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
+        // compute rows/sec and clamp absolute minimum
+        return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
+      }
 
       function resize(){
         dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
@@ -83,21 +88,18 @@
         ctx.font = fontSize + 'px monospace';
         ctx.textBaseline = 'top';
 
-        cols = Math.max(1, Math.ceil(w / glyphSpacing));
-        yRows   = Array(cols).fill(0).map(()=> -Math.random()*50);
-        velRows = Array(cols).fill(0).map(()=> RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability));
-        pulseA  = Array(cols).fill(0);
-        rowFrac = Array(cols).fill(0);
-        lastRow = Array(cols).fill(-1);
+        cols   = Math.max(1, Math.ceil(w / glyphSpacing));
+        yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
+        velRows= Array(cols).fill(0).map(()=> sampleVel());
+        pulseA = Array(cols).fill(0);
+        rowFrac= Array(cols).fill(0);
+        lastRow= Array(cols).fill(-1);
       }
       window.addEventListener('resize', resize, {passive:true});
       resize();
 
       let lastTs = 0;
       function frame(ts){
-
-        const maxRow = Math.ceil(h / glyphSpacing);
-        
         if(!lastTs) lastTs = ts;
         const dt = (ts - lastTs) / 1000; // seconds since last frame
         lastTs = ts;
@@ -108,6 +110,7 @@
           ctx.fillRect(0,0,w,h);
 
           const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+          const maxRow = Math.ceil(h / glyphSpacing);
 
           for (let i=0;i<cols;i++) {
             // accumulate spatial progress in rows (not pixels)
@@ -124,40 +127,28 @@
               yRows[i] += 1; // advance exactly one row
 
               const row = Math.floor(yRows[i]);
+
+              // deterministic respawn once off-screen
+              if (row > maxRow) {
+                yRows[i]   = - (10 + Math.random()*40);
+                lastRow[i] = -1;
+                rowFrac[i] = 0;
+                pulseA[i]  = 0;
+                velRows[i] = sampleVel();
+                continue;
+              }
+
               if (row !== lastRow[i]) { // draw only once per row
                 const x = i * glyphSpacing;
                 const y = row * glyphSpacing;
 
-                // choose color
-                if (pulseA[i] > 0) {
-                  ctx.fillStyle = `rgba(15,100,16,${pulseA[i].toFixed(3)})`;
-                } else {
-                  ctx.fillStyle = rainColor;
-                }
+                ctx.fillStyle = (pulseA[i] > 0)
+                  ? `rgba(255,60,60,${pulseA[i].toFixed(3)})`
+                  : rainColor;
 
                 const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
                 ctx.fillText(ch, x, y);
                 lastRow[i] = row;
-
-                // reset deterministically once off-screen
-if (row > maxRow) {
-  yRows[i]   = - (10 + Math.random()*40); // start above the top with a random gap
-  lastRow[i] = -1;
-  rowFrac[i] = 0;
-  velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
-
-  if (velRows[i] < 0.2) {velRows[i] = .2}
-  pulseA[i]  = 0;
-  
-  continue; // move on to next consumed row (if any)
-}
-              } else {
-                // already drew this row; if below screen, reset
-                if ((row * glyphSpacing) > h) {
-                  yRows[i] = -Math.random()*20; lastRow[i] = -1; rowFrac[i] = 0;
-                  velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
-                  break;
-                }
               }
             }
           }
@@ -168,6 +159,7 @@ if (row > maxRow) {
 
       // Expose knobs for live tuning in console if desired
       window.CIR_RAIN = RAIN;
+      window.CIR_RAIN_sampleVel = sampleVel; // optional: inspect sampler
     })();
 
     // ===== Title pulse (random timing & brightness) =====
@@ -176,7 +168,7 @@ if (row > maxRow) {
       function pulseOnce(){
         const dur = 180 + Math.random()*220; // 180–400ms
         const amp = 1 + Math.random()*0.02;   // subtle scale
-        const bright = 0.9 + Math.random()*0.05; // 0.9–1.15
+        const bright = 0.9 + Math.random()*0.05; // small brightness wiggle
         el.animate([
           { transform:'scale(1)',      filter:`brightness(${bright})` },
           { transform:`scale(${amp})`,  filter:`brightness(${Math.min(1.25, bright+0.1)})` },
