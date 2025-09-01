@@ -8,12 +8,9 @@
   <style>
     :root {
       --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
-
-      /* ▼ Rain color: lower saturation = more desaturated.
-         Example: hsla(120, 40%, 60%, 1) is a muted green. */
+      /* Rain color: lower saturation = more desaturated */
       --rainColor: hsla(120, 60%, 60%, 1);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:hidden}
@@ -21,30 +18,16 @@
     /* Fullscreen matrix canvas */
     #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
 
-    /* Centered title */
-    .wrap{position:absolute;inset:0;display:grid;place-items:center;padding:4vmin;z-index:1}
+    /* Title bar pinned to top */
+    .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:1}
 
-    h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(28px,7vw,96px);text-shadow:0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
+    h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);text-shadow:0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
 
     /* CRT scanlines */
     .crt{position:relative;isolation:isolate}
     .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.03) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.12), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
-
-    /* Glitch layers */
-    .glitch{position:relative}
-    .glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;clip-path:inset(0 0 0 0);overflow:hidden;white-space:nowrap;opacity:0}
-    .glitch::before{left:1px;text-shadow:-2px 0 #f0f;filter:blur(.4px)}
-    .glitch::after{left:-1px;text-shadow:2px 0 #0ff;filter:blur(.4px)}
-    .glitch.active::before,.glitch.active::after{opacity:1}
-    .glitch.wild::before{ text-shadow:-3px 0 #ff55ff; filter:blur(.6px) contrast(1.2) }
-    .glitch.wild::after { text-shadow: 3px 0 #55ffff; filter:blur(.6px) contrast(1.2) }
-
-    /* ▼ If you want to REMOVE the “second background title” (ghost layers),
-         either (A) delete the data-text attribute on the <h1>, or
-         (B) add class 'no-ghost' to the <h1> to disable the pseudo-layers. */
-    .glitch.no-ghost::before, .glitch.no-ghost::after { content: none !important; opacity: 0 !important; }
 
     footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
 
@@ -55,9 +38,8 @@
   <canvas id="matrix" aria-hidden="true"></canvas>
 
   <div class="wrap">
-    <!-- To remove background-ghost text, either delete data-text OR add 'no-ghost' to class list. -->
-    <h1 id="title" class="crt glitch" data-text="Computational Intelligence Research">Computational Intelligence Research</h1>
-    <!-- Example without ghost: <h1 id="title" class="crt glitch no-ghost">Computational Intelligence Research</h1> -->
+    <!-- Ghosting removed: no 'glitch' class, no data-text attribute -->
+    <h1 id="title" class="crt">Computational Intelligence Research</h1>
   </div>
 
   <footer>© <span id="y"></span> CIR</footer>
@@ -69,11 +51,8 @@
       const ctx = c.getContext('2d');
       let w, h, cols, drops, speeds, dpr, fontSize;
 
-      /* ▼ Decay rate of rainfall trails:
-           RAIN.trail controls fade per frame: lower = longer trails (slower decay),
-           higher = quicker fade (faster decay). */
-      const RAIN = { speed: .4, variability: 1.2, resetChance: 0.975, trail: 0.1 };
-
+      /* Decay rate of trails: lower = longer trails, higher = quicker fade */
+      const RAIN = { speed: .4, variability: 1.2, resetChance: 0.975, trail: 0.10 };
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
       function resize(){
@@ -93,24 +72,19 @@
 
       function draw(){
         if(!document.hidden){
-          // ▼ Background fade — tied to RAIN.trail above
+          // Background fade — tied to RAIN.trail above
           ctx.fillStyle = `rgba(0,20,0,${RAIN.trail})`;
           ctx.fillRect(0,0,w,h);
-
-          // ▼ Rain color comes from CSS variable --rainColor (desaturate in :root)
+          // Rain color from CSS variable
           ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
-
           for(let i=0;i<cols;i++){
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
-
             ctx.fillText(ch, x, y);
-
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
             else {
-              // optional timing jitter (keep if you like the variability)
-              const jitter = Math.random()*2; // 0–1
+              const jitter = Math.random()*2; // extra variability in pace
               drops[i] += RAIN.speed * speeds[i] * jitter;
             }
           }
@@ -118,8 +92,6 @@
         requestAnimationFrame(draw);
       }
       draw();
-
-      // Expose simple controls in console
       window.CIR_RAIN = RAIN;
     })();
 
@@ -127,8 +99,8 @@
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 200 + Math.random()*400; // 0.2–1.6s
-        const amp = 1 + Math.random()*0.08;   // subtle 1–1.08x
+        const dur = 200 + Math.random()*400;
+        const amp = 1 + Math.random()*0.08;
         el.animate([
           { transform:'scale(1)', filter:'brightness(1)' },
           { transform:`scale(${amp})`, filter:'brightness(1.1)' },
@@ -136,47 +108,26 @@
         ], { duration: dur, easing:'ease-in-out' });
       }
       (function schedule(){
-        const wait = 500 + Math.random()*3500; // 0.5–4s
+        const wait = 500 + Math.random()*3500;
         setTimeout(()=>{ pulseOnce(); schedule(); }, wait);
       })();
     })();
 
-    // ===== Stochastic glitch (Poisson intervals + bursts) =====
+    // ===== Stochastic micro-jitter (kept, but without ghost layers) =====
     (()=>{
       const el = document.getElementById('title');
-      const meanMs = 700; // average interval (lower = more frequent)
+      const meanMs = 1200; // average interval (lower = more frequent)
       const expRand = m => -Math.log(1-Math.random())*m;
-
-      function jitterOnce(wild=false){
-        if(wild) el.classList.add('wild');
-        el.classList.add('active');
+      function jitterOnce(){
         const nudgeX = (Math.random()*2-1)*1;
         const nudgeY = (Math.random()*2-1)*1;
-        const scale  = 1 + Math.random()*0.02;
+        const scale  = 1 + Math.random()*0.015;
         el.style.transform = `translate(${nudgeX}px,${nudgeY}px) scale(${scale})`;
-        el.style.filter = Math.random()<0.35 ? 'contrast(1.25) saturate(.2)' : '';
-        setTimeout(()=>{
-          el.classList.remove('active');
-          el.classList.remove('wild');
-          el.style.transform = '';
-          el.style.filter = '';
-        }, 160 + Math.random()*260);
+        setTimeout(()=>{ el.style.transform=''; }, 140 + Math.random()*180);
       }
-
       (function schedule(){
-        setTimeout(()=>{
-          if(Math.random()<0.25){
-            jitterOnce(true); // wild
-          } else {
-            const burst = 1 + Math.floor(Math.random()*3);
-            let k=0; const tick=()=>{ jitterOnce(false); if(++k<burst) setTimeout(tick, 40+Math.random()*120); };
-            tick();
-          }
-          schedule();
-        }, expRand(meanMs));
+        setTimeout(()=>{ jitterOnce(); schedule(); }, expRand(meanMs));
       })();
-
-      window.CIR_GLITCH = { setMean(ms){ this.mean = ms; }, get mean(){ return meanMs; } };
     })();
 
     // Year stamp
