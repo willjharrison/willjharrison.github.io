@@ -95,6 +95,9 @@
 
       let lastTs = 0;
       function frame(ts){
+
+        const maxRow = Math.ceil(h / glyphSpacing);
+        
         if(!lastTs) lastTs = ts;
         const dt = (ts - lastTs) / 1000; // seconds since last frame
         lastTs = ts;
@@ -136,14 +139,15 @@
                 ctx.fillText(ch, x, y);
                 lastRow[i] = row;
 
-                // reset when off-screen
-                if (y > h && Math.random() > 0.97) {
-                  yRows[i] = -Math.random()*20;
-                  lastRow[i] = -1;
-                  velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
-                  rowFrac[i] = 0;
-                  break; // move to next column
-                }
+                // reset deterministically once off-screen
+if (row > maxRow) {
+  yRows[i]   = - (10 + Math.random()*40); // start above the top with a random gap
+  lastRow[i] = -1;
+  rowFrac[i] = 0;
+  velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
+  pulseA[i]  = 0;
+  continue; // move on to next consumed row (if any)
+}
               } else {
                 // already drew this row; if below screen, reset
                 if ((row * glyphSpacing) > h) {
