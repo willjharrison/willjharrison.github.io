@@ -1,195 +1,165 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sensory Intelligence Research Group</title>
-  <meta name="color-scheme" content="dark light" />
-  <style>
-    :root {
-      --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
-      /* Rain color: lower saturation = more desaturated */
-      --rainColor: hsla(120, 80%, 40%, 1);
+<script>
+  // ===== Matrix rain with per-column top->bottom fade (random durations) =====
+  (() => {
+    const c = document.getElementById('matrix');
+    const ctx = c.getContext('2d');
+    let w, h, cols, dpr;
+    let fontSize, glyphSpacing;
+
+    // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
+    let yRows, velRows, pulseA, rowFrac, lastRow;
+
+    // per-column fade state
+    let wipeY, fadeDur, wipeV;
+
+    /* Controls */
+    const RAIN = {
+      rowsPerSec: 20,       // baseline spatial speed (rows/second)
+      variability: 2,       // keep your big variability
+      spacing: 0.95,        // 1.0 = tight; >1 looser vertical spacing
+      trail: 0.03,          // lower = longer trails
+      pulseLambda: 0.85,    // red pulses per second per column
+      pulseDecay: 0.8,      // red alpha decay per second
+      minRowsPerSec: 6,     // absolute minimum speed clamp
+      minFactor: 0.10,      // minimum multiplicative factor for variability
+
+      // NEW: per-column fading (wipe from top to bottom)
+      fadeMinSec: 10,       // shortest wipe duration per column (seconds)
+      fadeMaxSec: 25,       // longest  wipe duration per column (seconds)
+      fadeStrength: 0.25    // opacity of the fading pass per frame on the wiped region
+    };
+
+    const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+
+    function sampleVel(){
+      const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
+      const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
+      return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:hidden}
 
-    /* Fullscreen matrix canvas */
-    #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
+    function sampleFadeSec(){
+      const a = RAIN.fadeMinSec, b = RAIN.fadeMaxSec;
+      return a + Math.random()*(b - a);
+    }
 
-    /* Title bar pinned to top */
-    .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:1}
+    function initFade(){
+      wipeY  = Array(cols).fill(0);
+      fadeDur= Array(cols).fill(0).map(sampleFadeSec);
+      // px per second; set after we know canvas height
+      wipeV  = Array(cols).fill(0).map((_,i)=> h / fadeDur[i]);
+    }
 
-    h1 {
-  color:#D4EB8E;                   /* blue text */
-  text-shadow:0 1 .6rem #66ccff,
-              0 0 1.2rem #66ccff,
-              0 0 2.4rem #66ccff;
-}
-    
-    h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);text-shadow:0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      w = window.innerWidth; h = window.innerHeight;
+      c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
 
-    /* CRT scanlines */
-    .crt{position:relative;isolation:isolate}
-    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.03) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
-    .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.12), transparent 60%);pointer-events:none;filter:blur(2px)}
-    @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
+      // Font metrics
+      fontSize = Math.max(12, Math.floor(w/70));
+      glyphSpacing = Math.round(fontSize * RAIN.spacing);
+      ctx.font = fontSize + 'px monospace';
+      ctx.textBaseline = 'top';
 
-    footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
+      cols   = Math.max(1, Math.ceil(w / glyphSpacing));
+      yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
+      velRows= Array(cols).fill(0).map(()=> sampleVel());
+      pulseA = Array(cols).fill(0);
+      rowFrac= Array(cols).fill(0);
+      lastRow= Array(cols).fill(-1);
 
-    @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
-  </style>
-</head>
-<body>
-  <canvas id="matrix" aria-hidden="true"></canvas>
+      initFade();
+    }
+    window.addEventListener('resize', resize, {passive:true});
+    resize();
 
-  <div class="wrap">
-    <h1 id="title" class="crt">Sensory Intelligence Research Group</h1>
-  </div>
+    let lastTs = 0;
+    function frame(ts){
+      if(!lastTs) lastTs = ts;
+      const dt = (ts - lastTs) / 1000; // seconds since last frame
+      lastTs = ts;
 
-  <footer>© <span id="y"></span> SIRG </footer>
+      if (!document.hidden) {
+        // Global trail fade (kept as-is)
+        ctx.fillStyle = `rgba(4,10,4,${RAIN.trail})`;
+        ctx.fillRect(0,0,w,h);
 
-  <script>
-    // ===== Matrix rain (equal SPATIAL rate + red pulse + row smoothing + min speed clamp) =====
-    (() => {
-      const c = document.getElementById('matrix');
-      const ctx = c.getContext('2d');
-      let w, h, cols, dpr;
-      let fontSize, glyphSpacing;
-      // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
-      let yRows, velRows, pulseA, rowFrac, lastRow;
-      let lastSweep = 0;
-      
-      /* Controls */
-      const RAIN = {
-        rowsPerSec: 20,      // baseline spatial speed (rows/second)
-        variability: 2,      // keep your big variability
-        spacing: 0.95,       // 1.0 = tight; >1 looser vertical spacing
-        trail: 0.03,         // lower = longer trails
-        pulseLambda: 0.85,   // red pulses per second per column
-        pulseDecay: 0.8,     // red alpha decay per second
-        minRowsPerSec: 6,    // <<< clamp: absolute minimum speed
-        minFactor: 0.10      // <<< clamp: minimum multiplicative factor for variability
-      };
+        const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+        const maxRow = Math.ceil(h / glyphSpacing);
 
-      const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+        // Render glyphs (unchanged)
+        for (let i=0;i<cols;i++) {
+          rowFrac[i] += velRows[i] * dt;
 
-      function sampleVel(){
-        // raw factor from variability in [-variability, +variability] around 1
-        const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
-        // ensure factor is never below minFactor (prevents stalls/negatives)
-        const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
-        // compute rows/sec and clamp absolute minimum
-        return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
-      }
+          // Red pulse: Poisson triggers
+          const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
+          if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1;
+          if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
 
-      function resize(){
-        dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-        w = window.innerWidth; h = window.innerHeight;
-        c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
+          while (rowFrac[i] >= 1) {
+            rowFrac[i] -= 1;
+            yRows[i] += 1;
 
-        // Font metrics
-        fontSize = Math.max(12, Math.floor(w/70));
-        glyphSpacing = Math.round(fontSize * RAIN.spacing);
-        ctx.font = fontSize + 'px monospace';
-        ctx.textBaseline = 'top';
+            const row = Math.floor(yRows[i]);
 
-        cols   = Math.max(1, Math.ceil(w / glyphSpacing));
-        yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
-        velRows= Array(cols).fill(0).map(()=> sampleVel());
-        pulseA = Array(cols).fill(0);
-        rowFrac= Array(cols).fill(0);
-        lastRow= Array(cols).fill(-1);
-      }
-      window.addEventListener('resize', resize, {passive:true});
-      resize();
+            if (row > maxRow) {
+              yRows[i]   = - (10 + Math.random()*40);
+              lastRow[i] = -1;
+              rowFrac[i] = 0;
+              pulseA[i]  = 0;
+              velRows[i] = sampleVel();
+              continue;
+            }
 
-      let lastTs = 0;
-      function frame(ts){
-        if(!lastTs) lastTs = ts;
-        const dt = (ts - lastTs) / 1000; // seconds since last frame
-        
-        const SWEEP_EVERY_MS = 500;            // how often
-const SWEEP_HEIGHT   = Math.max(20, Math.floor(glyphSpacing * 1.6)); // band height
+            if (row !== lastRow[i]) {
+              const x = i * glyphSpacing;
+              const y = row * glyphSpacing;
 
-if (ts - lastSweep > SWEEP_EVERY_MS) {
-  const y0 = Math.floor(Math.random() * h); // random band start
-  ctx.clearRect(0, y0, w, SWEEP_HEIGHT);
-  lastSweep = ts;
-}
-        
-        lastTs = ts;
+              ctx.fillStyle = (pulseA[i] > 0)
+                ? `rgba(50,180,125,${pulseA[i].toFixed(3)})`
+                : rainColor;
 
-        if (!document.hidden) {
-          // Trail fade
-          ctx.fillStyle = `rgba(4,10,4,${RAIN.trail})`;
-          ctx.fillRect(0,0,w,h);
-
-          const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
-          const maxRow = Math.ceil(h / glyphSpacing);
-
-          for (let i=0;i<cols;i++) {
-            // accumulate spatial progress in rows (not pixels)
-            rowFrac[i] += velRows[i] * dt;
-
-            // Red pulse process: Poisson with rate lambda (per second)
-            const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
-            if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1; // trigger
-            if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
-
-            // Emit one glyph per WHOLE row advanced
-            while (rowFrac[i] >= 1) {
-              rowFrac[i] -= 1;
-              yRows[i] += 1; // advance exactly one row
-
-              const row = Math.floor(yRows[i]);
-
-              // deterministic respawn once off-screen
-              if (row > maxRow) {
-                yRows[i]   = - (10 + Math.random()*40);
-                lastRow[i] = -1;
-                rowFrac[i] = 0;
-                pulseA[i]  = 0;
-                velRows[i] = sampleVel();
-                continue;
-              }
-
-              if (row !== lastRow[i]) { // draw only once per row
-                const x = i * glyphSpacing;
-                const y = row * glyphSpacing;
-
-                ctx.fillStyle = (pulseA[i] > 0)
-                  ? `rgba(20,180,105,${pulseA[i].toFixed(3)})`
-                  : rainColor;
-
-                const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
-                ctx.fillText(ch, x, y);
-                lastRow[i] = row;
-              }
+              const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
+              ctx.fillText(ch, x, y);
+              lastRow[i] = row;
             }
           }
         }
-        requestAnimationFrame(frame);
+
+        // NEW: Per-column top->bottom fade (soft wipe)
+        for (let i=0;i<cols;i++){
+          // advance wipe
+          wipeY[i] += wipeV[i] * dt;
+
+          // softly darken the wiped region (only this column)
+          if (wipeY[i] > 0) {
+            const x = i * glyphSpacing;
+            ctx.fillStyle = `rgba(0,0,0,${RAIN.fadeStrength})`;
+            ctx.fillRect(x, 0, glyphSpacing, Math.min(wipeY[i], h));
+          }
+
+          // when reached bottom, re-roll a new random duration and restart
+          if (wipeY[i] >= h) {
+            wipeY[i] = 0;
+            fadeDur[i] = sampleFadeSec();
+            wipeV[i] = h / fadeDur[i];
+          }
+        }
       }
       requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
 
-      // Expose knobs for live tuning in console if desired
-      window.CIR_RAIN = RAIN;
-      window.CIR_RAIN_sampleVel = sampleVel; // optional: inspect sampler
-    })();
-
-    // ===== Title pulse (random timing & brightness) =====
+    // ===== Title pulse (unchanged) =====
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 180 + Math.random()*220; // 180–400ms
-        const amp = 1 + Math.random()*0.02;   // subtle scale
-        const bright = 0.9 + Math.random()*0.05; // small brightness wiggle
+        const dur = 180 + Math.random()*220;
+        const amp = 1 + Math.random()*0.02;
+        const bright = 0.9 + Math.random()*0.05;
         el.animate([
           { transform:'scale(1)',      filter:`brightness(${bright})` },
-          { transform:`scale(${amp})`,  filter:`brightness(${Math.min(1.25, bright+0.1)})` },
+          { transform:`scale(${amp})`, filter:`brightness(${Math.min(1.25, bright+0.1)})` },
           { transform:'scale(1)',      filter:`brightness(${bright})` }
         ], { duration: dur, easing:'ease-in-out' });
       }
@@ -201,6 +171,8 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
 
     // Year stamp
     document.getElementById('y').textContent = new Date().getFullYear();
-  </script>
-</body>
-</html>
+
+    // Expose knobs
+    window.CIR_RAIN = RAIN;
+  })();
+</script>
