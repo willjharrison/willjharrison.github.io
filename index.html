@@ -25,7 +25,7 @@
 
     /* CRT scanlines */
     .crt{position:relative;isolation:isolate}
-    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.13) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
+    .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.03) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.12), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
 
@@ -50,7 +50,7 @@
       const ctx = c.getContext('2d');
       let w, h, cols, dpr;
       let fontSize, glyphSpacing;
-      let yRows, velRows, pulseA; // positions (in ROWS), velocities (ROWS/sec), red pulse alpha
+      let yRows, velRows, pulseA, rowFrac, lastRow; // positions (ROWS), velocities (ROWS/sec), red pulse alpha, row accumulators // positions (in ROWS), velocities (ROWS/sec), red pulse alpha
 
       /* Controls
          - rowsPerSec: target spatial rate in ROWS/second (≈ equal across columns)
@@ -59,9 +59,9 @@
          - pulseLambda: expected red-pulse events per second per column */
       const RAIN = {
         rowsPerSec: 18,     // ≈ spatial update rate (rows/s)
-        variability: 0.90,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
+        variability: 0.20,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
         spacing: 1.00,      // 1.0 = tight; >1 looser vertical spacing
-        trail: 0.5,
+        trail: 0.06,
         pulseLambda: 0.35,  // pulses/sec/column
         pulseDecay: 1.8     // alpha/sec (higher = faster fade)
       };
@@ -87,6 +87,8 @@
         velRows = Array(cols).fill(0).map(()=> RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability));
         // Red pulse alpha per column (0..1)
         pulseA  = Array(cols).fill(0);
+        rowFrac = Array(cols).fill(0);   // fractional rows progressed but not yet emitted
+        lastRow = Array(cols).fill(-1);  // last integer row drawn per column
       }
       window.addEventListener('resize', resize, {passive:true});
       resize();
@@ -105,25 +107,59 @@
           const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
 
           for (let i=0;i<cols;i++) {
-            // Advance position by spatial rate (rows/sec)
-            yRows[i] += velRows[i] * dt;
-
-            // Convert to pixel coords, snap to row grid to avoid blur
-            const x = i * glyphSpacing;
-            const y = Math.floor(yRows[i]) * glyphSpacing;
+            // accumulate spatial progress in rows (not pixels)
+            rowFrac[i] += velRows[i] * dt;
 
             // Red pulse process: Poisson with rate lambda (per second)
-            const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt); // per-frame prob
+            const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
             if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1; // trigger
-            if (pulseA[i] > 0) {
-              ctx.fillStyle = `rgba(55,160,210,${pulseA[i].toFixed(3)})`;
+            if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
+
+            // emit one glyph per WHOLE row advanced; preserves equal spatial rate
+            while (rowFrac[i] >= 1) {
+              rowFrac[i] -= 1;
+              yRows[i] += 1; // advance exactly one row
+
+              const row = Math.floor(yRows[i]);
+              if (row !== lastRow[i]) { // draw only once per row
+                const x = i * glyphSpacing;
+                const y = row * glyphSpacing;
+
+                // choose color
+                if (pulseA[i] > 0) {
+                  ctx.fillStyle = `rgba(255,60,60,${pulseA[i].toFixed(3)})`;
+                } else {
+                  ctx.fillStyle = rainColor;
+                }
+
+                const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
+                ctx.fillText(ch, x, y);
+                lastRow[i] = row;
+
+                // reset when off-screen
+                if (y > h && Math.random() > 0.97) {
+                  yRows[i] = -Math.random()*20;
+                  lastRow[i] = -1;
+                  velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
+                  rowFrac[i] = 0;
+                  break; // move to next column
+                }
+              } else {
+                // already drew this row; continue consuming accumulated rows
+                if ((row * glyphSpacing) > h) {
+                  yRows[i] = -Math.random()*20; lastRow[i] = -1; rowFrac[i] = 0;
+                  velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
+                  break;
+                }
+              }
+            }
+          })`;
               pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
             } else {
               ctx.fillStyle = rainColor;
             }
 
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
-            ctx.clearRect(x, y, glyphSpacing, glyphSpacing); 
             ctx.fillText(ch, x, y);
 
             // Reset when off-screen (in pixel space)
