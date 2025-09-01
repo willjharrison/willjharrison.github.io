@@ -14,10 +14,14 @@
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:hidden}
 
+    /* Background rain */
     #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;
       background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
 
-    .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:1}
+    /* Foreground glass text overlay */
+    #glass{position:fixed;inset:0;z-index:1;display:block;width:100%;height:100%;pointer-events:auto}
+
+    .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:2}
 
     h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);
       color:#D4EB8E;text-shadow:0 0 .2rem #66ccff,0 0 .2rem #66ccff,0 0 .4rem #66ccff,0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);
@@ -26,16 +30,14 @@
     .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.3) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.05), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
-    footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
-
-    /* Keep demo anchor sections hidden so the menu is truly invisible */
-    #about, #pubs { display:none; }
+    footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:2}
 
     @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
   </style>
 </head>
 <body>
   <canvas id="matrix" aria-hidden="true"></canvas>
+  <canvas id="glass"  aria-hidden="false"></canvas>
 
   <div class="wrap">
     <h1 id="title" class="crt">Sensory Intelligence Research Group</h1>
@@ -45,28 +47,24 @@
 
   <script>
   (() => {
-    const c = document.getElementById('matrix');
-    const ctx = c.getContext('2d');
+    const c  = document.getElementById('matrix');
+    const gC = document.getElementById('glass');
+    const ctx  = c.getContext('2d');
+    const gtx  = gC.getContext('2d');
 
-    // ==== Invisible menu words (mask + links) ====
+    // ==== Menu spec (positions in CSS px) ====
     const MENU = [
       { text: 'ABOUT',         x: 80, y: 140, href: '#about' },
       { text: 'PUBLICATIONS',  x: 80, y: 200, href: '#pubs' },
     ];
-    let maskCanvas, maskCtx, maskData = null;   // device-px alpha buffer
-    let wordBoxes = [];                         // CSS-px hit boxes
+    let wordBoxes = []; // for clicks
 
     // ----- knobs -----
     const USE_DPR_1 = false;          // set true for max perf
     const RAIN = {
-      rowsPerSec: 20,
-      variability: 2,
-      spacing: 0.85,
-      trail: 0.02,
-      pulseLambda: 0.15,
-      pulseDecay: 0.4,
-      minRowsPerSec: 10,
-      minFactor: 0.10,
+      rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
+      pulseLambda: 0.15, pulseDecay: 0.4,
+      minRowsPerSec: 10, minFactor: 0.10,
       maxGlyphStepsPerFrame: 2
     };
     const GLOW = { sigma: 8, maxAlpha: 0.06, recentMs: 200 }; // mouse micro-glow
@@ -92,24 +90,15 @@
       glowR = Math.max(8, Math.round(GLOW.sigma * 3));
       glowCssSize = glowR * 2 + 1;
       const pxSize = Math.max(1, Math.round(glowCssSize * dprLocal));
-      const off = document.createElement('canvas');
-      off.width = pxSize; off.height = pxSize;
+      const off = document.createElement('canvas'); off.width = pxSize; off.height = pxSize;
       const octx = off.getContext('2d');
       const img = octx.createImageData(pxSize, pxSize);
-      const cx = pxSize/2, cy = pxSize/2;
-      const sigmaPx = GLOW.sigma * dprLocal;
-      const s2 = 2 * sigmaPx * sigmaPx;
-      for (let y = 0; y < pxSize; y++) {
-        for (let x = 0; x < pxSize; x++) {
-          const dx = x - cx, dy = y - cy;
-          const a = GLOW.maxAlpha * Math.exp(-(dx*dx + dy*dy) / s2);
-          const i = (y * pxSize + x) * 4;
-          // greenish cursor glow (tweak to taste)
-          img.data[i]   = 0;
-          img.data[i+1] = 225;
-          img.data[i+2] = 0;
-          img.data[i+3] = Math.round(a * 200);
-        }
+      const cx = pxSize/2, cy = pxSize/2, sigmaPx = GLOW.sigma * dprLocal, s2 = 2 * sigmaPx * sigmaPx;
+      for (let y = 0; y < pxSize; y++) for (let x = 0; x < pxSize; x++) {
+        const dx = x - cx, dy = y - cy;
+        const a = GLOW.maxAlpha * Math.exp(-(dx*dx + dy*dy) / s2);
+        const i = (y * pxSize + x) * 4;
+        img.data[i]   = 0; img.data[i+1] = 225; img.data[i+2] = 0; img.data[i+3] = Math.round(a * 200);
       }
       octx.putImageData(img, 0, 0);
       glowSprite = off;
@@ -119,79 +108,23 @@
 
     function sampleVel(){
       const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
-      const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
-      return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
+      const clamped = Math.max(RAIN.minFactor, rawFactor);
+      return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clamped);
     }
-
-    // ---- menu mask helpers ----
-    function buildMenuMask(){
-      // offscreen canvas matches device-px size of main canvas
-      maskCanvas = document.createElement('canvas');
-      maskCanvas.width  = c.width;
-      maskCanvas.height = c.height;
-      maskCtx = maskCanvas.getContext('2d');
-      // draw with same DPR transform as main
-      maskCtx.setTransform(dpr,0,0,dpr,0,0);
-      maskCtx.clearRect(0,0,w,h);
-      maskCtx.font = ctx.font;
-      maskCtx.textBaseline = 'top';
-      maskCtx.fillStyle = '#fff';
-
-      wordBoxes = [];
-      for (const m of MENU){
-        const metrics = maskCtx.measureText(m.text);
-        const boxW = Math.ceil(metrics.width);
-        const boxH = Math.ceil(fontSize * 1.1);
-        wordBoxes.push({ x:m.x, y:m.y, w:boxW, h:boxH, href:m.href, text:m.text });
-        maskCtx.fillText(m.text, m.x, m.y);
-      }
-      maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height).data;
-    }
-
-    function onMenuLetter(xCss, yCss){
-      if (!maskData) return 0;
-      const xi = Math.min(maskCanvas.width  - 1, Math.max(0, Math.round(xCss * dpr)));
-      const yi = Math.min(maskCanvas.height - 1, Math.max(0, Math.round(yCss * dpr)));
-      const idx = (yi * maskCanvas.width + xi) * 4;
-      return maskData[idx + 3]; // alpha
-    }
-
-    // === robust glyph hit test: center + 4 offsets ===
-    function glyphHitsMenu(x, y, gw, gh){
-      const cx = x + gw*0.5, cy = y + gh*0.55;
-      if (onMenuLetter(cx, cy) > 0) return true;
-      const off = 0.25;
-      return (
-        onMenuLetter(x + gw*(0.5+off), cy) > 0 ||
-        onMenuLetter(x + gw*(0.5-off), cy) > 0 ||
-        onMenuLetter(cx, y + gh*(0.55+off)) > 0 ||
-        onMenuLetter(cx, y + gh*(0.55-off)) > 0
-      );
-    }
-
-    // click → only when clicking real letter pixels, then route by word box
-    c.addEventListener('click', (e) => {
-      const x = e.clientX, y = e.clientY;
-      if (onMenuLetter(x, y) === 0) return;
-      for (const b of wordBoxes){
-        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h){
-          window.location.hash = b.href;
-          break;
-        }
-      }
-    }, {passive:true});
 
     function resize(){
       dpr = USE_DPR_1 ? 1 : Math.max(1, Math.min(2, window.devicePixelRatio||1));
       w = window.innerWidth; h = window.innerHeight;
       c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+      gC.width = c.width; gC.height = c.height;
       ctx.setTransform(dpr,0,0,dpr,0,0);
+      gtx.setTransform(dpr,0,0,dpr,0,0);
 
       fontSize = Math.max(12, Math.floor(w/70));
       glyphSpacing = Math.round(fontSize * RAIN.spacing);
       ctx.font = fontSize + 'px monospace';
-      ctx.textBaseline = 'top';
-      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+      gtx.font = ctx.font; gtx.textBaseline = 'top'; gtx.textAlign = 'left';
 
       cols   = Math.max(1, Math.ceil(w / glyphSpacing));
       yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
@@ -202,10 +135,51 @@
 
       rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
       buildGlowSprite();
-      buildMenuMask(); // rebuild invisible words mask after font/DPR
+
+      // update clickable word boxes (CSS px)
+      wordBoxes = MENU.map(m => {
+        const mw = gtx.measureText(m.text).width;
+        return { x:m.x, y:m.y, w:Math.ceil(mw), h:Math.ceil(fontSize*1.1), href:m.href, text:m.text };
+      });
     }
     window.addEventListener('resize', resize, {passive:true});
     resize();
+
+    function drawGlassMenu(){
+      // Clear overlay
+      gtx.setTransform(dpr,0,0,dpr,0,0);
+      gtx.clearRect(0,0,w,h);
+
+      // 1) Draw text shapes as a mask (solid white)
+      gtx.fillStyle = '#fff';
+      for (const m of MENU) gtx.fillText(m.text, m.x, m.y);
+
+      // 2) Keep only text area and draw blurred copy of background rain into it
+      gtx.globalCompositeOperation = 'source-in';
+      gtx.filter = 'blur(1.2px) saturate(1.2)';
+      // draw the background canvas into the overlay (same size)
+      gtx.drawImage(c, 0, 0, w, h);
+      gtx.filter = 'none';
+
+      // 3) Tint the text area “transparent green glass”
+      gtx.globalCompositeOperation = 'source-atop';
+      gtx.fillStyle = 'rgba(60, 220, 120, 0.22)';
+      gtx.fillRect(0,0,w,h);
+
+      // 4) Edge highlight (subtle green stroke)
+      gtx.globalCompositeOperation = 'source-over';
+      gtx.lineWidth = Math.max(1, fontSize * 0.08);
+      gtx.strokeStyle = 'rgba(140, 255, 180, 0.6)';
+      for (const m of MENU) gtx.strokeText(m.text, m.x, m.y);
+
+      // 5) Optional soft inner glow
+      gtx.save();
+      gtx.shadowColor = 'rgba(150,255,180,0.35)';
+      gtx.shadowBlur = Math.max(2, fontSize*0.15);
+      gtx.globalCompositeOperation = 'lighter';
+      for (const m of MENU) gtx.strokeText(m.text, m.x, m.y);
+      gtx.restore();
+    }
 
     function frame(ts){
       if(!lastTs) lastTs = ts;
@@ -232,12 +206,10 @@
         for (let i=0;i<cols;i++) {
           rowFrac[i] += velRows[i] * dt;
 
-          // Poisson red pulse
           const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
           if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1;
           if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
 
-          // cap glyph steps per frame
           let steps = Math.floor(rowFrac[i]);
           if (steps > 0) {
             if (steps > RAIN.maxGlyphStepsPerFrame) {
@@ -262,23 +234,11 @@
               if (row !== lastRow[i]) {
                 const x = i * glyphSpacing;
                 const y = row * glyphSpacing;
-
-                // base glyph
                 ctx.fillStyle = (pulseA[i] > 0)
                   ? `rgba(0,255,5,${pulseA[i].toFixed(3)})`
                   : rainColor;
                 const ch = glyphs[(Math.random() * glyphs.length) | 0];
                 ctx.fillText(ch, x, y);
-
-                // MENU mask-driven glow: if glyph overlaps a letter pixel, brighten it
-                if (glyphHitsMenu(x, y, glyphSpacing, fontSize)) {
-                  const prev = ctx.globalCompositeOperation;
-                  ctx.globalCompositeOperation = 'screen'; // brighten toward white
-                  ctx.fillStyle = 'rgba(255,255,255,0.55)'; // stronger so it's obvious
-                  ctx.fillText(ch, x, y);
-                  ctx.globalCompositeOperation = prev;
-                }
-
                 lastRow[i] = row;
               }
             }
@@ -293,6 +253,9 @@
         ctx.drawImage(glowSprite, mouse.x - glowR, mouse.y - glowR, glowCssSize, glowCssSize);
         ctx.globalCompositeOperation = prev;
       }
+
+      // draw the glass-text overlay last so it always sits on top
+      drawGlassMenu();
 
       requestAnimationFrame(frame);
     }
@@ -313,6 +276,16 @@
       (function schedule(){ setTimeout(()=>{ pulseOnce(); schedule(); }, 500 + Math.random()*3500); })();
     })();
 
+    // Click routing for the glass text
+    gC.addEventListener('click', (e) => {
+      const x = e.clientX, y = e.clientY;
+      for (const b of wordBoxes){
+        if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h){
+          window.location.hash = b.href; break;
+        }
+      }
+    }, {passive:true});
+
     // Year
     document.getElementById('y').textContent = new Date().getFullYear();
 
@@ -321,12 +294,12 @@
   })();
   </script>
 
-  <!-- Optional anchor targets remain in DOM but hidden by CSS above -->
-  <section id="about" style="position:relative; z-index:2; margin-top:60vh; padding:2rem; color:#b6fdb6;">
+  <!-- Optional anchor targets (now visible when navigated to) -->
+  <section id="about" style="position:relative; z-index:3; margin-top:60vh; padding:2rem; color:#b6fdb6;">
     <h2>About</h2>
     <p>Short blurb…</p>
   </section>
-  <section id="pubs" style="position:relative; z-index:2; padding:2rem; color:#b6fdb6;">
+  <section id="pubs" style="position:relative; z-index:3; padding:2rem; color:#b6fdb6;">
     <h2>Publications</h2>
     <p>Coming soon…</p>
   </section>
