@@ -1,15 +1,3 @@
-Publications (Selected)
+Publications
 
-Replace this starter list with your own references (you can paste BibTeX or simple lines).
-
-2024 — Title of your most recent paper. Journal Name, volume(issue), pages. DOI
-2023 — Crowding and the limits of peripheral vision. Journal …
-2022 — Eye movements reshape perceptual inference. Vision Research …
-2021 — Illusory contours and neural population coding. PLoS …
-2020 — Working memory limits as resource allocation. Journal …
-
-Preprints & Datasets
-• 2025 — Title. OSF / arXiv:XXXX.XXXX
-• 2024 — Dataset: Visual Crowding Peripheral Array. OSF link
-
-For a full list, see Google Scholar / ORCID: [add links or IDs]
+Coming soon
