@@ -90,7 +90,7 @@
               pulseTimers[i] = Math.max(0, pulseTimers[i] - 0.02); // decay
             } else if (Math.random() < 0.06) { // trigger probability per frame/column
               pulseTimers[i] = 1; // start at full red
-              ctx.fillStyle = 'rgba(255,60,60,1)';
+              ctx.fillStyle = 'rgba(100,200,100,.6)';
             } else {
               ctx.fillStyle = rainColor; // normal green
             }
