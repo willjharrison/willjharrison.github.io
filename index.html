@@ -61,10 +61,10 @@
          - pulseLambda: expected red-pulse events per second per column
          - pulseDecay: red alpha decay per second */
       const RAIN = {
-        rowsPerSec: 18,
-        variability: 0.20,
+        rowsPerSec: 12,
+        variability: 0.90,
         spacing: 1.00,
-        trail: 0.06,
+        trail: 0.02,
         pulseLambda: 0.35,
         pulseDecay: 1.8
       };
@@ -127,7 +127,7 @@
 
                 // choose color
                 if (pulseA[i] > 0) {
-                  ctx.fillStyle = `rgba(255,60,60,${pulseA[i].toFixed(3)})`;
+                  ctx.fillStyle = `rgba(55,150,60,${pulseA[i].toFixed(3)})`;
                 } else {
                   ctx.fillStyle = rainColor;
                 }
@@ -168,7 +168,7 @@
       const el = document.getElementById('title');
       function pulseOnce(){
         const dur = 180 + Math.random()*220; // 180–400ms
-        const amp = 1 + Math.random()*0.07;   // subtle scale
+        const amp = 1 + Math.random()*0.02;   // subtle scale
         const bright = 0.9 + Math.random()*0.25; // 0.9–1.15
         el.animate([
           { transform:'scale(1)',      filter:`brightness(${bright})` },
