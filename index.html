@@ -59,9 +59,9 @@
          - pulseLambda: expected red-pulse events per second per column */
       const RAIN = {
         rowsPerSec: 18,     // ≈ spatial update rate (rows/s)
-        variability: 0.50,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
+        variability: 0.90,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
         spacing: 1.00,      // 1.0 = tight; >1 looser vertical spacing
-        trail: 0.16,
+        trail: 0.5,
         pulseLambda: 0.35,  // pulses/sec/column
         pulseDecay: 1.8     // alpha/sec (higher = faster fade)
       };
@@ -116,7 +116,7 @@
             const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt); // per-frame prob
             if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1; // trigger
             if (pulseA[i] > 0) {
-              ctx.fillStyle = `rgba(55,160,60,${pulseA[i].toFixed(3)})`;
+              ctx.fillStyle = `rgba(55,160,210,${pulseA[i].toFixed(3)})`;
               pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
             } else {
               ctx.fillStyle = rainColor;
