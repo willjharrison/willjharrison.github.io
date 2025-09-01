@@ -82,7 +82,7 @@
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
-            const jitter = 2 + Math.random();
+            const jitter = .5 * Math.random();
             ctx.fillText(ch, x, y);
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
             else  drops[i] += RAIN.speed * speeds[i] * jitter;  
