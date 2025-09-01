@@ -99,12 +99,13 @@
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 200 + Math.random()*400;
+        const dur = 200 + Math.random()*200;
         const amp = 1 + Math.random()*0.08;
+        const bright = .75 + Math.random()*0.5;
         el.animate([
-          { transform:'scale(1)', filter:'brightness(1)' },
-          { transform:`scale(${amp})`, filter:'brightness(1.1)' },
-          { transform:'scale(1)', filter:'brightness(1)' }
+          { transform:'scale(1)', filter:`scale(${bright}) },
+          { transform:`scale(${amp})`, `scale(${bright}) },
+          { transform:'scale(1)', `scale(${bright}) }
         ], { duration: dur, easing:'ease-in-out' });
       }
       (function schedule(){
