@@ -44,26 +44,29 @@
   <footer>© <span id="y"></span> CIR</footer>
 
   <script>
-    // ===== Matrix rain (equal SPATIAL rate + red pulse) =====
+    // ===== Matrix rain (equal SPATIAL rate + red pulse + row smoothing) =====
     (() => {
       const c = document.getElementById('matrix');
       const ctx = c.getContext('2d');
       let w, h, cols, dpr;
       let fontSize, glyphSpacing;
-      let yRows, velRows, pulseA, rowFrac, lastRow; // positions (ROWS), velocities (ROWS/sec), red pulse alpha, row accumulators // positions (in ROWS), velocities (ROWS/sec), red pulse alpha
+      // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
+      let yRows, velRows, pulseA, rowFrac, lastRow;
 
       /* Controls
          - rowsPerSec: target spatial rate in ROWS/second (≈ equal across columns)
-         - spacing: multiplies vertical spacing between glyphs relative to font size
+         - variability: ± jitter across columns (0 = identical)
+         - spacing: vertical spacing relative to font size (1.0 = tight)
          - trail: background fade per frame (lower = longer trails)
-         - pulseLambda: expected red-pulse events per second per column */
+         - pulseLambda: expected red-pulse events per second per column
+         - pulseDecay: red alpha decay per second */
       const RAIN = {
-        rowsPerSec: 18,     // ≈ spatial update rate (rows/s)
-        variability: 0.20,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
-        spacing: 1.00,      // 1.0 = tight; >1 looser vertical spacing
+        rowsPerSec: 18,
+        variability: 0.20,
+        spacing: 1.00,
         trail: 0.06,
-        pulseLambda: 0.35,  // pulses/sec/column
-        pulseDecay: 1.8     // alpha/sec (higher = faster fade)
+        pulseLambda: 0.35,
+        pulseDecay: 1.8
       };
 
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
@@ -81,14 +84,11 @@
         ctx.textBaseline = 'top';
 
         cols = Math.max(1, Math.ceil(w / glyphSpacing));
-        // Positions in ROWS (not pixels). Start above the top randomly.
         yRows   = Array(cols).fill(0).map(()=> -Math.random()*50);
-        // Velocities in ROWS/SEC with small column-wise jitter
         velRows = Array(cols).fill(0).map(()=> RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability));
-        // Red pulse alpha per column (0..1)
         pulseA  = Array(cols).fill(0);
-        rowFrac = Array(cols).fill(0);   // fractional rows progressed but not yet emitted
-        lastRow = Array(cols).fill(-1);  // last integer row drawn per column
+        rowFrac = Array(cols).fill(0);
+        lastRow = Array(cols).fill(-1);
       }
       window.addEventListener('resize', resize, {passive:true});
       resize();
@@ -115,7 +115,7 @@
             if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1; // trigger
             if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
 
-            // emit one glyph per WHOLE row advanced; preserves equal spatial rate
+            // Emit one glyph per WHOLE row advanced
             while (rowFrac[i] >= 1) {
               rowFrac[i] -= 1;
               yRows[i] += 1; // advance exactly one row
@@ -145,28 +145,13 @@
                   break; // move to next column
                 }
               } else {
-                // already drew this row; continue consuming accumulated rows
+                // already drew this row; if below screen, reset
                 if ((row * glyphSpacing) > h) {
                   yRows[i] = -Math.random()*20; lastRow[i] = -1; rowFrac[i] = 0;
                   velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
                   break;
                 }
               }
-            }
-          })`;
-              pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
-            } else {
-              ctx.fillStyle = rainColor;
-            }
-
-            const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
-            ctx.fillText(ch, x, y);
-
-            // Reset when off-screen (in pixel space)
-            if (y > h && Math.random() > 0.97) {
-              yRows[i] = -Math.random()*20;
-              // occasionally refresh velocity to keep things organic
-              velRows[i] = RAIN.rowsPerSec * (1 + (Math.random()*2-1)*RAIN.variability);
             }
           }
         }
