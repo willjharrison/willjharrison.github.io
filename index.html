@@ -161,7 +161,7 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
                 const y = row * glyphSpacing;
 
                 ctx.fillStyle = (pulseA[i] > 0)
-                  ? `rgba(20,180,155,${pulseA[i].toFixed(3)})`
+                  ? `rgba(20,180,105,${pulseA[i].toFixed(3)})`
                   : rainColor;
 
                 const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
