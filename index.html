@@ -82,7 +82,7 @@
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
-            const jitter = .5 * Math.random();
+            const jitter = Math.random();
             ctx.fillText(ch, x, y);
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
             else  drops[i] += RAIN.speed * speeds[i] * jitter;  
@@ -118,7 +118,7 @@
     // ===== Stochastic glitch (Poisson intervals + bursts) =====
     (()=>{
       const el = document.getElementById('title');
-      const meanMs = 7000; // average interval
+      const meanMs = 700; // average interval
       const expRand = m => -Math.log(1-Math.random())*m;
 
       function jitterOnce(wild=false){
