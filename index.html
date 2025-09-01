@@ -111,7 +111,7 @@
         if(!lastTs) lastTs = ts;
         const dt = (ts - lastTs) / 1000; // seconds since last frame
         
-        const SWEEP_EVERY_MS = 4000;            // how often
+        const SWEEP_EVERY_MS = 1000;            // how often
 const SWEEP_HEIGHT   = Math.max(2, Math.floor(glyphSpacing * 0.6)); // band height
 
 if (ts - lastSweep > SWEEP_EVERY_MS) {
