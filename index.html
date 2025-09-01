@@ -58,12 +58,12 @@
          - trail: background fade per frame (lower = longer trails)
          - pulseLambda: expected red-pulse events per second per column */
       const RAIN = {
-        rowsPerSec: 18,     // ≈ spatial update rate (rows/s)
-        variability: 0.20,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
+        rowsPerSec: 10,     // ≈ spatial update rate (rows/s)
+        variability: 0.50,  // ±20% velocity jitter across columns (set 0 for perfectly equal)
         spacing: 1.00,      // 1.0 = tight; >1 looser vertical spacing
-        trail: 0.06,
-        pulseLambda: 0.35,  // pulses/sec/column
-        pulseDecay: 1.8     // alpha/sec (higher = faster fade)
+        trail: 0.02,
+        pulseLambda: 0.15,  // pulses/sec/column
+        pulseDecay: 2.8     // alpha/sec (higher = faster fade)
       };
 
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
