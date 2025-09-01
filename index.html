@@ -287,15 +287,17 @@
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 80 + Math.random()*220;
-        const amp = 1 + Math.random()*0.02;
-        const bright = 0.6 + Math.random()*0.5;
-        el.animate([
-          { transform:'scale(1)',       filter:`brightness(${bright})` },
-          { transform:`scale(${amp})`,  filter:`brightness(${Math.min(1.25, bright+0.1)})` },
-          { transform:'scale(1)',       filter:`brightness(${bright})` }
-        ], { duration: dur, easing:'ease-out' });
-      }
+  const dur = 80 + Math.random()*220;
+  const dim  = 0.1;           // how dark it gets (0–1)
+  const bright = 1.0;         // baseline = no change
+
+  // No scale changes → no bounce; only brightness flicker
+  document.getElementById('title').animate([
+    { filter:`brightness(${bright})` },
+    { filter:`brightness(${dim})` },
+    { filter:`brightness(${bright})` }
+  ], { duration: dur, easing:'steps(2,end)' }); // snappy on/off
+}
       (function schedule(){ setTimeout(()=>{ pulseOnce(); schedule(); }, 500 + Math.random()*3500); })();
     })();
 
