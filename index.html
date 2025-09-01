@@ -8,35 +8,25 @@
   <style>
     :root {
       --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
-      /* Rain color: lower saturation = more desaturated */
       --rainColor: hsla(120, 80%, 20%, 1);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:hidden}
 
-    /* Fullscreen matrix canvas */
-    #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
+    #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;
+      background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
 
-    /* Title bar pinned to top */
     .wrap{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;align-items:flex-start;padding:16px 20px;z-index:1}
 
-    h1 {
-      color:#D4EB8E;
-      text-shadow:0 0 .2rem #66ccff,
-                  0 0 .2rem #66ccff,
-                  0 0 .4rem #66ccff;
-    }
-    h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);text-shadow:0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
-
-    /* CRT scanlines */
+    h1{margin:0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(22px,5.5vw,72px);
+      color:#D4EB8E;text-shadow:0 0 .2rem #66ccff,0 0 .2rem #66ccff,0 0 .4rem #66ccff,0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);
+      filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
     .crt{position:relative;isolation:isolate}
     .crt::before{content:"";position:absolute;inset:-2px;z-index:2;background:repeating-linear-gradient(to bottom,transparent 0 2px,rgba(255,255,255,.3) 2px 3px);mix-blend-mode:overlay;pointer-events:none;animation:scan 7s linear infinite}
     .crt::after{content:"";position:absolute;inset:-2px;z-index:1;background:radial-gradient(ellipse at center, rgba(0,255,0,.05), transparent 60%);pointer-events:none;filter:blur(2px)}
     @keyframes scan{0%{transform:translateY(-5%);opacity:.6}50%{opacity:.25}100%{transform:translateY(5%);opacity:.6}}
-
     footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
-
     @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
   </style>
 </head>
@@ -50,200 +40,204 @@
   <footer>© <span id="y"></span> SIRG </footer>
 
   <script>
-    // ===== Matrix rain (equal SPATIAL rate + red pulse + row smoothing + min speed clamp) =====
-    (() => {
-      const c = document.getElementById('matrix');
-      const ctx = c.getContext('2d');
-      let w, h, cols, dpr;
-      let fontSize, glyphSpacing;
-      // positions (ROWS), velocities (ROWS/sec), red pulse alpha, fractional rows, last drawn row
-      let yRows, velRows, pulseA, rowFrac, lastRow;
-      let lastSweep = 0;
+  (() => {
+    const c = document.getElementById('matrix');
+    const ctx = c.getContext('2d');
 
-      /* Controls */
-      const RAIN = {
-        rowsPerSec: 20,      // baseline spatial speed (rows/second)
-        variability: 2,      // variability around baseline
-        spacing: 0.85,       // 1.0 = tight; >1 looser vertical spacing
-        trail: 0.02,         // lower = longer trails
-        pulseLambda: 0.15,   // red pulses per second per column
-        pulseDecay: 0.4,     // red alpha decay per second
-        minRowsPerSec: 10,   // absolute minimum speed
-        minFactor: 0.10      // minimum multiplicative factor for variability
-      };
+    // ----- knobs -----
+    const USE_DPR_1 = false;          // set true for max perf
+    const RAIN = {
+      rowsPerSec: 20,
+      variability: 2,
+      spacing: 0.85,
+      trail: 0.02,
+      pulseLambda: 0.15,
+      pulseDecay: 0.4,
+      minRowsPerSec: 10,
+      minFactor: 0.10,
+      maxGlyphStepsPerFrame: 2       // cap draws to avoid dt spikes
+    };
+    const GLOW = { sigma: 5, maxAlpha: 0.16, recentMs: 200 };
 
-      // ==== Mouse micro-glow (fast Gaussian sprite, DPR-aware) ====
-      const GLOW = { sigma: 5, maxAlpha: 0.16, recentMs: 200 };
-      const mouse = { x: null, y: null, active: false, movedAt: 0 };
-      let glowSprite = null, glowR = 0, glowCssSize = 0;
+    // ----- state -----
+    let w, h, cols, dpr;
+    let fontSize, glyphSpacing;
+    let yRows, velRows, pulseA, rowFrac, lastRow;
+    let lastSweep = 0, lastTs = 0;
+    let rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
 
-      window.addEventListener('pointermove', (e) => {
-        mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
-        mouse.movedAt = performance.now();
-      }, {passive:true});
-      window.addEventListener('pointerleave', () => mouse.active = false, {passive:true});
+    // tiny mouse glow sprite (DPR-aware)
+    const mouse = { x: null, y: null, active: false, movedAt: 0 };
+    let glowSprite = null, glowR = 0, glowCssSize = 0;
+    window.addEventListener('pointermove', e => {
+      mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
+      mouse.movedAt = performance.now();
+    }, {passive:true});
+    window.addEventListener('pointerleave', () => mouse.active = false, {passive:true});
 
-      function buildGlowSprite(){
-        const dprLocal = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-        glowR = Math.max(8, Math.round(GLOW.sigma * 3)); // ~3σ in CSS px
-        glowCssSize = glowR * 2 + 1;                      // CSS px
-        const pxSize = Math.max(1, Math.round(glowCssSize * dprLocal)); // device px
+    function buildGlowSprite(){
+      const dprLocal = USE_DPR_1 ? 1 : Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      glowR = Math.max(8, Math.round(GLOW.sigma * 3));
+      glowCssSize = glowR * 2 + 1;
+      const pxSize = Math.max(1, Math.round(glowCssSize * dprLocal));
 
-        const off = document.createElement('canvas');
-        off.width = pxSize; off.height = pxSize;
-        const octx = off.getContext('2d');
+      const off = document.createElement('canvas');
+      off.width = pxSize; off.height = pxSize;
+      const octx = off.getContext('2d');
 
-        const img = octx.createImageData(pxSize, pxSize);
-        const cx = pxSize/2, cy = pxSize/2;
-        const sigmaPx = GLOW.sigma * dprLocal;
-        const s2 = 2 * sigmaPx * sigmaPx;
+      const img = octx.createImageData(pxSize, pxSize);
+      const cx = pxSize/2, cy = pxSize/2;
+      const sigmaPx = GLOW.sigma * dprLocal;
+      const s2 = 2 * sigmaPx * sigmaPx;
 
-        for (let y = 0; y < pxSize; y++) {
-          for (let x = 0; x < pxSize; x++) {
-            const dx = x - cx, dy = y - cy;
-            const a = GLOW.maxAlpha * Math.exp(-(dx*dx + dy*dy) / s2);
-            const i = (y * pxSize + x) * 4;
-            img.data[i+0] = 255; img.data[i+1] = 255; img.data[i+2] = 255; img.data[i+3] = Math.round(a * 255);
-          }
+      for (let y = 0; y < pxSize; y++) {
+        for (let x = 0; x < pxSize; x++) {
+          const dx = x - cx, dy = y - cy;
+          const a = GLOW.maxAlpha * Math.exp(-(dx*dx + dy*dy) / s2);
+          const i = (y * pxSize + x) * 4;
+          img.data[i] = 255; img.data[i+1] = 255; img.data[i+2] = 255; img.data[i+3] = Math.round(a * 255);
         }
-        octx.putImageData(img, 0, 0);
-        glowSprite = off;
       }
+      octx.putImageData(img, 0, 0);
+      glowSprite = off;
+    }
+
+    const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+
+    function sampleVel(){
+      const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
+      const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
+      return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
+    }
+
+    function resize(){
+      dpr = USE_DPR_1 ? 1 : Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      w = window.innerWidth; h = window.innerHeight;
+      c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+
+      fontSize = Math.max(12, Math.floor(w/70));
+      glyphSpacing = Math.round(fontSize * RAIN.spacing);
+      ctx.font = fontSize + 'px monospace';
+      ctx.textBaseline = 'top';
+      ctx.textAlign = 'left';
+
+      cols   = Math.max(1, Math.ceil(w / glyphSpacing));
+      yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
+      velRows= Array(cols).fill(0).map(()=> sampleVel());
+      pulseA = Array(cols).fill(0);
+      rowFrac= Array(cols).fill(0);
+      lastRow= Array(cols).fill(-1);
+
+      rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
       buildGlowSprite();
+    }
+    window.addEventListener('resize', resize, {passive:true});
+    resize();
 
-      const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+    function frame(ts){
+      if(!lastTs) lastTs = ts;
+      // clamp dt to avoid catch-up storms after tab wake
+      let dt = (ts - lastTs) / 1000;
+      if (dt > 0.05) dt = 0.05; // cap at 50 ms/frame equivalent
+      lastTs = ts;
 
-      function sampleVel(){
-        const rawFactor = 1 + (Math.random()*2 - 1) * RAIN.variability;
-        const clampedFactor = Math.max(RAIN.minFactor, rawFactor);
-        return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clampedFactor);
+      // light sweep to reduce burn-in (cheap)
+      const SWEEP_EVERY_MS = 350;
+      const SWEEP_HEIGHT   = Math.max(18, Math.floor(glyphSpacing * 1.4));
+      if (ts - lastSweep > SWEEP_EVERY_MS) {
+        const y0 = (Math.random() * (h - SWEEP_HEIGHT)) | 0;
+        ctx.clearRect(0, y0, w, SWEEP_HEIGHT);
+        lastSweep = ts;
       }
 
-      function resize(){
-        dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-        w = window.innerWidth; h = window.innerHeight;
-        c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
+      if (!document.hidden) {
+        // Trail fade
+        ctx.fillStyle = `rgba(1,3,1,${RAIN.trail})`;
+        ctx.fillRect(0,0,w,h);
 
-        // Font metrics
-        fontSize = Math.max(12, Math.floor(w/70));
-        glyphSpacing = Math.round(fontSize * RAIN.spacing);
-        ctx.font = fontSize + 'px monospace';
-        ctx.textBaseline = 'top';
+        const maxRow = Math.ceil(h / glyphSpacing);
 
-        cols   = Math.max(1, Math.ceil(w / glyphSpacing));
-        yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
-        velRows= Array(cols).fill(0).map(()=> sampleVel());
-        pulseA = Array(cols).fill(0);
-        rowFrac= Array(cols).fill(0);
-        lastRow= Array(cols).fill(-1);
-      }
-      window.addEventListener('resize', () => { resize(); buildGlowSprite(); }, {passive:true});
-      resize();
+        for (let i=0;i<cols;i++) {
+          rowFrac[i] += velRows[i] * dt;
 
-      let lastTs = 0;
-      function frame(ts){
-        if(!lastTs) lastTs = ts;
-        const dt = (ts - lastTs) / 1000; // seconds since last frame
+          // Poisson red pulse
+          const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
+          if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1;
+          if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
 
-        // Occasional horizontal wipe to prevent full burn-in
-        const SWEEP_EVERY_MS = 300;
-        const SWEEP_HEIGHT   = Math.max(20, Math.floor(glyphSpacing * 1.6));
-        if (ts - lastSweep > SWEEP_EVERY_MS) {
-          const y0 = Math.floor(Math.random() * h);
-          ctx.clearRect(0, y0, w, SWEEP_HEIGHT);
-          lastSweep = ts;
-        }
+          // Cap the number of glyph draws per frame (prevents while-storms)
+          let steps = Math.floor(rowFrac[i]);
+          if (steps > 0) {
+            if (steps > RAIN.maxGlyphStepsPerFrame) {
+              // skip ahead but draw only a couple for visual continuity
+              yRows[i] += (steps - RAIN.maxGlyphStepsPerFrame);
+              steps = RAIN.maxGlyphStepsPerFrame;
+            }
+            rowFrac[i] -= Math.floor(rowFrac[i]);
 
-        lastTs = ts;
-
-        if (!document.hidden) {
-          // Trail fade
-          ctx.fillStyle = `rgba(1,3,1,${RAIN.trail})`;
-          ctx.fillRect(0,0,w,h);
-
-          const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
-          const maxRow = Math.ceil(h / glyphSpacing);
-
-          for (let i=0;i<cols;i++) {
-            rowFrac[i] += velRows[i] * dt;
-
-            // Red pulse process: Poisson with rate lambda (per second)
-            const pPulse = 1 - Math.exp(-RAIN.pulseLambda * dt);
-            if (pulseA[i] <= 0 && Math.random() < pPulse) pulseA[i] = 1;
-            if (pulseA[i] > 0) pulseA[i] = Math.max(0, pulseA[i] - RAIN.pulseDecay * dt);
-
-            // Emit one glyph per whole row advanced
-            while (rowFrac[i] >= 1) {
-              rowFrac[i] -= 1;
+            for (let s = 0; s < steps; s++) {
               yRows[i] += 1;
-
               const row = Math.floor(yRows[i]);
 
-              // deterministic respawn once off-screen
               if (row > maxRow) {
                 yRows[i]   = - (10 + Math.random()*40);
                 lastRow[i] = -1;
                 rowFrac[i] = 0;
                 pulseA[i]  = 0;
                 velRows[i] = sampleVel();
-                continue;
+                break;
               }
 
               if (row !== lastRow[i]) {
                 const x = i * glyphSpacing;
                 const y = row * glyphSpacing;
-
                 ctx.fillStyle = (pulseA[i] > 0)
                   ? `rgba(0,255,5,${pulseA[i].toFixed(3)})`
                   : rainColor;
-
-                const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
+                const ch = glyphs[(Math.random() * glyphs.length) | 0];
                 ctx.fillText(ch, x, y);
                 lastRow[i] = row;
               }
             }
           }
         }
-
-        // micro-glow blit (cheap; only when pointer moved recently)
-        if (mouse.active && glowSprite && mouse.x != null && (performance.now() - mouse.movedAt) < GLOW.recentMs) {
-          const prev = ctx.globalCompositeOperation;
-          ctx.globalCompositeOperation = 'screen'; // brighten toward white
-          ctx.drawImage(glowSprite, mouse.x - glowR, mouse.y - glowR, glowCssSize, glowCssSize);
-          ctx.globalCompositeOperation = prev;
-        }
-
-        requestAnimationFrame(frame);
       }
+
+      // tiny mouse-glow (only when pointer moved recently)
+      if (mouse.active && glowSprite && mouse.x != null && (performance.now() - mouse.movedAt) < GLOW.recentMs) {
+        const prev = ctx.globalCompositeOperation;
+        ctx.globalCompositeOperation = 'screen';
+        ctx.drawImage(glowSprite, mouse.x - glowR, mouse.y - glowR, glowCssSize, glowCssSize);
+        ctx.globalCompositeOperation = prev;
+      }
+
       requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
 
-      // Expose knobs for live tuning in console if desired
-      window.CIR_RAIN = RAIN;
-      window.CIR_RAIN_sampleVel = sampleVel;
-    })();
-
-    // ===== Title pulse (random timing & brightness) =====
+    // Title micro-pulse
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 80 + Math.random()*220;      // ~160–300ms
-        const amp = 1 + Math.random()*0.02;      // subtle scale
-        const bright = 0.6 + Math.random()*0.5;  // small brightness wiggle
+        const dur = 80 + Math.random()*220;
+        const amp = 1 + Math.random()*0.02;
+        const bright = 0.6 + Math.random()*0.5;
         el.animate([
           { transform:'scale(1)',       filter:`brightness(${bright})` },
           { transform:`scale(${amp})`,  filter:`brightness(${Math.min(1.25, bright+0.1)})` },
           { transform:'scale(1)',       filter:`brightness(${bright})` }
         ], { duration: dur, easing:'ease-out' });
       }
-      (function schedule(){
-        const wait = 500 + Math.random()*3500;
-        setTimeout(()=>{ pulseOnce(); schedule(); }, wait);
-      })();
+      (function schedule(){ setTimeout(()=>{ pulseOnce(); schedule(); }, 500 + Math.random()*3500); })();
     })();
 
-    // Year stamp
+    // Year
     document.getElementById('y').textContent = new Date().getFullYear();
+
+    // expose for tweaking
+    window.CIR_RAIN = RAIN;
+  })();
   </script>
 </body>
 </html>
