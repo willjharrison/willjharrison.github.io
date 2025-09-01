@@ -6,7 +6,14 @@
   <title>Computational Intelligence Research</title>
   <meta name="color-scheme" content="dark light" />
   <style>
-    :root { --bg:#000; --fg:#b6fdb6; --glow:#19ff19; }
+    :root {
+      --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
+
+      /* ▼ Rain color: lower saturation = more desaturated.
+         Example: hsla(120, 40%, 60%, 1) is a muted green. */
+      --rainColor: hsla(120, 40%, 60%, 1);
+    }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:hidden}
@@ -34,6 +41,11 @@
     .glitch.wild::before{ text-shadow:-3px 0 #ff55ff; filter:blur(.6px) contrast(1.2) }
     .glitch.wild::after { text-shadow: 3px 0 #55ffff; filter:blur(.6px) contrast(1.2) }
 
+    /* ▼ If you want to REMOVE the “second background title” (ghost layers),
+         either (A) delete the data-text attribute on the <h1>, or
+         (B) add class 'no-ghost' to the <h1> to disable the pseudo-layers. */
+    .glitch.no-ghost::before, .glitch.no-ghost::after { content: none !important; opacity: 0 !important; }
+
     footer{position:fixed;inset:auto 0 8px 0;text-align:center;font-size:12px;opacity:.55;z-index:1}
 
     @media (prefers-reduced-motion: reduce){.crt::before{animation:none}#matrix{display:none}}
@@ -43,7 +55,9 @@
   <canvas id="matrix" aria-hidden="true"></canvas>
 
   <div class="wrap">
+    <!-- To remove background-ghost text, either delete data-text OR add 'no-ghost' to class list. -->
     <h1 id="title" class="crt glitch" data-text="Computational Intelligence Research">Computational Intelligence Research</h1>
+    <!-- Example without ghost: <h1 id="title" class="crt glitch no-ghost">Computational Intelligence Research</h1> -->
   </div>
 
   <footer>© <span id="y"></span> CIR</footer>
@@ -55,7 +69,11 @@
       const ctx = c.getContext('2d');
       let w, h, cols, drops, speeds, dpr, fontSize;
 
+      /* ▼ Decay rate of rainfall trails:
+           RAIN.trail controls fade per frame: lower = longer trails (slower decay),
+           higher = quicker fade (faster decay). */
       const RAIN = { speed: 1.0, variability: 0.9, resetChance: 0.975, trail: 0.08 };
+
       const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
       function resize(){
@@ -75,22 +93,30 @@
 
       function draw(){
         if(!document.hidden){
+          // ▼ Background fade — tied to RAIN.trail above
           ctx.fillStyle = `rgba(0,20,0,${RAIN.trail})`;
           ctx.fillRect(0,0,w,h);
-          ctx.fillStyle = '#19ff19';
+
+          // ▼ Rain color comes from CSS variable --rainColor (desaturate in :root)
+          ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+
           for(let i=0;i<cols;i++){
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
             const x = i * fontSize;
             const y = drops[i] * fontSize;
-            const jitter = Math.random();
+
             ctx.fillText(ch, x, y);
+
             if(y > h && Math.random() > RAIN.resetChance) drops[i] = -Math.random()*20;
-            else  drops[i] += RAIN.speed * speeds[i] * jitter;  
+            else {
+              // optional timing jitter (keep if you like the variability)
+              const jitter = Math.random(); // 0–1
+              drops[i] += RAIN.speed * speeds[i] * jitter;
+            }
           }
         }
         requestAnimationFrame(draw);
       }
-      // Always paint at least one frame
       draw();
 
       // Expose simple controls in console
@@ -118,7 +144,7 @@
     // ===== Stochastic glitch (Poisson intervals + bursts) =====
     (()=>{
       const el = document.getElementById('title');
-      const meanMs = 700; // average interval
+      const meanMs = 700; // average interval (lower = more frequent)
       const expRand = m => -Math.log(1-Math.random())*m;
 
       function jitterOnce(wild=false){
