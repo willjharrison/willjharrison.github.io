@@ -9,7 +9,7 @@
     :root {
       --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
       /* Rain color: lower saturation = more desaturated */
-      --rainColor: hsla(120, 60%, 40%, 1);
+      --rainColor: hsla(120, 80%, 40%, 1);
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -111,7 +111,7 @@
         if(!lastTs) lastTs = ts;
         const dt = (ts - lastTs) / 1000; // seconds since last frame
         
-        const SWEEP_EVERY_MS = 1000;            // how often
+        const SWEEP_EVERY_MS = 500;            // how often
 const SWEEP_HEIGHT   = Math.max(20, Math.floor(glyphSpacing * 1.6)); // band height
 
 if (ts - lastSweep > SWEEP_EVERY_MS) {
