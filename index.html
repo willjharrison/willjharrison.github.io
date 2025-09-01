@@ -124,7 +124,7 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
 
         if (!document.hidden) {
           // Trail fade
-          ctx.fillStyle = `rgba(0,20,0,${RAIN.trail})`;
+          ctx.fillStyle = `rgba(4,10,4,${RAIN.trail})`;
           ctx.fillRect(0,0,w,h);
 
           const rainColor = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
@@ -161,7 +161,7 @@ if (ts - lastSweep > SWEEP_EVERY_MS) {
                 const y = row * glyphSpacing;
 
                 ctx.fillStyle = (pulseA[i] > 0)
-                  ? `rgba(20,255,255,${pulseA[i].toFixed(3)})`
+                  ? `rgba(20,180,155,${pulseA[i].toFixed(3)})`
                   : rainColor;
 
                 const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
