@@ -60,7 +60,7 @@
         w = window.innerWidth; h = window.innerHeight;
         c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
         ctx.setTransform(dpr,0,0,dpr,0,0);
-        fontSize = Math.max(12, Math.floor(w/90));
+        fontSize = Math.max(12, Math.floor(w/70));
         ctx.font = fontSize + 'px monospace';
         ctx.textBaseline = 'top';
         cols = Math.max(1, Math.ceil(w / fontSize));
@@ -115,8 +115,8 @@
     (()=>{
       const el = document.getElementById('title');
       function pulseOnce(){
-        const dur = 200 + Math.random()*200; // quick, subtle
-        const amp = 1 + Math.random()*0.08;
+        const dur = Math.random()*200; // quick, subtle
+        const amp = .1 + Math.random()*0.08;
         const bright = 0.85 + Math.random()*0.3; // 0.85–1.15
         el.animate([
           { transform:'scale(1)',           filter:`brightness(${bright})` },
