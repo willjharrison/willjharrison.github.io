@@ -123,6 +123,7 @@
             }
 
             const ch = glyphs[Math.floor(Math.random()*glyphs.length)];
+            ctx.clearRect(x, y, glyphSpacing, glyphSpacing); 
             ctx.fillText(ch, x, y);
 
             // Reset when off-screen (in pixel space)
