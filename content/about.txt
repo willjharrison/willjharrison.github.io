@@ -1,0 +1,18 @@
+Sensory Intelligence Research Group (SIRG)
+School of Health, University of the Sunshine Coast
+
+We are an interdisciplinary group led by Dr. [Your Name], drawing on psychology, neuroscience,
+and computation to understand how biological sensory systems construct useful representations
+of the world. We study the algorithms that populations of neurons might use to encode and
+combine information, and how those computations manifest in perception and decision making.
+We also translate these insights to health—seeking principled ways to understand, detect,
+and improve sensory and cognitive disorders.
+
+Focus themes
+• Neural population coding and uncertainty
+• Perception under resource limits (e.g., crowding, attention, working memory)
+• Eye movements and dynamic inference
+• Bayesian models of perceptual decision making
+• Bench-to-bedside links to disorders and rehabilitation
+
+Contact: sirg@usc.edu.au (replace with your preferred contact)
