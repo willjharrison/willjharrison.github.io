@@ -1,17 +1,12 @@
 Sensory Intelligence Research Group
 School of Health, University of the Sunshine Coast
 
-We are an interdisciplinary group led by Dr Will Harrison, PhD, drawing on cognitive science, neuroscience,
-and mathematical modelling to understand how biological sensory systems construct useful representations
-of the world. We study the algorithms that populations of neurons might use to encode and
-combine information, and how those computations manifest in perception and decision making.
-We also translate these insights to health—seeking principled ways to understand, detect,
-and improve sensory and cognitive disorders.
+We are an interdisciplinary group led by Dr Will Harrison, PhD, drawing on cognitive science, neuroscience, and mathematical modelling to understand how biological sensory systems construct useful representations of the world. We study the algorithms that populations of neurons might use to encode and combine information, and how those computations manifest in perception and decision making. We also aim to translate these insights to health—seeking principled ways to understand, detect, and improve sensory and cognitive disorders.
 
 Focus themes
 • Neural population coding and uncertainty
 • Perception under resource limits (e.g., crowding, attention, working memory)
-• Eye movements and dynamic inference
+• Dynamic inference across eye movements
 • Bayesian models of perceptual decision making
 • Scary psychophysics (coming soon!)
 
