@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark light" />
   <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
   <style>
-    :root {
+    :root{
       --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
       --rainColor: hsla(120, 80%, 20%, 1);
       --cardBg: rgba(10, 25, 10, 0.85);
@@ -16,57 +16,334 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--fg);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;overflow:auto;cursor:none}
+    body{
+      margin:0;background:var(--bg);color:var(--fg);
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      overflow:auto; cursor:none;
+      transition:opacity 80ms linear, filter 80ms linear, transform 80ms linear;
+    }
+    /* Matrix background */
+    #matrix{
+      position:fixed; inset:0; z-index:0; display:block; width:100%; height:100%;
+      background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%);
+    }
+    /* Cursor trail canvas (above matrix, below content) */
+    #cursorCanvas{
+      position:fixed; inset:0; z-index:1; display:block; width:100%; height:100%;
+      pointer-events:none;
+    }
+    /* Glowing cursor dot (on top) */
+    #cursorDot{
+      position: fixed; top:0; left:0; width:26px; height:26px;
+      margin-top:-13px; margin-left:-13px; border-radius:50%;
+      pointer-events:none; z-index:3; mix-blend-mode:screen;
+      background: radial-gradient(closest-side, rgba(60,255,100,0.9), rgba(60,255,100,0.35), rgba(0,0,0,0));
+      filter: blur(2px) drop-shadow(0 0 10px rgba(60,255,100,0.9));
+      transform: translate3d(0,0,0);
+      transition: transform 0.02s linear;
+    }
 
-    #matrix{position:fixed;inset:0;z-index:0;display:block;width:100%;height:100%;
-      background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
-
-    .wrap{position:relative;z-index:1;max-width:var(--maxW);margin:24px auto 80px; padding:0 16px}
-
-    h1{font-family:'VT323', monospace; margin:12px 0 16px 0;text-align:center;letter-spacing:.06em;font-weight:700;font-size:clamp(28px,7vw,80px);
-      color:#D4EB8E;
-      text-shadow:0 0 .2rem #66ccff,0 0 .2rem #66ccff,0 0 .4rem #66ccff,0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);
-      filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)}
-
+    /* Page container */
+    .wrap{position:relative; z-index:2; max-width:var(--maxW); margin:24px auto 80px; padding:0 16px}
+    h1{
+      font-family:'VT323', monospace; margin:12px 0 16px 0; text-align:center; letter-spacing:.06em; font-weight:700;
+      font-size:clamp(28px,7vw,80px); color:#D4EB8E;
+      text-shadow: 0 0 .2rem #66ccff, 0 0 .2rem #66ccff, 0 0 .4rem #66ccff,
+                   0 0 .6rem var(--glow), 0 0 1.2rem var(--glow), 0 0 2.4rem var(--glow);
+      filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)
+    }
+    .small{font-size:12px; opacity:.7; margin:0 18px 14px}
     .cards{display:grid; gap:14px}
-    details.card{background:var(--cardBg);border:1px solid var(--cardBorder);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 30px rgba(25,255,60,.08) inset;overflow:hidden;}
-    summary{cursor:pointer;list-style:none;padding:16px 18px;font-family:'VT323', monospace;font-size:clamp(20px,4.4vw,38px);color:#D4EB8E;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+    details.card{
+      background:var(--cardBg); border:1px solid var(--cardBorder); border-radius:14px;
+      box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 30px rgba(25,255,60,.08) inset; overflow:hidden;
+    }
+    summary{
+      cursor:pointer; list-style:none; padding:16px 18px;
+      font-family:'VT323', monospace; font-size:clamp(20px,4.4vw,38px); color:#D4EB8E;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
     summary::-webkit-details-marker{display:none}
     .chev{transition:transform .15s ease}
     details[open] .chev{transform:rotate(90deg)}
     .content{padding:10px 18px 18px; line-height:1.5; font-size:16px; white-space:pre-wrap}
-    .small{font-size:12px; opacity:.7; margin:0 18px 14px}
-    footer{position:relative;z-index:1;text-align:center;font-size:12px;opacity:.6;margin:22px 0}
+    footer{position:relative;z-index:2;text-align:center;font-size:12px;opacity:.6;margin:22px 0}
 
-    #cursor {position: fixed;top: 0; left: 0;width: 26px; height: 26px;margin-top: -13px; margin-left: -13px;border-radius: 50%;pointer-events: none;z-index: 2;mix-blend-mode: screen;background: radial-gradient(closest-side, rgba(60,255,100,0.9), rgba(60,255,100,0.35), rgba(0,0,0,0));filter: blur(2px) drop-shadow(0 0 10px rgba(60,255,100,0.9));transform: translate3d(0,0,0);transition: transform 0.02s linear;}
+    /* Glitch class toggled by JS */
+    .is-glitch{
+      opacity: var(--glitchOpacity, 0.7);
+      filter: contrast(1.4) saturate(1.2);
+      transform: translate3d(var(--glitchDX, 0px), var(--glitchDY, 0px), 0);
+    }
 
     @media (prefers-reduced-motion: reduce){
-      #matrix{display:none}#cursor{display:none}body{cursor:auto}
+      #matrix,#cursorCanvas,#cursorDot{display:none}
+      body{cursor:auto}
     }
   </style>
 </head>
 <body>
   <canvas id="matrix" aria-hidden="true"></canvas>
-  <div id="cursor" aria-hidden="true"></div>
+  <canvas id="cursorCanvas" aria-hidden="true"></canvas>
+  <div id="cursorDot" aria-hidden="true"></div>
 
   <div class="wrap">
     <h1>Sensory Intelligence Research Group</h1>
-    <p class="small">Click a heading to expand. Edit the corresponding <code>.txt</code> file to change the content.</p>
+    
+
     <div class="cards">
-      <details class="card"><summary>ABOUT <span class="chev">›</span></summary><div class="content" data-src="about.txt">Loading…</div></details>
-      <details class="card"><summary>COLLABORATORS <span class="chev">›</span></summary><div class="content" data-src="collaborators.txt">Loading…</div></details>
-      <details class="card"><summary>OPPORTUNITIES <span class="chev">›</span></summary><div class="content" data-src="opportunities.txt">Loading…</div></details>
-      <details class="card"><summary>PUBLICATIONS <span class="chev">›</span></summary><div class="content" data-src="publications.txt">Loading…</div></details>
-      <details class="card"><summary>RESEARCH TOPICS <span class="chev">›</span></summary><div class="content" data-src="research-topics.txt">Loading…</div></details>
+      <details class="card" id="sec-about">
+        <summary>ABOUT <span class="chev">›</span></summary>
+        <div class="content" data-src="about.txt">Loading…</div>
+      </details>
+      <details class="card" id="sec-collab">
+        <summary>COLLABORATORS <span class="chev">›</span></summary>
+        <div class="content" data-src="collaborators.txt">Loading…</div>
+      </details>
+      <details class="card" id="sec-opps">
+        <summary>OPPORTUNITIES <span class="chev">›</span></summary>
+        <div class="content" data-src="opportunities.txt">Loading…</div>
+      </details>
+      <details class="card" id="sec-pubs">
+        <summary>PUBLICATIONS <span class="chev">›</span></summary>
+        <div class="content" data-src="publications.txt">Loading…</div>
+      </details>
+      <details class="card" id="sec-topics">
+        <summary>RESEARCH TOPICS <span class="chev">›</span></summary>
+        <div class="content" data-src="research-topics.txt">Loading…</div>
+      </details>
     </div>
+
     <footer>© <span id="y"></span> SIRG</footer>
   </div>
 
   <script>
-  (() => {const c=document.getElementById('matrix');const ctx=c.getContext('2d');const glyphs='アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';const RAIN={rowsPerSec:20,variability:2,spacing:0.85,trail:0.02,minRowsPerSec:10,minFactor:0.10,maxGlyphStepsPerFrame:2};let dpr=1,w=0,h=0,cols=0,fontSize=16,glyphSpacing=14;let yRows=[],velRows=[],rowFrac=[],lastRow=[];let lastTs=0;function sampleVel(){const raw=1+(Math.random()*2-1)*RAIN.variability;const clamped=Math.max(RAIN.minFactor,raw);return Math.max(RAIN.minRowsPerSec,RAIN.rowsPerSec*clamped);}function resize(){dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1));w=window.innerWidth;h=window.innerHeight;c.width=Math.floor(w*dpr);c.height=Math.floor(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);fontSize=Math.max(12,Math.floor(w/70));glyphSpacing=Math.round(fontSize*RAIN.spacing);ctx.font=fontSize+'px monospace';ctx.textBaseline='top';ctx.textAlign='left';cols=Math.max(1,Math.ceil(w/glyphSpacing));yRows=Array(cols).fill(0).map(()=>-Math.random()*50);velRows=Array(cols).fill(0).map(()=>sampleVel());rowFrac=Array(cols).fill(0);lastRow=Array(cols).fill(-1);}window.addEventListener('resize',resize,{passive:true});resize();function frame(ts){if(!lastTs)lastTs=ts;let dt=(ts-lastTs)/1000;if(dt>0.05)dt=0.05;lastTs=ts;ctx.fillStyle=`rgba(1,3,1,${RAIN.trail})`;ctx.fillRect(0,0,w,h);const maxRow=Math.ceil(h/glyphSpacing);for(let i=0;i<cols;i++){rowFrac[i]+=velRows[i]*dt;let steps=Math.floor(rowFrac[i]);if(steps>0){if(steps>RAIN.maxGlyphStepsPerFrame){yRows[i]+=(steps-RAIN.maxGlyphStepsPerFrame);steps=RAIN.maxGlyphStepsPerFrame;}rowFrac[i]-=Math.floor(rowFrac[i]);for(let s=0;s<steps;s++){yRows[i]+=1;const row=Math.floor(yRows[i]);if(row>maxRow){yRows[i]=-(10+Math.random()*40);rowFrac[i]=0;lastRow[i]=-1;velRows[i]=sampleVel();break;}if(row!==lastRow[i]){const x=i*glyphSpacing;const y=row*glyphSpacing;const ch=glyphs[(Math.random()*glyphs.length)|0];ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();ctx.fillText(ch,x,y);lastRow[i]=row;}}}}requestAnimationFrame(frame);}requestAnimationFrame(frame);})();
+  // ====== CONFIG ======
+  const GLITCH = {
+    freqHz: 0.35,      // how often glitches occur (times per second)
+    amp: 0.28,         // 0..1 -> how dark/strong the blink appears
+    durationMs: 120,   // how long each glitch lasts
+    jitterPx: 2        // slight position jitter during glitch
+  };
+  const CURSOR = {
+    fade: 0.14,        // trail persistence (higher = shorter trail)
+    radius: 28         // trail spot radius (px)
+  };
+  const RAINCFG = {
+    rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
+    minRowsPerSec: 10, minFactor: 0.10, maxGlyphStepsPerFrame: 2,
+    clearProb: 0.0015  // per-column per-frame probability of hard reset/clear
+  };
 
-  (function lazyLoadSections(){const year=document.getElementById('y');if(year)year.textContent=new Date().getFullYear();document.querySelectorAll('details.card').forEach(det=>{const content=det.querySelector('.content');const src=content&&content.getAttribute('data-src');let loaded=false;async function loadIfNeeded(){if(loaded||!src)return;try{const res=await fetch(src,{cache:'no-cache'});if(!res.ok)throw new Error('HTTP '+res.status);const txt=await res.text();content.textContent=(txt&&txt.trim())?txt:'(No content in '+src+')';}catch(err){content.textContent='(Could not load '+src+' — create this file next to index.html)';}loaded=true;}det.addEventListener('toggle',()=>{if(det.open)loadIfNeeded();},{passive:true});if(det.textContent.includes('ABOUT')){det.setAttribute('open','');loadIfNeeded();}});})();
+  // ====== MATRIX RAIN ======
+  (() => {
+    const c = document.getElementById('matrix');
+    const ctx = c.getContext('2d');
+    const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
-  (()=>{const dot=document.getElementById('cursor');let x=window.innerWidth/2,y=window.innerHeight/2;let tx=x,ty=y;let rafId=0;function onMove(e){tx=e.clientX;ty=e.clientY;if(!rafId)rafId=requestAnimationFrame(tick);}function tick(){x+=(tx-x)*0.35;y+=(ty-y)*0.35;dot.style.transform=`translate3d(${x}px, ${y}px, 0)`;if(Math.hypot(tx-x,ty-y)>0.2){rafId=requestAnimationFrame(tick);}else{rafId=0;}}window.addEventListener('mousemove',onMove,{passive:true});window.addEventListener('mouseleave',()=>{dot.style.display='none';},{passive:true});window.addEventListener('mouseenter',()=>{dot.style.display='block';},{passive:true});})();</script>
+    let dpr=1, w=0, h=0, cols=0, fontSize=16, glyphSpacing=14;
+    let yRows=[], velRows=[], rowFrac=[], lastRow=[];
+    let lastTs=0;
+
+    function sampleVel(){
+      const raw = 1 + (Math.random()*2 - 1) * RAINCFG.variability;
+      const clamped = Math.max(RAINCFG.minFactor, raw);
+      return Math.max(RAINCFG.minRowsPerSec, RAINCFG.rowsPerSec * clamped);
+    }
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      w = window.innerWidth; h = window.innerHeight;
+      c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+
+      fontSize = Math.max(12, Math.floor(w/70));
+      glyphSpacing = Math.round(fontSize * RAINCFG.spacing);
+      ctx.font = fontSize + 'px monospace';
+      ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+
+      cols   = Math.max(1, Math.ceil(w / glyphSpacing));
+      yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
+      velRows= Array(cols).fill(0).map(()=> sampleVel());
+      rowFrac= Array(cols).fill(0);
+      lastRow= Array(cols).fill(-1);
+    }
+    window.addEventListener('resize', resize, {passive:true});
+    resize();
+
+    function frame(ts){
+      if(!lastTs) lastTs = ts;
+      let dt = (ts - lastTs) / 1000;
+      if (dt > 0.05) dt = 0.05;
+      lastTs = ts;
+
+      // trail fade
+      ctx.fillStyle = `rgba(1,3,1,${RAINCFG.trail})`;
+      ctx.fillRect(0,0,w,h);
+
+      const maxRow = Math.ceil(h / glyphSpacing);
+
+      for (let i=0;i<cols;i++) {
+        // Random hard reset/clear for a column
+        if (Math.random() < RAINCFG.clearProb) {
+          // darken a thin vertical strip to "clear" that column's trail
+          ctx.fillStyle = 'rgba(0,0,0,0.25)';
+          ctx.fillRect(i*glyphSpacing, 0, glyphSpacing+1, h);
+          yRows[i]   = -(10 + Math.random()*40);
+          rowFrac[i] = 0;
+          lastRow[i] = -1;
+          velRows[i] = sampleVel();
+          continue;
+        }
+
+        rowFrac[i] += velRows[i] * dt;
+
+        let steps = Math.floor(rowFrac[i]);
+        if (steps > 0) {
+          if (steps > RAINCFG.maxGlyphStepsPerFrame) {
+            yRows[i] += (steps - RAINCFG.maxGlyphStepsPerFrame);
+            steps = RAINCFG.maxGlyphStepsPerFrame;
+          }
+          rowFrac[i] -= Math.floor(rowFrac[i]);
+
+          for (let s = 0; s < steps; s++) {
+            yRows[i] += 1;
+            const row = Math.floor(yRows[i]);
+
+            if (row > maxRow) {
+              yRows[i]   = - (10 + Math.random()*40);
+              rowFrac[i] = 0;
+              lastRow[i] = -1;
+              velRows[i] = sampleVel();
+              break;
+            }
+
+            if (row !== lastRow[i]) {
+              const x = i * glyphSpacing;
+              const y = row * glyphSpacing;
+              const ch = glyphs[(Math.random() * glyphs.length) | 0];
+              ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+              ctx.fillText(ch, x, y);
+              lastRow[i] = row;
+            }
+          }
+        }
+      }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  })();
+
+  // ====== CURSOR TRAIL + DOT ======
+  (() => {
+    const dot = document.getElementById('cursorDot');
+    const cv = document.getElementById('cursorCanvas');
+    const cx = cv.getContext('2d');
+    let dpr=1, w=0, h=0;
+
+    function resize(){
+      dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+      w = window.innerWidth; h = window.innerHeight;
+      cv.width = Math.floor(w*dpr); cv.height = Math.floor(h*dpr);
+      cx.setTransform(dpr,0,0,dpr,0,0);
+    }
+    window.addEventListener('resize', resize, {passive:true}); resize();
+
+    let x = w/2, y = h/2;          // drawn position
+    let tx = x, ty = y;            // target position
+    let rafId = 0;
+
+    function onMove(e){
+      tx = e.clientX; ty = e.clientY;
+      dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`; // dot snaps to pointer
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    }
+
+    function tick(){
+      // fade the trail slightly
+      cx.fillStyle = `rgba(0, 0, 0, ${CURSOR.fade})`;
+      cx.fillRect(0,0,w,h);
+
+      // ease the trail position toward the pointer for a smooth tail
+      x += (tx - x) * 0.35;
+      y += (ty - y) * 0.35;
+
+      // draw a soft radial glow at the eased position
+      const r = CURSOR.radius;
+      const g = cx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, 'rgba(60,255,100,0.85)');
+      g.addColorStop(0.5, 'rgba(60,255,100,0.40)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      cx.fillStyle = g;
+      cx.beginPath(); cx.arc(x, y, r, 0, Math.PI*2); cx.fill();
+
+      if (Math.hypot(tx - x, ty - y) > 0.2) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = 0;
+      }
+    }
+
+    window.addEventListener('mousemove', onMove, {passive:true});
+    window.addEventListener('mouseleave', () => { dot.style.display='none'; }, {passive:true});
+    window.addEventListener('mouseenter', () => { dot.style.display='block'; }, {passive:true});
+  })();
+
+  // ====== GLITCH BLINK ======
+  (() => {
+    let last = performance.now();
+    let acc = 0;
+    const body = document.body;
+    const period = 1000 / Math.max(0.0001, GLITCH.freqHz); // ms between glitches
+
+    function loop(ts){
+      const dt = ts - last; last = ts; acc += dt;
+
+      if (acc >= period){
+        acc = 0;
+        // apply glitch for durationMs
+        const amp = Math.max(0, Math.min(1, GLITCH.amp));
+        const opacity = 1 - amp; // how dark it gets
+        const dx = (Math.random()*2 - 1) * GLITCH.jitterPx;
+        const dy = (Math.random()*2 - 1) * GLITCH.jitterPx;
+
+        body.style.setProperty('--glitchOpacity', opacity.toString());
+        body.style.setProperty('--glitchDX', dx + 'px');
+        body.style.setProperty('--glitchDY', dy + 'px');
+        body.classList.add('is-glitch');
+
+        setTimeout(() => { body.classList.remove('is-glitch'); }, GLITCH.durationMs);
+      }
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  })();
+
+  // ====== LAZY-LOAD SECTION TEXT (no auto-open; all closed by default) ======
+  (() => {
+    const year = document.getElementById('y');
+    if (year) year.textContent = new Date().getFullYear();
+
+    document.querySelectorAll('details.card').forEach(det => {
+      const content = det.querySelector('.content');
+      const src = content && content.getAttribute('data-src');
+
+      let loaded = false;
+      async function loadIfNeeded(){
+        if (loaded || !src) return;
+        try{
+          const res = await fetch(src, {cache:'no-cache'});
+          if(!res.ok) throw new Error('HTTP '+res.status);
+          const txt = await res.text();
+          content.textContent = (txt && txt.trim()) ? txt : '(No content in ' + src + ')';
+        }catch(err){
+          content.textContent = '(Could not load ' + src + ' — ensure this file sits next to index.html)';
+        }
+        loaded = true;
+      }
+      det.addEventListener('toggle', () => { if (det.open) loadIfNeeded(); }, {passive:true});
+      // NOTE: no auto-open here; all closed by default
+    });
+  })();
+  </script>
 </body>
 </html>
