@@ -163,51 +163,33 @@ const RAIN = {       // matrix rain
   resize();
 
   function frame(ts){
+  try {
     if(!lastTs) lastTs = ts;
     let dt = (ts - lastTs) / 1000;
-    if (dt > 0.05) dt = 0.05; // clamp big spikes
+    if (dt > 0.05) dt = 0.05;
     lastTs = ts;
 
-    // global trail fade
     ctx.fillStyle = `rgba(1,3,1,${RAIN.trail})`;
     ctx.fillRect(0,0,w,h);
 
     const maxRow = Math.ceil(h / glyphSpacing);
-
     for (let i=0;i<cols;i++) {
-      // random column reset (no canvas wipe)
       if (Math.random() < RAIN.resetProb) {
-        yRows[i]   = -(10 + Math.random()*40);
-        rowFrac[i] = 0;
-        lastRow[i] = -1;
-        velRows[i] = sampleVel();
+        yRows[i] = -(10 + Math.random()*40);
+        rowFrac[i] = 0; lastRow[i] = -1; velRows[i] = sampleVel();
       }
-
       rowFrac[i] += velRows[i] * dt;
       let steps = Math.floor(rowFrac[i]);
       if (steps > 0) {
-        if (steps > RAIN.maxStepsPerFrame) {
-          yRows[i] += (steps - RAIN.maxStepsPerFrame);
-          steps = RAIN.maxStepsPerFrame;
-        }
+        if (steps > RAIN.maxStepsPerFrame) { yRows[i] += (steps - RAIN.maxStepsPerFrame); steps = RAIN.maxStepsPerFrame; }
         rowFrac[i] -= Math.floor(rowFrac[i]);
-
-        for (let s = 0; s < steps; s++) {
+        for (let s=0; s<steps; s++){
           yRows[i] += 1;
           const row = Math.floor(yRows[i]);
-
-          if (row > maxRow) {
-            yRows[i]   = - (10 + Math.random()*40);
-            rowFrac[i] = 0;
-            lastRow[i] = -1;
-            velRows[i] = sampleVel();
-            break;
-          }
-
+          if (row > maxRow) { yRows[i]=-(10+Math.random()*40); rowFrac[i]=0; lastRow[i]=-1; velRows[i]=sampleVel(); break; }
           if (row !== lastRow[i]) {
-            const x = i * glyphSpacing;
-            const y = row * glyphSpacing;
-            const ch = glyphs[(Math.random() * glyphs.length) | 0];
+            const x = i * glyphSpacing, y = row * glyphSpacing;
+            const ch = glyphs[(Math.random()*glyphs.length)|0];
             ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
             ctx.fillText(ch, x, y);
             lastRow[i] = row;
@@ -215,64 +197,77 @@ const RAIN = {       // matrix rain
         }
       }
     }
+  } finally {
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
-})();
+}
 
-/* ============== CURSOR TRAIL (BLIT) ============== */
+/* ============== CURSOR TRAIL (BLIT) — FIXED ============== */
 (() => {
   const cv = document.getElementById('cursorTrail');
-  const cx = cv.getContext('2d');
+  const cx = cv.getContext('2d', { alpha: true });
   const dot = document.getElementById('cursorDot');
-  let dpr=1, w=0, h=0;
+
+  let dpr = Math.max(1, window.devicePixelRatio || 1);
+  let w = 0, h = 0;
+  let x = 0, y = 0;       // eased/trail position in CSS px
+  let tx = 0, ty = 0;     // target pointer in CSS px
+  let raf = 0;
 
   function resize(){
-    dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-    w = innerWidth; h = innerHeight;
-    cv.width = Math.floor(w*dpr); cv.height = Math.floor(h*dpr);
-    cx.setTransform(dpr,0,0,dpr,0,0);
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    const cssW = window.innerWidth;
+    const cssH = window.innerHeight;
+    w = cssW * dpr; h = cssH * dpr;
+    cv.width = w; cv.height = h;       // physical px
+    cv.style.width = cssW + 'px';
+    cv.style.height = cssH + 'px';
   }
-  addEventListener('resize', resize, {passive:true}); resize();
-
-  let x=w/2, y=h/2;       // eased position (trail)
-  let tx=x, ty=y;         // target (pointer)
-  let rafId=0;
+  window.addEventListener('resize', resize, {passive:true});
+  resize();
+  x = window.innerWidth/2; y = window.innerHeight/2;
+  tx = x; ty = y;
 
   function onMove(e){
+    // Use client coords (viewport) for fixed-position canvas & dot
     tx = e.clientX; ty = e.clientY;
-    dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`; // bright dot at pointer
-    if (!rafId) rafId = requestAnimationFrame(tick);
+    dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+    if (!raf) raf = requestAnimationFrame(tick);
   }
+  document.addEventListener('mousemove', onMove, {passive:true});
+  document.addEventListener('mouseleave', () => { dot.style.display='none'; }, {passive:true});
+  document.addEventListener('mouseenter', () => { dot.style.display='block'; }, {passive:true});
 
   function tick(){
-    // fade previous frame (blit)
-    cx.fillStyle = `rgba(0,0,0,${CURSOR.fade})`;
-    cx.fillRect(0,0,w,h);
+    try {
+      // Fade previous frame
+      cx.fillStyle = `rgba(0,0,0,${CURSOR.fade})`;
+      cx.fillRect(0, 0, w, h);
 
-    // ease toward target
-    x += (tx - x) * CURSOR.ease;
-    y += (ty - y) * CURSOR.ease;
+      // Ease toward target (CSS px space)
+      x += (tx - x) * CURSOR.ease;
+      y += (ty - y) * CURSOR.ease;
 
-    // draw glow spot
-    const r = CURSOR.radius;
-    const g = cx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, 'rgba(60,200,100,0.88)');
-    g.addColorStop(0.45,'rgba(60,200,100,0.42)');
-    g.addColorStop(1, 'rgba(0,0,0,0)');
-    cx.fillStyle = g;
-    cx.beginPath(); cx.arc(x, y, r, 0, Math.PI*2); cx.fill();
+      // Draw glow in device pixels
+      const gx = x * dpr, gy = y * dpr, r = CURSOR.radius * dpr;
+      const g = cx.createRadialGradient(gx, gy, 0, gx, gy, r);
+      g.addColorStop(0, 'rgba(60,255,100,0.90)');
+      g.addColorStop(0.5,'rgba(60,255,100,0.40)');
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      cx.fillStyle = g;
+      cx.beginPath(); cx.arc(gx, gy, r, 0, Math.PI*2); cx.fill();
 
-    if (Math.hypot(tx-x, ty-y) > 0.25) {
-      rafId = requestAnimationFrame(tick);
-    } else {
-      rafId = 0;
+      if (Math.hypot(tx - x, ty - y) > 0.2) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        raf = 0;
+      }
+    } catch (err) {
+      // Never let an exception kill other animations
+      console.error('cursor tick error:', err);
+      raf = 0;
     }
   }
-
-  addEventListener('mousemove', onMove, {passive:true});
-  addEventListener('mouseleave', () => { dot.style.display='none'; }, {passive:true});
-  addEventListener('mouseenter', () => { dot.style.display='block'; }, {passive:true});
 })();
 
 /* ================== GLITCH BLINK ================= */
