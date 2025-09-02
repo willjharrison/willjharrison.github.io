@@ -80,7 +80,6 @@
 
   <div class="wrap">
     <h1>Sensory Intelligence Research Group</h1>
-    <p class="small">Click a heading to expand. Content is loaded from the matching <code>.txt</code> file next to this page.</p>
 
     <div class="cards">
       <details class="card" id="sec-about">
@@ -258,8 +257,8 @@ const RAIN = {       // matrix rain
     // draw glow spot
     const r = CURSOR.radius;
     const g = cx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, 'rgba(60,255,100,0.88)');
-    g.addColorStop(0.45,'rgba(60,255,100,0.42)');
+    g.addColorStop(0, 'rgba(60,200,100,0.88)');
+    g.addColorStop(0.45,'rgba(60,200,100,0.42)');
     g.addColorStop(1, 'rgba(0,0,0,0)');
     cx.fillStyle = g;
     cx.beginPath(); cx.arc(x, y, r, 0, Math.PI*2); cx.fill();
