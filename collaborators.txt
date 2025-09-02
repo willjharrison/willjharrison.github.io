@@ -1,0 +1,11 @@
+Collaborators
+
+We work with researchers across neuroscience, psychology, engineering, and computer science.
+Add, remove, or reorder entries as you like.
+
+• Dr. [Name], [Lab], [Institution] — topic (e.g., population coding / MEG)
+• Prof. [Name], [Department], [Institution] — topic (e.g., Bayesian modeling)
+• Dr. [Name], [Hospital/Clinic] — topic (e.g., clinical vision / rehab)
+• Dr. [Name], [School/Center], [Institution] — topic (e.g., eye tracking methods)
+
+If you’d like to collaborate, please get in touch.
