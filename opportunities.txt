@@ -1,8 +1,6 @@
 Opportunities
 
-We welcome expressions of interest from honours, PhD, and postdoctoral researchers, as well
-as clinical collaborators. Backgrounds spanning psychology, neuroscience, computer science,
-biomedical engineering, or related fields are encouraged.
+We welcome expressions of interest from honours, PhD, and postdoctoral researchers, as well as clinical collaborators. Backgrounds spanning psychology, neuroscience, computer science, biomedical engineering, or related fields are encouraged.
 
 Example directions
 • Probabilistic models of perception and decision making
