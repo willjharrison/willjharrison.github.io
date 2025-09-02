@@ -1,0 +1,24 @@
+Research Topics
+
+Population Coding & Probabilistic Inference
+We investigate how ensembles of neurons represent information and uncertainty, and how those
+representations support Bayesian inference in perception and action.
+
+Visual Perception
+Projects include crowding in peripheral vision, illusory contours, attentional cueing, and
+the interaction between eye movements and moment-to-moment perception.
+
+Working Memory & Decision Processes
+We study short-term memory capacity limits, precision-resource trade-offs, and how noisy
+evidence is integrated over time to guide choices.
+
+Methods
+• Psychophysics (thresholds, reverse correlation, confidence/readouts)
+• Eye tracking & oculomotor paradigms
+• Computational modeling (Bayesian observers, diffusion/accumulator models)
+• Model-based inference & parameter recovery
+• (Optional) EEG/MEG collaborations for population-level signals
+
+Translational Links
+We aim to map computational deficits to clinical phenotypes and inform assessment and
+intervention for disorders of vision, attention, and decision making.
