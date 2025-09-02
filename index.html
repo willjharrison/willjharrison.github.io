@@ -1,95 +1,86 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sensory Intelligence Research Group</title>
-  <meta name="color-scheme" content="dark light" />
-  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
-      --rainColor: hsla(120, 80%, 20%, 1);
-      --cardBg: rgba(10, 25, 10, 0.85);
-      --cardBorder: rgba(80, 200, 120, 0.3);
-      --maxW: 980px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;background:var(--bg);color:var(--fg);
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-      overflow:auto; cursor:none;
-      transition:opacity 80ms linear, filter 80ms linear, transform 80ms linear;
-    }
-    /* Matrix background */
-    #matrix{
-      position:fixed; inset:0; z-index:0; display:block; width:100%; height:100%;
-      background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%);
-    }
-    /* Cursor trail canvas (above matrix, below content) */
-    #cursorCanvas{
-      position:fixed; inset:0; z-index:1; display:block; width:100%; height:100%;
-      pointer-events:none;
-    }
-    /* Glowing cursor dot (on top) */
-    #cursorDot{
-      position: fixed; top:0; left:0; width:26px; height:26px;
-      margin-top:-13px; margin-left:-13px; border-radius:50%;
-      pointer-events:none; z-index:3; mix-blend-mode:screen;
-      background: radial-gradient(closest-side, rgba(20,200,50,0.8), rgba(20,200,50,0.35), rgba(0,5,0,0));
-      filter: blur(2px) drop-shadow(0 0 10px rgba(20,100,20,0.5));
-      transform: translate3d(0,0,0);
-      transition: transform 0.02s linear;
-    }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sensory Intelligence Research Group</title>
+<meta name="color-scheme" content="dark light" />
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
+    --rainColor: hsla(120, 80%, 20%, 1);
+    --cardBg: rgba(10, 25, 10, 0.85);
+    --cardBorder: rgba(80, 200, 120, 0.3);
+    --maxW: 980px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+    overflow:auto; cursor:none;
+    transition:opacity 80ms linear, filter 80ms linear, transform 80ms linear;
+  }
 
-    /* Page container */
-    .wrap{position:relative; z-index:2; max-width:var(--maxW); margin:24px auto 80px; padding:0 16px}
-    h1{
-      font-family:'VT323', monospace; margin:12px 0 16px 0; text-align:center; letter-spacing:.06em; font-weight:700;
-      font-size:clamp(28px,7vw,80px); color:#D4EB8E;
-      text-shadow: 0 0 .2rem #66ccff, 0 0 .2rem #66ccff, 0 0 .4rem #66ccff,
-                   0 0 .6rem var(--glow), 0 0 1.2rem var(--glow), 0 0 2.4rem var(--glow);
-      filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)
-    }
-    .small{font-size:12px; opacity:.7; margin:0 18px 14px}
-    .cards{display:grid; gap:14px}
-    details.card{
-      background:var(--cardBg); border:1px solid var(--cardBorder); border-radius:14px;
-      box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 30px rgba(25,255,60,.08) inset; overflow:hidden;
-    }
-    summary{
-      cursor:pointer; list-style:none; padding:16px 18px;
-      font-family:'VT323', monospace; font-size:clamp(20px,4.4vw,38px); color:#D4EB8E;
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-    }
-    summary::-webkit-details-marker{display:none}
-    .chev{transition:transform .15s ease}
-    details[open] .chev{transform:rotate(90deg)}
-    .content{padding:10px 18px 18px; line-height:1.5; font-size:16px; white-space:pre-wrap}
-    footer{position:relative;z-index:2;text-align:center;font-size:12px;opacity:.6;margin:22px 0}
+  /* Layers */
+  #matrix{position:fixed; inset:0; z-index:0; width:100%; height:100%;
+    background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
+  #cursorTrail{position:fixed; inset:0; z-index:1; pointer-events:none}
+  #cursorDot{
+    position:fixed; top:0; left:0; width:22px; height:22px; margin:-11px 0 0 -11px;
+    border-radius:50%; pointer-events:none; z-index:2; mix-blend-mode:screen;
+    background:radial-gradient(closest-side, rgba(60,255,100,0.9), rgba(60,255,100,0.35), rgba(0,0,0,0));
+    filter: blur(1.2px) drop-shadow(0 0 10px rgba(60,255,100,0.9));
+    transform: translate3d(0,0,0);
+  }
 
-    /* Glitch class toggled by JS */
-    .is-glitch{
-      opacity: var(--glitchOpacity, 0.7);
-      filter: contrast(1.4) saturate(1.2);
-      transform: translate3d(var(--glitchDX, 0px), var(--glitchDY, 0px), 0);
-    }
+  /* Content */
+  .wrap{position:relative; z-index:3; max-width:var(--maxW); margin:24px auto 80px; padding:0 16px}
+  h1{
+    font-family:'VT323',monospace; margin:12px 0 16px 0; text-align:center; letter-spacing:.06em; font-weight:700;
+    font-size:clamp(28px,7vw,80px); color:#D4EB8E;
+    text-shadow:0 0 .2rem #66ccff,0 0 .2rem #66ccff,0 0 .4rem #66ccff,0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);
+    filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)
+  }
+  .small{font-size:12px; opacity:.7; margin:0 18px 14px}
+  .cards{display:grid; gap:14px}
+  details.card{
+    background:var(--cardBg); border:1px solid var(--cardBorder); border-radius:14px;
+    box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 30px rgba(25,255,60,.08) inset; overflow:hidden;
+  }
+  summary{
+    cursor:pointer; list-style:none; padding:16px 18px;
+    font-family:'VT323',monospace; font-size:clamp(20px,4.4vw,38px); color:#D4EB8E;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  summary::-webkit-details-marker{display:none}
+  .chev{transition:transform .15s ease}
+  details[open] .chev{transform:rotate(90deg)}
+  .content{padding:10px 18px 18px; line-height:1.5; font-size:16px; white-space:pre-wrap}
+  footer{position:relative;z-index:3;text-align:center;font-size:12px;opacity:.6;margin:22px 0}
 
-    @media (prefers-reduced-motion: reduce){
-      #matrix,#cursorCanvas,#cursorDot{display:none}
-      body{cursor:auto}
-    }
-  </style>
+  /* Glitch toggled via JS */
+  .is-glitch{
+    opacity: var(--glitchOpacity, 0.7);
+    filter: contrast(1.4) saturate(1.2);
+    transform: translate3d(var(--glitchDX, 0px), var(--glitchDY, 0px), 0);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #matrix,#cursorTrail,#cursorDot{display:none}
+    body{cursor:auto}
+  }
+</style>
 </head>
 <body>
   <canvas id="matrix" aria-hidden="true"></canvas>
-  <canvas id="cursorCanvas" aria-hidden="true"></canvas>
+  <canvas id="cursorTrail" aria-hidden="true"></canvas>
   <div id="cursorDot" aria-hidden="true"></div>
 
   <div class="wrap">
     <h1>Sensory Intelligence Research Group</h1>
-    
+    <p class="small">Click a heading to expand. Content is loaded from the matching <code>.txt</code> file next to this page.</p>
 
     <div class="cards">
       <details class="card" id="sec-about">
@@ -117,233 +108,227 @@
     <footer>© <span id="y"></span> SIRG</footer>
   </div>
 
-  <script>
-  // ====== CONFIG ======
-  const GLITCH = {
-    freqHz: 0.35,      // how often glitches occur (times per second)
-    amp: 0.28,         // 0..1 -> how dark/strong the blink appears
-    durationMs: 120,   // how long each glitch lasts
-    jitterPx: 2        // slight position jitter during glitch
-  };
-  const CURSOR = {
-    fade: 0.04,        // trail persistence (higher = shorter trail)
-    radius: 18         // trail spot radius (px)
-  };
-  const RAINCFG = {
-    rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
-    minRowsPerSec: 10, minFactor: 0.10, maxGlyphStepsPerFrame: 2,
-    clearProb: 0.015  // per-column per-frame probability of hard reset/clear
-  };
+<script>
+/* ===================== CONFIG ===================== */
+const GLITCH = {     // visual "blink"
+  freqHz: 0.35,      // glitches per second
+  amp: 0.28,         // 0..1 darkness/strength
+  durationMs: 120,   // ms per glitch
+  jitterPx: 2        // pixel nudge during glitch
+};
+const CURSOR = {     // trail via blit
+  fade: 0.12,        // 0..1 trail fade per frame (higher = shorter)
+  radius: 26,        // trail spot radius
+  ease: 0.35         // follow smoothing
+};
+const RAIN = {       // matrix rain
+  rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
+  minRowsPerSec: 10, minFactor: 0.10, maxStepsPerFrame: 2,
+  resetProb: 0.0015  // per-column per-frame top reset (no hard wipe)
+};
 
-  // ====== MATRIX RAIN ======
-  (() => {
-    const c = document.getElementById('matrix');
-    const ctx = c.getContext('2d');
-    const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+/* ================== MATRIX RAIN =================== */
+(() => {
+  const c = document.getElementById('matrix');
+  const ctx = c.getContext('2d');
+  const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
 
-    let dpr=1, w=0, h=0, cols=0, fontSize=16, glyphSpacing=14;
-    let yRows=[], velRows=[], rowFrac=[], lastRow=[];
-    let lastTs=0;
+  let dpr=1, w=0, h=0, cols=0, fontSize=16, glyphSpacing=14;
+  let yRows=[], velRows=[], rowFrac=[], lastRow=[];
+  let lastTs=0;
 
-    function sampleVel(){
-      const raw = 1 + (Math.random()*2 - 1) * RAINCFG.variability;
-      const clamped = Math.max(RAINCFG.minFactor, raw);
-      return Math.max(RAINCFG.minRowsPerSec, RAINCFG.rowsPerSec * clamped);
-    }
-    function resize(){
-      dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-      w = window.innerWidth; h = window.innerHeight;
-      c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
-      ctx.setTransform(dpr,0,0,dpr,0,0);
+  function sampleVel(){
+    const raw = 1 + (Math.random()*2 - 1) * RAIN.variability;
+    const clamped = Math.max(RAIN.minFactor, raw);
+    return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clamped);
+  }
 
-      fontSize = Math.max(12, Math.floor(w/70));
-      glyphSpacing = Math.round(fontSize * RAINCFG.spacing);
-      ctx.font = fontSize + 'px monospace';
-      ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+  function resize(){
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+    w = window.innerWidth; h = window.innerHeight;
+    c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
 
-      cols   = Math.max(1, Math.ceil(w / glyphSpacing));
-      yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
-      velRows= Array(cols).fill(0).map(()=> sampleVel());
-      rowFrac= Array(cols).fill(0);
-      lastRow= Array(cols).fill(-1);
-    }
-    window.addEventListener('resize', resize, {passive:true});
-    resize();
+    fontSize = Math.max(12, Math.floor(w/70));
+    glyphSpacing = Math.round(fontSize * RAIN.spacing);
+    ctx.font = fontSize + 'px monospace';
+    ctx.textBaseline = 'top'; ctx.textAlign = 'left';
 
-    function frame(ts){
-      if(!lastTs) lastTs = ts;
-      let dt = (ts - lastTs) / 1000;
-      if (dt > 0.05) dt = 0.05;
-      lastTs = ts;
+    cols   = Math.max(1, Math.ceil(w / glyphSpacing));
+    yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
+    velRows= Array(cols).fill(0).map(()=> sampleVel());
+    rowFrac= Array(cols).fill(0);
+    lastRow= Array(cols).fill(-1);
+  }
+  addEventListener('resize', resize, {passive:true});
+  resize();
 
-      // trail fade
-      ctx.fillStyle = `rgba(1,3,1,${RAINCFG.trail})`;
-      ctx.fillRect(0,0,w,h);
+  function frame(ts){
+    if(!lastTs) lastTs = ts;
+    let dt = (ts - lastTs) / 1000;
+    if (dt > 0.05) dt = 0.05; // clamp big spikes
+    lastTs = ts;
 
-      const maxRow = Math.ceil(h / glyphSpacing);
+    // global trail fade
+    ctx.fillStyle = `rgba(1,3,1,${RAIN.trail})`;
+    ctx.fillRect(0,0,w,h);
 
-      for (let i=0;i<cols;i++) {
-        // Random hard reset/clear for a column
-        if (Math.random() < RAINCFG.clearProb) {
-          // darken a thin vertical strip to "clear" that column's trail
-          ctx.fillStyle = 'rgba(0,0,0,0.25)';
-          ctx.fillRect(i*glyphSpacing, 0, glyphSpacing+1, h);
-          yRows[i]   = -(10 + Math.random()*40);
-          rowFrac[i] = 0;
-          lastRow[i] = -1;
-          velRows[i] = sampleVel();
-          continue;
+    const maxRow = Math.ceil(h / glyphSpacing);
+
+    for (let i=0;i<cols;i++) {
+      // random column reset (no canvas wipe)
+      if (Math.random() < RAIN.resetProb) {
+        yRows[i]   = -(10 + Math.random()*40);
+        rowFrac[i] = 0;
+        lastRow[i] = -1;
+        velRows[i] = sampleVel();
+      }
+
+      rowFrac[i] += velRows[i] * dt;
+      let steps = Math.floor(rowFrac[i]);
+      if (steps > 0) {
+        if (steps > RAIN.maxStepsPerFrame) {
+          yRows[i] += (steps - RAIN.maxStepsPerFrame);
+          steps = RAIN.maxStepsPerFrame;
         }
+        rowFrac[i] -= Math.floor(rowFrac[i]);
 
-        rowFrac[i] += velRows[i] * dt;
+        for (let s = 0; s < steps; s++) {
+          yRows[i] += 1;
+          const row = Math.floor(yRows[i]);
 
-        let steps = Math.floor(rowFrac[i]);
-        if (steps > 0) {
-          if (steps > RAINCFG.maxGlyphStepsPerFrame) {
-            yRows[i] += (steps - RAINCFG.maxGlyphStepsPerFrame);
-            steps = RAINCFG.maxGlyphStepsPerFrame;
+          if (row > maxRow) {
+            yRows[i]   = - (10 + Math.random()*40);
+            rowFrac[i] = 0;
+            lastRow[i] = -1;
+            velRows[i] = sampleVel();
+            break;
           }
-          rowFrac[i] -= Math.floor(rowFrac[i]);
 
-          for (let s = 0; s < steps; s++) {
-            yRows[i] += 1;
-            const row = Math.floor(yRows[i]);
-
-            if (row > maxRow) {
-              yRows[i]   = - (10 + Math.random()*40);
-              rowFrac[i] = 0;
-              lastRow[i] = -1;
-              velRows[i] = sampleVel();
-              break;
-            }
-
-            if (row !== lastRow[i]) {
-              const x = i * glyphSpacing;
-              const y = row * glyphSpacing;
-              const ch = glyphs[(Math.random() * glyphs.length) | 0];
-              ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
-              ctx.fillText(ch, x, y);
-              lastRow[i] = row;
-            }
+          if (row !== lastRow[i]) {
+            const x = i * glyphSpacing;
+            const y = row * glyphSpacing;
+            const ch = glyphs[(Math.random() * glyphs.length) | 0];
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
+            ctx.fillText(ch, x, y);
+            lastRow[i] = row;
           }
         }
       }
-      requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
-  })();
+  }
+  requestAnimationFrame(frame);
+})();
 
-  // ====== CURSOR TRAIL + DOT ======
-  (() => {
-    const dot = document.getElementById('cursorDot');
-    const cv = document.getElementById('cursorCanvas');
-    const cx = cv.getContext('2d');
-    let dpr=1, w=0, h=0;
+/* ============== CURSOR TRAIL (BLIT) ============== */
+(() => {
+  const cv = document.getElementById('cursorTrail');
+  const cx = cv.getContext('2d');
+  const dot = document.getElementById('cursorDot');
+  let dpr=1, w=0, h=0;
 
-    function resize(){
-      dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-      w = window.innerWidth; h = window.innerHeight;
-      cv.width = Math.floor(w*dpr); cv.height = Math.floor(h*dpr);
-      cx.setTransform(dpr,0,0,dpr,0,0);
+  function resize(){
+    dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+    w = innerWidth; h = innerHeight;
+    cv.width = Math.floor(w*dpr); cv.height = Math.floor(h*dpr);
+    cx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  addEventListener('resize', resize, {passive:true}); resize();
+
+  let x=w/2, y=h/2;       // eased position (trail)
+  let tx=x, ty=y;         // target (pointer)
+  let rafId=0;
+
+  function onMove(e){
+    tx = e.clientX; ty = e.clientY;
+    dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`; // bright dot at pointer
+    if (!rafId) rafId = requestAnimationFrame(tick);
+  }
+
+  function tick(){
+    // fade previous frame (blit)
+    cx.fillStyle = `rgba(0,0,0,${CURSOR.fade})`;
+    cx.fillRect(0,0,w,h);
+
+    // ease toward target
+    x += (tx - x) * CURSOR.ease;
+    y += (ty - y) * CURSOR.ease;
+
+    // draw glow spot
+    const r = CURSOR.radius;
+    const g = cx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, 'rgba(60,255,100,0.88)');
+    g.addColorStop(0.45,'rgba(60,255,100,0.42)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    cx.fillStyle = g;
+    cx.beginPath(); cx.arc(x, y, r, 0, Math.PI*2); cx.fill();
+
+    if (Math.hypot(tx-x, ty-y) > 0.25) {
+      rafId = requestAnimationFrame(tick);
+    } else {
+      rafId = 0;
     }
-    window.addEventListener('resize', resize, {passive:true}); resize();
+  }
 
-    let x = w/2, y = h/2;          // drawn position
-    let tx = x, ty = y;            // target position
-    let rafId = 0;
+  addEventListener('mousemove', onMove, {passive:true});
+  addEventListener('mouseleave', () => { dot.style.display='none'; }, {passive:true});
+  addEventListener('mouseenter', () => { dot.style.display='block'; }, {passive:true});
+})();
 
-    function onMove(e){
-      tx = e.clientX; ty = e.clientY;
-      dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`; // dot snaps to pointer
-      if (!rafId) rafId = requestAnimationFrame(tick);
-    }
+/* ================== GLITCH BLINK ================= */
+(() => {
+  let last = performance.now();
+  let acc = 0;
+  const body = document.body;
+  const period = 1000 / Math.max(0.0001, GLITCH.freqHz);
 
-    function tick(){
-      // fade the trail slightly
-      cx.fillStyle = `rgba(0, 0, 0, ${CURSOR.fade})`;
-      cx.fillRect(0,0,w,h);
+  function loop(ts){
+    const dt = ts - last; last = ts; acc += dt;
+    if (acc >= period){
+      acc = 0;
+      const amp = Math.max(0, Math.min(1, GLITCH.amp));
+      const opacity = 1 - amp;
+      const dx = (Math.random()*2 - 1) * GLITCH.jitterPx;
+      const dy = (Math.random()*2 - 1) * GLITCH.jitterPx;
 
-      // ease the trail position toward the pointer for a smooth tail
-      x += (tx - x) * 0.35;
-      y += (ty - y) * 0.35;
-
-      // draw a soft radial glow at the eased position
-      const r = CURSOR.radius;
-      const g = cx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, 'rgba(60,255,100,0.85)');
-      g.addColorStop(0.5, 'rgba(60,255,100,0.40)');
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      cx.fillStyle = g;
-      cx.beginPath(); cx.arc(x, y, r, 0, Math.PI*2); cx.fill();
-
-      if (Math.hypot(tx - x, ty - y) > 0.2) {
-        rafId = requestAnimationFrame(tick);
-      } else {
-        rafId = 0;
-      }
-    }
-
-    window.addEventListener('mousemove', onMove, {passive:true});
-    window.addEventListener('mouseleave', () => { dot.style.display='none'; }, {passive:true});
-    window.addEventListener('mouseenter', () => { dot.style.display='block'; }, {passive:true});
-  })();
-
-  // ====== GLITCH BLINK ======
-  (() => {
-    let last = performance.now();
-    let acc = 0;
-    const body = document.body;
-    const period = 1000 / Math.max(0.0001, GLITCH.freqHz); // ms between glitches
-
-    function loop(ts){
-      const dt = ts - last; last = ts; acc += dt;
-
-      if (acc >= period){
-        acc = 0;
-        // apply glitch for durationMs
-        const amp = Math.max(0, Math.min(1, GLITCH.amp));
-        const opacity = 1 - amp; // how dark it gets
-        const dx = (Math.random()*2 - 1) * GLITCH.jitterPx;
-        const dy = (Math.random()*2 - 1) * GLITCH.jitterPx;
-
-        body.style.setProperty('--glitchOpacity', opacity.toString());
-        body.style.setProperty('--glitchDX', dx + 'px');
-        body.style.setProperty('--glitchDY', dy + 'px');
-        body.classList.add('is-glitch');
-
-        setTimeout(() => { body.classList.remove('is-glitch'); }, GLITCH.durationMs);
-      }
-      requestAnimationFrame(loop);
+      body.style.setProperty('--glitchOpacity', opacity.toString());
+      body.style.setProperty('--glitchDX', dx + 'px');
+      body.style.setProperty('--glitchDY', dy + 'px');
+      body.classList.add('is-glitch');
+      setTimeout(() => body.classList.remove('is-glitch'), GLITCH.durationMs);
     }
     requestAnimationFrame(loop);
-  })();
+  }
+  requestAnimationFrame(loop);
+})();
 
-  // ====== LAZY-LOAD SECTION TEXT (no auto-open; all closed by default) ======
-  (() => {
-    const year = document.getElementById('y');
-    if (year) year.textContent = new Date().getFullYear();
+/* ============== LAZY LOAD SECTIONS ============== */
+(() => {
+  const year = document.getElementById('y');
+  if (year) year.textContent = new Date().getFullYear();
 
-    document.querySelectorAll('details.card').forEach(det => {
-      const content = det.querySelector('.content');
-      const src = content && content.getAttribute('data-src');
+  document.querySelectorAll('details.card').forEach(det => {
+    const content = det.querySelector('.content');
+    const src = content && content.getAttribute('data-src');
+    let loaded = false;
 
-      let loaded = false;
-      async function loadIfNeeded(){
-        if (loaded || !src) return;
-        try{
-          const res = await fetch(src, {cache:'no-cache'});
-          if(!res.ok) throw new Error('HTTP '+res.status);
-          const txt = await res.text();
-          content.textContent = (txt && txt.trim()) ? txt : '(No content in ' + src + ')';
-        }catch(err){
-          content.textContent = '(Could not load ' + src + ' — ensure this file sits next to index.html)';
-        }
-        loaded = true;
+    async function loadIfNeeded(){
+      if (loaded || !src) return;
+      try{
+        const res = await fetch(src, {cache:'no-cache'});
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const txt = await res.text();
+        content.textContent = (txt && txt.trim()) ? txt : '(No content in ' + src + ')';
+      }catch(err){
+        content.textContent = '(Could not load ' + src + ' — ensure it sits next to index.html)';
       }
-      det.addEventListener('toggle', () => { if (det.open) loadIfNeeded(); }, {passive:true});
-      // NOTE: no auto-open here; all closed by default
-    });
-  })();
-  </script>
+      loaded = true;
+    }
+    det.addEventListener('toggle', () => { if (det.open) loadIfNeeded(); }, {passive:true});
+    // All closed by default: no auto-open here.
+  });
+})();
+</script>
 </body>
 </html>
