@@ -1,328 +1,196 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Sensory Intelligence Research Group</title>
-<meta name="color-scheme" content="dark light" />
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-<style>
-  :root{
-    --bg:#000; --fg:#b6fdb6; --glow:#19ff19;
-    --rainColor: hsla(120, 80%, 20%, 1);
-    --cardBg: rgba(10, 25, 10, 0.85);
-    --cardBorder: rgba(80, 200, 120, 0.3);
-    --maxW: 980px;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; background:var(--bg); color:var(--fg);
-    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-    overflow:auto; cursor:none;
-    transition:opacity 80ms linear, filter 80ms linear, transform 80ms linear;
-  }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sensory Intelligence Research Group</title>
+  <meta name="description" content="Sensory Intelligence Research Group — minimal, responsive landing page." />
 
-  /* Layers */
-  #matrix{position:fixed; inset:0; z-index:0; width:100%; height:100%;
-    background:radial-gradient(1200px 800px at 50% 50%, #001600 0%, #000 80%)}
-  #cursorTrail{position:fixed; inset:0; z-index:1; pointer-events:none}
-  #cursorDot{
-    position:fixed; top:0; left:0; width:22px; height:22px; margin:-11px 0 0 -11px;
-    border-radius:50%; pointer-events:none; z-index:2; mix-blend-mode:screen;
-    background:radial-gradient(closest-side, rgba(60,255,100,0.9), rgba(60,255,100,0.35), rgba(0,0,0,0));
-    filter: blur(1.2px) drop-shadow(0 0 10px rgba(60,255,100,0.9));
-    transform: translate3d(0,0,0);
-  }
+  <!-- ===================
+       TWEAKABLE PARAMETERS
+       Adjust values below; no need to touch the rest of the file.
+  ==================== -->
+  <style>
+    :root{
+      /* Color palette */
+      --bg: #0b0c10;            /* page background */
+      --fg: #eaf2ef;            /* primary text color */
+      --accent: #7ef7c9;        /* subtle accent (links, selection) */
+      --muted: #aab5b0;         /* muted/secondary text */
 
-  /* Content */
-  .wrap{position:relative; z-index:3; max-width:var(--maxW); margin:24px auto 80px; padding:0 16px}
-  h1{
-    font-family:'VT323',monospace; margin:12px 0 16px 0; text-align:center; letter-spacing:.06em; font-weight:700;
-    font-size:clamp(28px,7vw,80px); color:#D4EB8E;
-    text-shadow:0 0 .2rem #66ccff,0 0 .2rem #66ccff,0 0 .4rem #66ccff,0 0 .6rem var(--glow),0 0 1.2rem var(--glow),0 0 2.4rem var(--glow);
-    filter:contrast(1.05) saturate(1.1) drop-shadow(0 0 .25rem #0a460a)
-  }
-  .small{font-size:12px; opacity:.7; margin:0 18px 14px}
-  .cards{display:grid; gap:14px}
-  details.card{
-    background:var(--cardBg); border:1px solid var(--cardBorder); border-radius:14px;
-    box-shadow:0 10px 40px rgba(0,0,0,.5), 0 0 30px rgba(25,255,60,.08) inset; overflow:hidden;
-  }
-  summary{
-    cursor:pointer; list-style:none; padding:16px 18px;
-    font-family:'VT323',monospace; font-size:clamp(20px,4.4vw,38px); color:#D4EB8E;
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-  }
-  summary::-webkit-details-marker{display:none}
-  .chev{transition:transform .15s ease}
-  details[open] .chev{transform:rotate(90deg)}
-  .content{padding:10px 18px 18px; line-height:1.5; font-size:16px; white-space:pre-wrap}
-  footer{position:relative;z-index:3;text-align:center;font-size:12px;opacity:.6;margin:22px 0}
+      /* Typography */
+      --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      --title-size: clamp(2.2rem, 6vw, 4.5rem);   /* scales with viewport */
+      --subtitle-size: clamp(1rem, 2.4vw, 1.35rem);
+      --letter-space: 0.02em;                     /* tighten/loosen */
+      --line-height: 1.15;
 
-  /* Glitch toggled via JS */
-  .is-glitch{
-    opacity: var(--glitchOpacity, 0.7);
-    filter: contrast(1.4) saturate(1.2);
-    transform: translate3d(var(--glitchDX, 0px), var(--glitchDY, 0px), 0);
-  }
+      /* Layout */
+      --max-w: 1100px;          /* max content width */
+      --pad-x: clamp(16px, 4vw, 40px); /* page side padding */
+      --gap: 22px;              /* vertical spacing between elements */
+      --card-radius: 18px;      /* rounded corner size */
+      --shadow: 0 10px 25px rgba(0,0,0,.35);
 
-  @media (prefers-reduced-motion: reduce){
-    #matrix,#cursorTrail,#cursorDot{display:none}
-    body{cursor:auto}
-  }
-</style>
+      /* Optional background treatment (set alpha to 0 for flat bg) */
+      --bg-gradient-a: 0, 255, 200; /* RGB for gradient blob A */
+      --bg-gradient-b: 0, 120, 255; /* RGB for gradient blob B */
+      --bg-gradient-alpha: 0.06;    /* 0 = off (flat color); .04–.10 = subtle */
+
+      /* Footer & small print */
+      --footer-size: 0.95rem;
+      --footer-opacity: .7;
+    }
+
+    /* Dark/light auto support (optional). Comment out to force dark. */
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg:#fafbfb; --fg:#101314; --muted:#5b6662; --accent:#0a7d5a;
+        --shadow: 0 8px 20px rgba(0,0,0,.08);
+        --bg-gradient-alpha: 0.05;
+      }
+    }
+
+    /* ===== Base reset & page ===== */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--fg); background:var(--bg);
+      font-family:var(--font-main);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Background blobs (very subtle) */
+    .bg{
+      position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden;
+    }
+    .blob{position:absolute; filter:blur(80px); opacity:var(--bg-gradient-alpha)}
+    .blob.a{width:60vmax; height:60vmax; left:-10vmax; top:-10vmax; background:radial-gradient(circle, rgba(var(--bg-gradient-a),1) 0%, rgba(var(--bg-gradient-a),0) 60%)}
+    .blob.b{width:65vmax; height:65vmax; right:-15vmax; bottom:-15vmax; background:radial-gradient(circle, rgba(var(--bg-gradient-b),1) 0%, rgba(var(--bg-gradient-b),0) 60%)}
+
+    /* Centered hero section */
+    main{
+      min-height:100svh; display:grid; place-items:center; padding:var(--pad-x);
+    }
+    .wrap{ width:100%; max-width:var(--max-w); margin:0 auto; text-align:center; }
+
+    .title{
+      font-size:var(--title-size); line-height:var(--line-height);
+      letter-spacing:var(--letter-space); font-weight:700; margin:0 0 var(--gap) 0;
+    }
+    .subtitle{
+      font-size:var(--subtitle-size); color:var(--muted); margin:0 auto var(--gap) auto; max-width:50ch;
+    }
+
+    /* Optional call-to-action buttons (add or remove as needed) */
+    .actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .btn{
+      display:inline-block; padding:12px 18px; border-radius:var(--card-radius);
+      background:transparent; border:1px solid color-mix(in oklab, var(--fg), transparent 75%);
+      color:var(--fg); text-decoration:none; font-weight:600; box-shadow:var(--shadow);
+      transition: transform .12s ease, background .2s ease, border-color .2s ease;
+    }
+    .btn:hover{ transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent), var(--fg) 30%); background: color-mix(in oklab, var(--accent), transparent 88%); }
+    .btn:active{ transform: translateY(0); }
+
+    /* Footer */
+    footer{ position:sticky; top:100%; padding: 24px var(--pad-x) 28px; text-align:center; opacity:var(--footer-opacity); font-size:var(--footer-size); }
+    a{ color:var(--accent); }
+
+    /* Respect users who prefer less motion (we don't animate, but keep hook) */
+    @media (prefers-reduced-motion: reduce){ .btn{ transition:none } }
+    /* Content area */
+    .content{ 
+      margin: calc(var(--gap) * 1.2) auto 0; 
+      padding: clamp(14px, 3.5vw, 24px); 
+      max-width: 70ch; text-align: left; white-space: pre-wrap; 
+      background: color-mix(in oklab, var(--fg), transparent 96%);
+      border: 1px solid color-mix(in oklab, var(--fg), transparent 80%);
+      border-radius: var(--card-radius);
+      box-shadow: var(--shadow);
+    }
+    .hidden{ display:none; }
+  </style>
 </head>
 <body>
-  <canvas id="matrix" aria-hidden="true"></canvas>
-  <canvas id="cursorTrail" aria-hidden="true"></canvas>
-  <div id="cursorDot" aria-hidden="true"></div>
-
-  <div class="wrap">
-    <h1>Sensory Intelligence Research Group</h1>
-
-    <div class="cards">
-      <details class="card" id="sec-about">
-        <summary>ABOUT <span class="chev">›</span></summary>
-        <div class="content" data-src="about.txt">Loading…</div>
-      </details>
-      <details class="card" id="sec-collab">
-        <summary>COLLABORATORS <span class="chev">›</span></summary>
-        <div class="content" data-src="collaborators.txt">Loading…</div>
-      </details>
-      <details class="card" id="sec-opps">
-        <summary>OPPORTUNITIES <span class="chev">›</span></summary>
-        <div class="content" data-src="opportunities.txt">Loading…</div>
-      </details>
-      <details class="card" id="sec-pubs">
-        <summary>PUBLICATIONS <span class="chev">›</span></summary>
-        <div class="content" data-src="publications.txt">Loading…</div>
-      </details>
-      <details class="card" id="sec-topics">
-        <summary>RESEARCH TOPICS <span class="chev">›</span></summary>
-        <div class="content" data-src="research-topics.txt">Loading…</div>
-      </details>
-    </div>
-
-    <footer>© <span id="y"></span> SIRG</footer>
+  <!-- subtle background; set --bg-gradient-alpha:0 to disable -->
+  <div class="bg" aria-hidden="true">
+    <div class="blob a"></div>
+    <div class="blob b"></div>
   </div>
 
-<script>
-/* ===================== CONFIG ===================== */
-const GLITCH = {     // visual "blink"
-  freqHz: 0.15,      // glitches per second
-  amp: 0.18,         // 0..1 darkness/strength
-  durationMs: 50,   // ms per glitch
-  jitterPx: 2        // pixel nudge during glitch
-};
-const CURSOR = {     // trail via blit
-  fade: 0.02,        // 0..1 trail fade per frame (higher = shorter)
-  radius: 26,        // trail spot radius
-  ease: 0.35         // follow smoothing
-};
-const RAIN = {       // matrix rain
-  rowsPerSec: 20, variability: 2, spacing: 0.85, trail: 0.02,
-  minRowsPerSec: 10, minFactor: 0.10, maxStepsPerFrame: 2,
-  resetProb: 0.0015  // per-column per-frame top reset (no hard wipe)
-};
+  <main>
+    <div class="wrap" role="main">
+      <h1 class="title">Sensory Intelligence Research Group</h1>
+      <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
 
-/* ================== MATRIX RAIN =================== */
-(() => {
-  const c = document.getElementById('matrix');
-  const ctx = c.getContext('2d');
-  const glyphs = 'アイウエオカキクケコサシスセソ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%&*';
+      <!-- Optional quick links: remove if you truly want only the title -->
+      <nav class="actions" aria-label="Primary">
+        <a class="btn" href="#about" data-file="about.txt" data-title="About">About</a>
+        <a class="btn" href="#research" data-file="research-topics.txt" data-title="Research">Research</a>
+        <a class="btn" href="#publications" data-file="publications.txt" data-title="Publications">Publications</a>
+        <a class="btn" href="#collaborators" data-file="collaborators.txt" data-title="Collaborators">Collaborators</a>
+        <a class="btn" href="#opportunities" data-file="opportunities.txt" data-title="Opportunities">Opportunities</a>
+      </nav>
 
-  let dpr=1, w=0, h=0, cols=0, fontSize=16, glyphSpacing=14;
-  let yRows=[], velRows=[], rowFrac=[], lastRow=[];
-  let lastTs=0;
+      <section id="content" class="content hidden" aria-live="polite"></section>
+    </div>
+  </main>
 
-  function sampleVel(){
-    const raw = 1 + (Math.random()*2 - 1) * RAIN.variability;
-    const clamped = Math.max(RAIN.minFactor, raw);
-    return Math.max(RAIN.minRowsPerSec, RAIN.rowsPerSec * clamped);
-  }
+  <footer>
+    © <span id="y"></span> Sensory Intelligence Research Group · University of the Sunshine Coast
+  </footer>
 
-  function resize(){
-    dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
-    w = window.innerWidth; h = window.innerHeight;
-    c.width = Math.floor(w*dpr); c.height = Math.floor(h*dpr);
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+  <script>
+    // Small nicety: keep the year current (no dependencies)
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+  <script>
+    // Small nicety: keep the year current (no dependencies)
+    document.getElementById('y').textContent = new Date().getFullYear();
 
-    fontSize = Math.max(12, Math.floor(w/70));
-    glyphSpacing = Math.round(fontSize * RAIN.spacing);
-    ctx.font = fontSize + 'px monospace';
-    ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+    // Minimal client-side loader for local text files (same-origin).
+    // Place the .txt files at the site root (same folder as index.html)
+    // or adjust the paths in data-file attributes above.
+    const contentEl = document.getElementById('content');
+    const buttons = document.querySelectorAll('.actions .btn[data-file]');
 
-    cols   = Math.max(1, Math.ceil(w / glyphSpacing));
-    yRows  = Array(cols).fill(0).map(()=> -Math.random()*50);
-    velRows= Array(cols).fill(0).map(()=> sampleVel());
-    rowFrac= Array(cols).fill(0);
-    lastRow= Array(cols).fill(-1);
-  }
-  addEventListener('resize', resize, {passive:true});
-  resize();
-
-  function frame(ts){
-  try {
-    if(!lastTs) lastTs = ts;
-    let dt = (ts - lastTs) / 1000;
-    if (dt > 0.05) dt = 0.05;
-    lastTs = ts;
-
-    ctx.fillStyle = `rgba(1,3,1,${RAIN.trail})`;
-    ctx.fillRect(0,0,w,h);
-
-    const maxRow = Math.ceil(h / glyphSpacing);
-    for (let i=0;i<cols;i++) {
-      if (Math.random() < RAIN.resetProb) {
-        yRows[i] = -(10 + Math.random()*40);
-        rowFrac[i] = 0; lastRow[i] = -1; velRows[i] = sampleVel();
-      }
-      rowFrac[i] += velRows[i] * dt;
-      let steps = Math.floor(rowFrac[i]);
-      if (steps > 0) {
-        if (steps > RAIN.maxStepsPerFrame) { yRows[i] += (steps - RAIN.maxStepsPerFrame); steps = RAIN.maxStepsPerFrame; }
-        rowFrac[i] -= Math.floor(rowFrac[i]);
-        for (let s=0; s<steps; s++){
-          yRows[i] += 1;
-          const row = Math.floor(yRows[i]);
-          if (row > maxRow) { yRows[i]=-(10+Math.random()*40); rowFrac[i]=0; lastRow[i]=-1; velRows[i]=sampleVel(); break; }
-          if (row !== lastRow[i]) {
-            const x = i * glyphSpacing, y = row * glyphSpacing;
-            const ch = glyphs[(Math.random()*glyphs.length)|0];
-            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--rainColor').trim();
-            ctx.fillText(ch, x, y);
-            lastRow[i] = row;
-          }
-        }
-      }
+    function setLoading(label){
+      contentEl.classList.remove('hidden');
+      contentEl.textContent = `Loading ${label}\u2026`;
     }
-  } finally {
-    requestAnimationFrame(frame);
-  }
-}
-
-/* ============== CURSOR TRAIL (BLIT) — FIXED ============== */
-(() => {
-  const cv = document.getElementById('cursorTrail');
-  const cx = cv.getContext('2d', { alpha: true });
-  const dot = document.getElementById('cursorDot');
-
-  let dpr = Math.max(1, window.devicePixelRatio || 1);
-  let w = 0, h = 0;
-  let x = 0, y = 0;       // eased/trail position in CSS px
-  let tx = 0, ty = 0;     // target pointer in CSS px
-  let raf = 0;
-
-  function resize(){
-    dpr = Math.max(1, window.devicePixelRatio || 1);
-    const cssW = window.innerWidth;
-    const cssH = window.innerHeight;
-    w = cssW * dpr; h = cssH * dpr;
-    cv.width = w; cv.height = h;       // physical px
-    cv.style.width = cssW + 'px';
-    cv.style.height = cssH + 'px';
-  }
-  window.addEventListener('resize', resize, {passive:true});
-  resize();
-  x = window.innerWidth/2; y = window.innerHeight/2;
-  tx = x; ty = y;
-
-  function onMove(e){
-    // Use client coords (viewport) for fixed-position canvas & dot
-    tx = e.clientX; ty = e.clientY;
-    dot.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
-    if (!raf) raf = requestAnimationFrame(tick);
-  }
-  document.addEventListener('mousemove', onMove, {passive:true});
-  document.addEventListener('mouseleave', () => { dot.style.display='none'; }, {passive:true});
-  document.addEventListener('mouseenter', () => { dot.style.display='block'; }, {passive:true});
-
-  function tick(){
-    try {
-      // Fade previous frame
-      cx.fillStyle = `rgba(0,0,0,${CURSOR.fade})`;
-      cx.fillRect(0, 0, w, h);
-
-      // Ease toward target (CSS px space)
-      x += (tx - x) * CURSOR.ease;
-      y += (ty - y) * CURSOR.ease;
-
-      // Draw glow in device pixels
-      const gx = x * dpr, gy = y * dpr, r = CURSOR.radius * dpr;
-      const g = cx.createRadialGradient(gx, gy, 0, gx, gy, r);
-      g.addColorStop(0, 'rgba(60,255,100,0.90)');
-      g.addColorStop(0.5,'rgba(60,255,100,0.40)');
-      g.addColorStop(1, 'rgba(0,0,0,0)');
-      cx.fillStyle = g;
-      cx.beginPath(); cx.arc(gx, gy, r, 0, Math.PI*2); cx.fill();
-
-      if (Math.hypot(tx - x, ty - y) > 0.2) {
-        raf = requestAnimationFrame(tick);
-      } else {
-        raf = 0;
-      }
-    } catch (err) {
-      // Never let an exception kill other animations
-      console.error('cursor tick error:', err);
-      raf = 0;
-    }
-  }
-})();
-
-/* ================== GLITCH BLINK ================= */
-(() => {
-  let last = performance.now();
-  let acc = 0;
-  const body = document.body;
-  const period = 1000 / Math.max(0.0001, GLITCH.freqHz);
-
-  function loop(ts){
-    const dt = ts - last; last = ts; acc += dt;
-    if (acc >= period){
-      acc = 0;
-      const amp = Math.max(0, Math.min(1, GLITCH.amp));
-      const opacity = 1 - amp;
-      const dx = (Math.random()*2 - 1) * GLITCH.jitterPx;
-      const dy = (Math.random()*2 - 1) * GLITCH.jitterPx;
-
-      body.style.setProperty('--glitchOpacity', opacity.toString());
-      body.style.setProperty('--glitchDX', dx + 'px');
-      body.style.setProperty('--glitchDY', dy + 'px');
-      body.classList.add('is-glitch');
-      setTimeout(() => body.classList.remove('is-glitch'), GLITCH.durationMs);
-    }
-    requestAnimationFrame(loop);
-  }
-  requestAnimationFrame(loop);
-})();
-
-/* ============== LAZY LOAD SECTIONS ============== */
-(() => {
-  const year = document.getElementById('y');
-  if (year) year.textContent = new Date().getFullYear();
-
-  document.querySelectorAll('details.card').forEach(det => {
-    const content = det.querySelector('.content');
-    const src = content && content.getAttribute('data-src');
-    let loaded = false;
-
-    async function loadIfNeeded(){
-      if (loaded || !src) return;
+    async function loadText(path, label){
       try{
-        const res = await fetch(src, {cache:'no-cache'});
-        if(!res.ok) throw new Error('HTTP '+res.status);
+        setLoading(label);
+        const res = await fetch(path, {cache: 'no-store'});
+        if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         const txt = await res.text();
-        content.textContent = (txt && txt.trim()) ? txt : '(No content in ' + src + ')';
+        contentEl.textContent = txt.trim() || `(No content in ${path})`;
       }catch(err){
-        content.textContent = '(Could not load ' + src + ' — ensure it sits next to index.html)';
+        contentEl.textContent = `Could not load ${label}. (${err.message})`;
       }
-      loaded = true;
     }
-    det.addEventListener('toggle', () => { if (det.open) loadIfNeeded(); }, {passive:true});
-    // All closed by default: no auto-open here.
-  });
-})();
-</script>
+
+    function handleClick(ev){
+      const a = ev.currentTarget;
+      const file = a.getAttribute('data-file');
+      const label = a.getAttribute('data-title') || a.textContent.trim();
+      ev.preventDefault();
+      history.replaceState(null, '', a.getAttribute('href'));
+      loadText(file, label);
+    }
+
+    buttons.forEach(a => a.addEventListener('click', handleClick));
+
+    // Deep-link support: if URL hash matches a button, auto-load on open.
+    function bootFromHash(){
+      const hash = location.hash.replace('#','');
+      if(!hash) return;
+      const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
+      if(target) target.click();
+    }
+    window.addEventListener('hashchange', bootFromHash);
+    bootFromHash();
+  </script>
 </body>
 </html>
