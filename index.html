@@ -8,97 +8,32 @@
 
   <!-- ===================
        TWEAKABLE PARAMETERS
-       Adjust values below; no need to touch the rest of the file.
   ==================== -->
   <style>
     :root{
-      /* Color palette */
-      --bg: #0b0c10;            /* page background */
-      --fg: #eaf2ef;            /* primary text color */
-      --accent: #7ef7c9;        /* subtle accent (links, selection) */
-      --muted: #aab5b0;         /* muted/secondary text */
-
-      /* Typography */
-      --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      --title-size: clamp(2.2rem, 6vw, 4.5rem);   /* scales with viewport */
+      --bg: #0b0c10;
+      --fg: #eaf2ef;
+      --accent: #7ef7c9;
+      --muted: #aab5b0;
+      --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      --title-size: clamp(2.2rem, 6vw, 4.5rem);
       --subtitle-size: clamp(1rem, 2.4vw, 1.35rem);
-      --letter-space: 0.02em;                     /* tighten/loosen */
-      --line-height: 1.15;
-
-      /* Layout */
-      --max-w: 1100px;          /* max content width */
-      --pad-x: clamp(16px, 4vw, 40px); /* page side padding */
-      --gap: 22px;              /* vertical spacing between elements */
-      --card-radius: 18px;      /* rounded corner size */
-      --shadow: 0 10px 25px rgba(0,0,0,.35);
-
-      /* Optional background treatment (set alpha to 0 for flat bg) */
-      --bg-gradient-a: 0, 255, 200; /* RGB for gradient blob A */
-      --bg-gradient-b: 0, 120, 255; /* RGB for gradient blob B */
-      --bg-gradient-alpha: 0.06;    /* 0 = off (flat color); .04–.10 = subtle */
-
-      /* Footer & small print */
-      --footer-size: 0.95rem;
-      --footer-opacity: .7;
+      --max-w: 1100px;
+      --pad-x: clamp(16px, 4vw, 40px);
+      --gap: 22px;
     }
-
-    /* Dark/light auto support (optional). Comment out to force dark. */
-    @media (prefers-color-scheme: light){
-      :root{
-        --bg:#fafbfb; --fg:#101314; --muted:#5b6662; --accent:#0a7d5a;
-        --shadow: 0 8px 20px rgba(0,0,0,.08);
-        --bg-gradient-alpha: 0.05;
-      }
-    }
-
-    /* ===== Base reset & page ===== */
-    *{box-sizing:border-box}
-    html,body{height:100%}
     body{
-      margin:0; color:var(--fg); background:var(--bg);
-      font-family:var(--font-main);
-      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-main);
     }
-
-    /* Background blobs (very subtle) */
-    .bg{
-      position:fixed; inset:0; pointer-events:none; z-index:-1; overflow:hidden;
-    }
-    .blob{position:absolute; filter:blur(80px); opacity:var(--bg-gradient-alpha)}
-    .blob.a{width:60vmax; height:60vmax; left:-10vmax; top:-10vmax; background:radial-gradient(circle, rgba(var(--bg-gradient-a),1) 0%, rgba(var(--bg-gradient-a),0) 60%)}
-    .blob.b{width:65vmax; height:65vmax; right:-15vmax; bottom:-15vmax; background:radial-gradient(circle, rgba(var(--bg-gradient-b),1) 0%, rgba(var(--bg-gradient-b),0) 60%)}
-
-    /* Centered hero section */
-    main{
-      min-height:100svh; display:grid; place-items:center; padding:var(--pad-x);
-    }
-    .wrap{ width:100%; max-width:var(--max-w); margin:0 auto; text-align:center; }
-
-    .title{
-      font-size:var(--title-size); line-height:var(--line-height);
-      letter-spacing:var(--letter-space); font-weight:700; margin:0 0 var(--gap) 0;
-    }
-    .subtitle{
-      font-size:var(--subtitle-size); color:var(--muted); margin:0 auto var(--gap) auto; max-width:50ch;
-    }
-
-    /* Optional call-to-action buttons (add or remove as needed) */
+    main{ min-height:100svh; display:grid; place-items:center; padding:var(--pad-x); }
+    .wrap{ max-width:var(--max-w); text-align:center; }
+    .title{ font-size:var(--title-size); margin:0 0 var(--gap) 0; }
+    .subtitle{ font-size:var(--subtitle-size); color:var(--muted); margin:0 0 var(--gap) 0; }
     .actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-    .btn{
-      display:inline-block; padding:12px 18px; border-radius:var(--card-radius);
-      background:transparent; border:1px solid color-mix(in oklab, var(--fg), transparent 75%);
-      color:var(--fg); text-decoration:none; font-weight:600; box-shadow:var(--shadow);
-      transition: transform .12s ease, background .2s ease, border-color .2s ease;
-    }
-    .btn:hover{ transform: translateY(-1px); border-color: color-mix(in oklab, var(--accent), var(--fg) 30%); background: color-mix(in oklab, var(--accent), transparent 88%); }
-    .btn:active{ transform: translateY(0); }
-
-    /* Footer */
-    footer{ position:sticky; top:100%; padding: 24px var(--pad-x) 28px; text-align:center; opacity:var(--footer-opacity); font-size:var(--footer-size); }
-    a{ color:var(--accent); }
-
-    /* Respect users who prefer less motion (we don't animate, but keep hook) */
-    @media (prefers-reduced-motion: reduce){ .btn{ transition:none } }
+    .btn{ padding:10px 16px; border:1px solid var(--fg); border-radius:6px; text-decoration:none; color:var(--fg); cursor:pointer; background:transparent; }
+    .btn:hover{ background:var(--accent); color:#000; }
+    #content{ margin-top:var(--gap); text-align:left; max-width:700px; margin-left:auto; margin-right:auto; white-space:pre-wrap; line-height:1.4; }
+    footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; }
     /* Content area */
     .content{ 
       margin: calc(var(--gap) * 1.2) auto 0; 
@@ -113,18 +48,10 @@
   </style>
 </head>
 <body>
-  <!-- subtle background; set --bg-gradient-alpha:0 to disable -->
-  <div class="bg" aria-hidden="true">
-    <div class="blob a"></div>
-    <div class="blob b"></div>
-  </div>
-
   <main>
-    <div class="wrap" role="main">
+    <div class="wrap">
       <h1 class="title">Sensory Intelligence Research Group</h1>
       <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
-
-      <!-- Optional quick links: remove if you truly want only the title -->
       <nav class="actions" aria-label="Primary">
         <a class="btn" href="#about" data-file="about.txt" data-title="About">About</a>
         <a class="btn" href="#research" data-file="research-topics.txt" data-title="Research">Research</a>
@@ -134,6 +61,7 @@
       </nav>
 
       <section id="content" class="content hidden" aria-live="polite"></section>
+      <div id="content"></div>
     </div>
   </main>
 
@@ -142,8 +70,18 @@
   </footer>
 
   <script>
-    // Small nicety: keep the year current (no dependencies)
     document.getElementById('y').textContent = new Date().getFullYear();
+
+    function loadText(file){
+      fetch(file)
+        .then(resp => resp.text())
+        .then(text => {
+          document.getElementById('content').textContent = text;
+        })
+        .catch(err => {
+          document.getElementById('content').textContent = 'Error loading ' + file;
+        });
+    }
   </script>
   <script>
     // Small nicety: keep the year current (no dependencies)
@@ -155,14 +93,58 @@
     const contentEl = document.getElementById('content');
     const buttons = document.querySelectorAll('.actions .btn[data-file]');
 
+    // In-memory cache for preloaded text (path -> string)
+    const TXT_CACHE = new Map();
+
+    // Prefetch all linked .txt files on load for instant switching later
+    async function prefetchAll(){
+      const unique = [...new Set(Array.from(buttons, b => b.getAttribute('data-file')))].filter(Boolean);
+      await Promise.all(unique.map(async (path) => {
+        try{
+          const res = await fetch(path, {cache: 'no-store'});
+          if(!res.ok) return;
+          const txt = (await res.text()).trim();
+          TXT_CACHE.set(path, txt);
+        }catch(_){ /* ignore */ }
+      }));
+    }
+
     function setLoading(label){
       contentEl.classList.remove('hidden');
-      contentEl.textContent = `Loading ${label}\u2026`;
+      contentEl.textContent = `Loading ${label}…`;
     }
     async function loadText(path, label){
+      // Serve from cache if available
+      if (TXT_CACHE.has(path)){
+        contentEl.classList.remove('hidden');
+        const txt = TXT_CACHE.get(path);
+        contentEl.textContent = (txt && txt.length) ? txt : `(No content in ${path})`;
+        return;
+      }
       try{
         setLoading(label);
         const res = await fetch(path, {cache: 'no-store'});
+        if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const txt = (await res.text()).trim();
+        TXT_CACHE.set(path, txt);
+        contentEl.textContent = txt || `(No content in ${path})`;
+      }catch(err){
+        contentEl.textContent = `Could not load ${label}. (${err.message})`;
+      }
+    })`;
+        return;
+      }
+      try{
+        setLoading(label);
+        const res = await fetch(path, {cache: 'no-store'});
+        if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const txt = (await res.text()).trim();
+        TXT_CACHE.set(path, txt);
+        contentEl.textContent = txt || `(No content in ${path})`;
+      }catch(err){
+        contentEl.textContent = `Could not load ${label}. (${err.message})`;
+      }
+    });
         if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         const txt = await res.text();
         contentEl.textContent = txt.trim() || `(No content in ${path})`;
@@ -190,7 +172,7 @@
       if(target) target.click();
     }
     window.addEventListener('hashchange', bootFromHash);
-    bootFromHash();
+    prefetchAll().then(() => bootFromHash());
   </script>
 </body>
 </html>
