@@ -67,6 +67,22 @@
 }
     footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
     .hidden{ display:none; }
+
+    details {
+  margin: 0.8em 0;
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  padding: 0.6em 0.8em;
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+details[open] {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+    
   </style>
 </head>
 <body>
