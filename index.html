@@ -82,7 +82,27 @@ summary {
 details[open] {
   background: color-mix(in srgb, var(--accent) 20%, transparent);
 }
-    
+    details {
+  margin: 0.4em 0;              /* less outer margin */
+  border: 1px solid var(--muted);
+  border-radius: 6px;
+  padding: 0.4em 0.6em;         /* less padding */
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+details[open] {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+summary {
+  cursor: pointer;
+  font-weight: bold;
+  margin: 0;                    /* remove extra spacing */
+}
+
+details p {
+  margin: 0.4em 0 0.6em;        /* tighter paragraph spacing inside */
+}
   </style>
 </head>
 <body>
