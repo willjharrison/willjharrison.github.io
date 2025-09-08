@@ -2,42 +2,47 @@
 The Sensory Intelligence Research Group collaborates across neuroscience, psychology, engineering, and computer science.
 </p>
 
-<ul>
-  <li>
-    <strong>Dr Reuben Rideaux</strong>, University of Sydney —  
-    <a href="https://www.sydney.edu.au/science/our-research/research-areas/psychology/rideaux-lab.html" target="_blank" rel="noopener">Rideaux Lab</a> ·  
-    <a href="https://reubenrideaux.github.io/" target="_blank" rel="noopener">Personal site</a>.
-  </li>
-  <li>
-    <strong>Dr Anthony M. Harris</strong>, The University of Queensland —  
-    <a href="https://anthonymharris.com/" target="_blank" rel="noopener">Lab website</a> ·  
-    <a href="https://qbi.uq.edu.au/research/area/attention" target="_blank" rel="noopener">QBI attention area</a>.
-  </li>
-  <li>
-    <strong>Professor Paul Bays</strong>, University of Cambridge —  
-    <a href="https://www.psychol.cam.ac.uk/people/paul-bays" target="_blank" rel="noopener">Department profile</a> ·  
-    <a href="https://www.paulbays.com/" target="_blank" rel="noopener">Bays Lab</a>.
-  </li>
-  <li>
-    <strong>Mr Henry Beale</strong>, The University of Queensland —  
-    <a href="https://qbi.uq.edu.au/profile/14347/henry-beale" target="_blank" rel="noopener">QBI profile</a> ·  
-    <a href="https://mattingley-lab.uq-qbi-cogneuro.com/home/people/henry-beale" target="_blank" rel="noopener">Mattingley Lab</a>.
-  </li>
-  <li>
-    <strong>Ms Ruoying (Laura) Wang</strong>, Queensland University of Technology —  
-    <a href="https://orcid.org/0009-0007-6690-0166" target="_blank" rel="noopener">ORCID record</a>.
-  </li>
-  <li>
-    <strong>Professor Thomas S. A. Wallis</strong>, Technical University of Darmstadt —  
-    <a href="https://www.psychologie.tu-darmstadt.de/perception/home_per/people_per/people_perception_detail_51328.en.jsp" target="_blank" rel="noopener">TU Darmstadt profile</a>.
-  </li>
-  <li>
-    <strong>Dr Emily J. A‐Izzeddin</strong>, Justus-Liebig-University Giessen —  
-    <a href="https://www.uni-giessen.de/de/faculties/f06/psy/departments/generalpsychology/staff-1/collectionallstaff/staff" target="_blank" rel="noopener">University staff listing</a> ·  
-    <a href="https://mattingley-lab.uq-qbi-cogneuro.com/home/people/emily-a-izzeddin" target="_blank" rel="noopener">Mattingley Lab page</a>.
-  </li>
-</ul>
+<p>
+<strong>Dr Reuben Rideaux</strong>, University of Sydney —  
+<a href="https://www.sydney.edu.au/science/our-research/research-areas/psychology/rideaux-lab.html" target="_blank" rel="noopener">Rideaux Lab</a> |  
+<a href="https://reubenrideaux.github.io/" target="_blank" rel="noopener">Personal site</a>
+</p>
 
 <p>
-If you’d like to collaborate, please get in touch with Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>
+<strong>Dr Anthony M. Harris</strong>, The University of Queensland —  
+<a href="https://anthonymharris.com/" target="_blank" rel="noopener">Lab website</a> |  
+<a href="https://qbi.uq.edu.au/research/area/attention" target="_blank" rel="noopener">QBI attention area</a>
+</p>
+
+<p>
+<strong>Professor Paul Bays</strong>, University of Cambridge —  
+<a href="https://www.psychol.cam.ac.uk/people/paul-bays" target="_blank" rel="noopener">Department profile</a> |  
+<a href="https://www.paulbays.com/" target="_blank" rel="noopener">Bays Lab</a>
+</p>
+
+<p>
+<strong>Mr Henry Beale</strong>, The University of Queensland —  
+<a href="https://qbi.uq.edu.au/profile/14347/henry-beale" target="_blank" rel="noopener">QBI profile</a> |  
+<a href="https://mattingley-lab.uq-qbi-cogneuro.com/home/people/henry-beale" target="_blank" rel="noopener">Mattingley Lab</a>
+</p>
+
+<p>
+<strong>Ms Ruoying (Laura) Wang</strong>, Queensland University of Technology —  
+<a href="https://orcid.org/0009-0007-6690-0166" target="_blank" rel="noopener">ORCID record</a>
+</p>
+
+<p>
+<strong>Professor Thomas S. A. Wallis</strong>, Technical University of Darmstadt —  
+<a href="https://www.psychologie.tu-darmstadt.de/perception/home_per/people_per/people_perception_detail_51328.en.jsp" target="_blank" rel="noopener">TU Darmstadt profile</a>
+</p>
+
+<p>
+<strong>Dr Emily J. A-Izzeddin</strong>, Justus-Liebig-University Giessen —  
+<a href="https://www.uni-giessen.de/de/faculties/f06/psy/departments/generalpsychology/staff-1/collectionallstaff/staff" target="_blank" rel="noopener">University staff listing</a> |  
+<a href="https://mattingley-lab.uq-qbi-cogneuro.com/home/people/emily-a-izzeddin" target="_blank" rel="noopener">Mattingley Lab page</a>
+</p>
+
+<p>
+If you’d like to collaborate, please get in touch with Will:  
+<a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>
 </p>
