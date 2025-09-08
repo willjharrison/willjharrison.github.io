@@ -170,7 +170,7 @@ body::before{
     window.addEventListener('hashchange', bootFromHash);
     prefetchAll().then(() => bootFromHash());
   </script>
-  <script>
+  <!-- <script>
   const r = document.documentElement;
   window.addEventListener('mousemove', e => {
     r.style.setProperty('--mx', e.clientX + 'px');
@@ -182,6 +182,6 @@ body::before{
     r.style.setProperty('--mx', t.clientX + 'px');
     r.style.setProperty('--my', t.clientY + 'px');
   }, {passive:true});
-</script>
+</script> -->
 </body>
 </html>
