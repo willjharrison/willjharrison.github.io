@@ -1100,5 +1100,211 @@
 				]
 			]
 		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/6TMXNE4D",
+		"type": "article-journal",
+		"abstract": "Neural oscillations reflect fluctuations in the relative excitation/inhibition of neural systems1,2,3,4,5 and are theorized to play a critical role in canonical neural computations6,7,8,9 and cognitive processes.10,11,12,13,14 These theories have been supported by findings that detection of visual stimuli fluctuates with the phase of oscillations prior to stimulus onset.15,16,17,18,19,20,21,22,23 However, null results have emerged in studies seeking to demonstrate these effects in visual discrimination tasks,24,25,26,27 raising questions about the generalizability of these phenomena to wider neural processes. Recently, we suggested that methodological limitations may mask effects of phase in higher-level sensory processing.28 To test the generality of phasic influences on perception requires a task that involves stimulus discrimination while also depending on early sensory processing. Here, we examined the influence of oscillation phase on the visual tilt illusion, in which a center grating has its perceived orientation biased away from the orientation of a surround grating29 due to lateral inhibitory interactions in early visual processing.30,31,32 We presented center gratings at participants’ subjective vertical angle and had participants report whether the grating appeared tilted clockwise or counterclockwise from vertical on each trial while measuring their brain activity with electroencephalography (EEG). In addition to effects of alpha power and aperiodic slope, we observed robust associations between orientation perception and alpha and theta phase, consistent with fluctuating illusion magnitude across the oscillatory cycle. These results confirm that oscillation phase affects the complex processing involved in stimulus discrimination, consistent with its purported role in canonical computations that underpin cognition.",
+		"container-title": "Current Biology",
+		"DOI": "10.1016/j.cub.2024.03.014",
+		"ISSN": "0960-9822",
+		"journalAbbreviation": "Current Biology",
+		"source": "ScienceDirect",
+		"title": "Effects of neural oscillation power and phase on discrimination performance in a visual tilt illusion",
+		"URL": "https://www.sciencedirect.com/science/article/pii/S0960982224003117",
+		"author": [
+			{
+				"family": "Williams",
+				"given": "Jessica G."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Beale",
+				"given": "Henry A."
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B."
+			},
+			{
+				"family": "Harris",
+				"given": "Anthony M."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2024",
+					4,
+					3
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2024",
+					4,
+					2
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/DTE92XFH",
+		"type": "article-journal",
+		"abstract": "Coordination of goal-directed behavior depends on the brain’s ability to recover the locations of relevant objects in the world. In humans, the visual system encodes the spatial organization of sensory inputs, but neurons in early visual areas map objects according to their retinal positions, rather than where they are in the world. How the brain computes world-referenced spatial information across eye movements has been widely researched and debated. Here, we tested whether shifts of covert attention are sufficiently precise in space and time to track an object’s real-world location across eye movements. We found that observers’ attentional selectivity is remarkably precise and is barely perturbed by the execution of saccades. Inspired by recent neurophysiological discoveries, we developed an observer model that rapidly estimates the real-world locations of objects and allocates attention within this reference frame. The model recapitulates the human data and provides a parsimonious explanation for previously reported phenomena in which observers allocate attention to task-irrelevant locations across eye movements. Our findings reveal that visual attention operates in real-world coordinates, which can be computed rapidly at the earliest stages of cortical processing.",
+		"container-title": "Proceedings of the National Academy of Sciences",
+		"DOI": "10.1073/pnas.2316608121",
+		"issue": "27",
+		"note": "publisher: Proceedings of the National Academy of Sciences",
+		"page": "e2316608121",
+		"source": "pnas.org (Atypon)",
+		"title": "A computational account of transsaccadic attentional allocation based on visual gain fields",
+		"URL": "https://www.pnas.org/doi/10.1073/pnas.2316608121",
+		"volume": "121",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Stead",
+				"given": "Imogen"
+			},
+			{
+				"family": "Wallis",
+				"given": "Thomas S. A."
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J."
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2024",
+					7,
+					8
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2024",
+					7,
+					2
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/G7UPZMEL",
+		"type": "article-journal",
+		"abstract": "Decision confidence plays a critical role in humans’ ability to make adaptive decisions in a noisy perceptual world. Despite its importance, there is currently little consensus about the computations underlying confidence judgements in perceptual decisions. To better understand these mechanisms, we addressed the extent to which confidence is informed by a naturalistic prior distribution. Contrary to previous research, we did not require participants to internalise parameters of an arbitrary prior distribution. We instead used a novel psychophysical paradigm leveraging probability distributions of low-level image features in natural scenes, which are well-known to influence perception. Participants reported the subjective upright of naturalistic image patches, targets, and then reported their confidence in their orientation responses. We used computational modelling to relate the statistics of the low-level features in the targets to the average distribution of these features across many naturalistic images, a prior. Our results showed that participants’ perceptual and importantly, their confidence judgments aligned with an internalised prior for image statistics. Overall, our study highlights the importance of naturalistic task designs that capitalise on existing, long-term priors to further understand the computational basis of confidence.",
+		"container-title": "Consciousness and Cognition",
+		"DOI": "10.1016/j.concog.2025.103818",
+		"ISSN": "1053-8100",
+		"journalAbbreviation": "Consciousness and Cognition",
+		"page": "103818",
+		"source": "ScienceDirect",
+		"title": "Priors for natural image statistics inform confidence in perceptual decisions",
+		"URL": "https://www.sciencedirect.com/science/article/pii/S105381002500011X",
+		"volume": "128",
+		"author": [
+			{
+				"family": "West",
+				"given": "Rebecca K."
+			},
+			{
+				"family": "A-Izzeddin",
+				"given": "Emily J."
+			},
+			{
+				"family": "Sewell",
+				"given": "David K."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2025",
+					1,
+					28
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2025",
+					2,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/AR2WI4H5",
+		"type": "article-journal",
+		"container-title": "Nature Communications",
+		"DOI": "10.1038/s41467-025-60860-9",
+		"ISSN": "2041-1723",
+		"issue": "1",
+		"journalAbbreviation": "Nat Commun",
+		"language": "en",
+		"license": "2025 The Author(s)",
+		"note": "publisher: Nature Publishing Group",
+		"page": "6229",
+		"source": "www.nature.com",
+		"title": "Reply to: “Model mimicry limits conclusions about neural tuning and can mistakenly imply unlikely priors”",
+		"title-short": "Reply to",
+		"URL": "https://www.nature.com/articles/s41467-025-60860-9",
+		"volume": "16",
+		"author": [
+			{
+				"family": "Rideaux",
+				"given": "Reuben"
+			},
+			{
+				"family": "Bays",
+				"given": "Paul M."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2025",
+					7,
+					31
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2025",
+					7,
+					7
+				]
+			]
+		}
 	}
 ]
