@@ -6,15 +6,12 @@
   <title>Sensory Intelligence Research Group</title>
   <meta name="description" content="Sensory Intelligence Research Group — minimal, responsive landing page." />
 
-  <!-- ===================
-       TWEAKABLE PARAMETERS
-  ==================== -->
   <style>
     :root{
-      --bg: #0b0c10;
-      --fg: #eaf2ef;
-      --accent: #7ef7c9;
-      --muted: #aab5b0;
+      --bg: #FFF5F5;
+      --fg: #570303;
+      --accent: #479E7C;
+      --muted: #C253A0;
       --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       --title-size: clamp(2.2rem, 6vw, 4.5rem);
       --subtitle-size: clamp(1rem, 2.4vw, 1.35rem);
@@ -25,33 +22,43 @@
     body{
       margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-main);
     }
-    main{ min-height:100svh; display:grid; place-items:center; padding:var(--pad-x); }
-    .wrap{ max-width:var(--max-w); text-align:center; }
+    header{
+      position:sticky; top:0; z-index:10; background:var(--bg);
+      padding: var(--pad-x) var(--pad-x) calc(var(--gap) * 1.5);
+      text-align:center;
+    }
     .title{ font-size:var(--title-size); margin:0 0 var(--gap) 0; }
     .subtitle{ font-size:var(--subtitle-size); color:var(--muted); margin:0 0 var(--gap) 0; }
     .actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
     .btn{ padding:10px 16px; border:1px solid var(--fg); border-radius:6px; text-decoration:none; color:var(--fg); cursor:pointer; background:transparent; }
     .btn:hover{ background:var(--accent); color:#000; }
-    #content{ margin-top:var(--gap); text-align:left; max-width:700px; margin-left:auto; margin-right:auto; white-space:pre-wrap; line-height:1.4; }
+
+    main{ max-width:var(--max-w); margin:0 auto; padding:0 var(--pad-x); }
+    #content{ margin-top:calc(var(--gap)*2); text-align:left; max-width:700px; margin-left:auto; margin-right:auto; white-space:pre-wrap; line-height:1.4; }
+
+    #content h1, #content h2, #content h3{
+      text-align:center; font-weight:700; margin: 1.4em 0 0.6em;
+    }
+
     footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; }
     .hidden{ display:none; }
   </style>
 </head>
 <body>
-  <main>
-    <div class="wrap">
-      <h1 class="title">Sensory Intelligence Research Group</h1>
-      <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
-      <nav class="actions" aria-label="Primary">
-        <a class="btn" href="#about" data-file="about.txt" data-title="About">About</a>
-        <a class="btn" href="#research" data-file="research-topics.txt" data-title="Research">Research</a>
-        <a class="btn" href="#publications" data-file="publications.txt" data-title="Publications">Publications</a>
-        <a class="btn" href="#collaborators" data-file="collaborators.txt" data-title="Collaborators">Collaborators</a>
-        <a class="btn" href="#opportunities" data-file="opportunities.txt" data-title="Opportunities">Opportunities</a>
-      </nav>
+  <header>
+    <h1 class="title">Sensory Intelligence Research Group</h1>
+    <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
+    <nav class="actions" aria-label="Primary">
+      <a class="btn" href="#about" data-file="about.txt" data-title="About">About</a>
+      <a class="btn" href="#research" data-file="research-topics.txt" data-title="Research">Research</a>
+      <a class="btn" href="#publications" data-file="publications.txt" data-title="Publications">Publications</a>
+      <a class="btn" href="#collaborators" data-file="collaborators.txt" data-title="Collaborators">Collaborators</a>
+      <a class="btn" href="#opportunities" data-file="opportunities.txt" data-title="Opportunities">Opportunities</a>
+    </nav>
+  </header>
 
-      <section id="content" class="hidden" aria-live="polite"></section>
-    </div>
+  <main>
+    <section id="content" class="hidden" aria-live="polite"></section>
   </main>
 
   <footer>
@@ -59,11 +66,12 @@
   </footer>
 
   <script>
-    // Update year
+    // Update footer year
     document.getElementById('y').textContent = new Date().getFullYear();
 
     const contentEl = document.getElementById('content');
     const buttons = document.querySelectorAll('.actions .btn[data-file]');
+
     const TXT_CACHE = new Map();
 
     async function prefetchAll(){
@@ -74,7 +82,7 @@
           if(!res.ok) return;
           const txt = (await res.text()).trim();
           TXT_CACHE.set(path, txt);
-        }catch(_){ /* ignore */ }
+        }catch(_){ }
       }));
     }
 
@@ -87,7 +95,7 @@
       if (TXT_CACHE.has(path)){
         contentEl.classList.remove('hidden');
         const txt = TXT_CACHE.get(path);
-        contentEl.textContent = (txt && txt.length) ? txt : `(No content in ${path})`;
+        contentEl.innerHTML = (txt && txt.length) ? txt : `(No content in ${path})`;
         return;
       }
       try{
@@ -96,7 +104,7 @@
         if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
         const txt = (await res.text()).trim();
         TXT_CACHE.set(path, txt);
-        contentEl.textContent = txt || `(No content in ${path})`;
+        contentEl.innerHTML = txt || `(No content in ${path})`;
       }catch(err){
         contentEl.textContent = `Could not load ${label}. (${err.message})`;
       }
