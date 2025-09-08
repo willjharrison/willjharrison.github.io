@@ -103,6 +103,10 @@
 
     footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
     .hidden{ display:none; }
+
+    #pubs-list { padding-left: 1.2rem; }
+#pubs-list li { margin: 0.4em 0; }
+    
   </style>
 </head>
 <body>
@@ -183,6 +187,110 @@
       wireAccordion(contentEl);  // <- ensures only one details stays open
     }
 
+    function initPublications(){
+  const root = document.getElementById('pubs-root');
+  if(!root) return;
+
+  const controlsEl = root.querySelector('#pubs-controls');
+  const listEl     = root.querySelector('#pubs-list');
+
+  let DATA = [];       // parsed CSL-JSON
+  let TOPICS = [];     // unique topic list from tags
+  let currentTopic = 'All';
+  let sortDir = 'desc'; // 'desc' newest first (default), 'asc' oldest first
+
+  // ---- helpers ----
+  const getYear = it =>
+    (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0][0]) || '';
+
+  const fmtAuthors = it => {
+    const a = (it.author || []).map(x => `${x.family || ''}${x.given ? `, ${x.given}` : ''}`);
+    if(a.length <= 3) return a.join('; ');
+    return `${a.slice(0,2).join('; ')}; et al.`;
+  };
+
+  const firstLink = it => it.URL || (it.DOI ? `https://doi.org/${it.DOI}` : '');
+
+  const getTopics = it => {
+    // Prefer Zotero tags: [{ tag: "..." }, ...]
+    if (Array.isArray(it.tags) && it.tags.length) {
+      return it.tags.map(t => (t.tag || '').trim()).filter(Boolean);
+    }
+    return ['Uncategorised'];
+  };
+
+  const itemHTML = it => {
+    const y = getYear(it);
+    const link = firstLink(it);
+    return `
+      <li>
+        <div><strong>${it.title || '(No title)'}</strong> ${y ? `(${y})` : ''}</div>
+        <div>${fmtAuthors(it)}${it['container-title'] ? `. <em>${it['container-title']}</em>` : ''}</div>
+        ${link ? `<div><a href="${link}" target="_blank" rel="noopener">Link</a></div>` : ''}
+      </li>
+    `;
+  };
+
+  const applyFilterAndSort = () => {
+    let rows = DATA.slice();
+    if(currentTopic !== 'All'){
+      rows = rows.filter(it => getTopics(it).includes(currentTopic));
+    }
+    rows.sort((a,b) => {
+      const ya = +getYear(a) || 0, yb = +getYear(b) || 0;
+      return sortDir === 'desc' ? (yb - ya) : (ya - yb);
+    });
+    listEl.innerHTML = rows.map(itemHTML).join('');
+  };
+
+  const renderControls = () => {
+    // Topic list
+    const topics = ['All', ...TOPICS];
+    const topicOptions = topics.map(t => `<option value="${t}">${t}</option>`).join('');
+    controlsEl.innerHTML = `
+      <div style="display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; margin:.5rem 0 1rem;">
+        <label style="font-weight:600;">Filter by topic:</label>
+        <select id="pubs-topic" style="padding:.3rem .5rem; border:1px solid var(--menu-border); border-radius:6px;">
+          ${topicOptions}
+        </select>
+        <button id="pubs-sort" class="btn" style="padding:.3rem .6rem;">Sort: ${sortDir === 'desc' ? 'Newest → Oldest' : 'Oldest → Newest'}</button>
+      </div>
+    `;
+    controlsEl.querySelector('#pubs-topic').addEventListener('change', e => {
+      currentTopic = e.target.value;
+      applyFilterAndSort();
+    });
+    controlsEl.querySelector('#pubs-sort').addEventListener('click', () => {
+      sortDir = (sortDir === 'desc') ? 'asc' : 'desc';
+      controlsEl.querySelector('#pubs-sort').textContent = `Sort: ${sortDir === 'desc' ? 'Newest → Oldest' : 'Oldest → Newest'}`;
+      applyFilterAndSort();
+    });
+  };
+
+  // ---- fetch CSL-JSON and boot ----
+  fetch('publications.json', {cache:'no-store'})
+    .then(r => r.json())
+    .then(json => {
+      DATA = Array.isArray(json) ? json : [];
+      // Gather topics from tags
+      const set = new Set();
+      DATA.forEach(it => getTopics(it).forEach(t => set.add(t)));
+      TOPICS = Array.from(set).sort((a,b) => a.localeCompare(b));
+      renderControls();
+      applyFilterAndSort();
+    })
+    .catch(err => {
+      listEl.innerHTML = `<li>Could not load publications. (${err.message})</li>`;
+    });
+}
+
+// after setting page content:
+contentEl.classList.remove('hidden');
+contentEl.innerHTML = txt || `(No content in ${path})`;
+
+// If this is the Publications page, render the interactive list
+initPublications();
+    
     function handleClick(ev){
       const a = ev.currentTarget;
       const file  = a.getAttribute('data-file');
