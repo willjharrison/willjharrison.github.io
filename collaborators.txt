@@ -1,5 +1,3 @@
-<p>The Sensory Intelligence Research Group collaborates across neuroscience, psychology, engineering, and computer science.</p>
-
 <p><strong>Dr Reuben Rideaux</strong>, University of Sydney  
 <a href="https://www.sydney.edu.au/science/our-research/research-areas/psychology/rideaux-lab.html" target="_blank" rel="noopener">Rideaux Lab</a>
 <a href="https://reubenrideaux.github.io/" target="_blank" rel="noopener">Personal site</a>
@@ -26,4 +24,3 @@
 <a href="https://www.uni-giessen.de/de/faculties/f06/psy/departments/generalpsychology/staff-1/collectionallstaff/staff" target="_blank" rel="noopener">University staff listing</a>
 <a href="https://mattingley-lab.uq-qbi-cogneuro.com/home/people/emily-a-izzeddin" target="_blank" rel="noopener">Mattingley Lab page</a>
 </p>
-<p>If you’d like to collaborate, please get in touch with Will:  <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a></p>
