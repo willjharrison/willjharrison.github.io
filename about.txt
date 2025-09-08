@@ -1,13 +1,5 @@
-<h2>About</h2>
-
 <p>
-The human brain is the most complex machine in the known universe.  
-Yet, thanks to advances in neuroscience, psychology, and computation, we now have the tools to begin understanding it at every level.  
-At the <strong>Sensory Intelligence Research Group</strong>, we see human experience as a kind of problem solving — stretching all the way from the activity of single neurons to the choices people make in daily life.
-</p>
-
-<p>
-Our mission is to work across levels of explanation — empirical, theoretical, and even philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.
+The human brain is more powerful than any artificial system we've created, so far. The <strong>Sensory Intelligence Research Group</strong> is interested in understanding how the brain gives rise to our thoughts, feelings and actions. We see human experience as a kind of problem solving that begins with the sensory demands of the environment. Our goal is to build such a comprehensive model of how the brain encodes the world that we are able to predict what a person would see or think when they look at an arbitrary image. Our mission, therefore, is to work across levels of explanation — empirical, theoretical, and philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.
 </p>
 
 <p>
@@ -17,14 +9,10 @@ You can read more on his <a href="https://www.usc.edu.au/staff/dr-will-harrison"
 
 <h3>What We Study</h3>
 <p>
-We are fascinated by the <em>phenomenological experience</em> of our senses — what it feels like to see, hear, and perceive the world around us.  
-We ask how these rich experiences emerge from neural populations: how groups of neurons encode and combine information, and how these computations shape both <strong>perception</strong> and <strong>decision making</strong>.  
-By studying this link between neural code and lived experience, we aim to explain not just the mechanics of the brain, but the very nature of how the world is experienced.
+We are fascinated by the <em>phenomenological experience</em> of our senses. For example, there is <i>feeling<i/> of seeing, a qualia. We ask how these rich experiences emerge from neural populations: how groups of neurons encode and combine information sensed from the environment, and how these computations shape both <strong>perception</strong> and <strong>decision making</strong>. By studying how neural codes determine perception and cognition, we aim to explain not just the mechanics of the brain, but the very nature of how the world is experienced.
 </p>
 
 <h3>Why It Matters</h3>
 <p>
-Understanding these computations is not just a scientific challenge — it is also a path to impact.  
-We aim to translate our insights to health, seeking principled ways to understand, detect, and improve sensory and cognitive disorders.  
-By bridging basic science and application, we hope to contribute to healthier minds and more informed approaches to human well-being.
+Understanding these computations is not just a scientific challenge, but also a path to impact. We aim to translate our insights to health, seeking principled ways to understand, detect, and improve sensory and cognitive disorders. By bridging basic science and application, we hope to contribute to healthier minds and more informed approaches to human well-being.
 </p>

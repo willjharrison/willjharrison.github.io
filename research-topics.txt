@@ -1,24 +1,53 @@
-Research Topics
+<p>
+Our conceptual approach begins with the recognition that to understand what people <em>perceive, think, and feel</em>, we need robust measurements of their perceptual and cognitive abilities.  
+We start with careful psychophysics, link these behavioural signatures to neural function, and ultimately ground our explanations in the physics of the environment that has shaped neural architecture.
+</p>
 
-Population Coding & Probabilistic Inference
-We investigate how ensembles of neurons represent information and uncertainty, and how those
-representations support Bayesian inference in perception and action.
+<h3>Robust Psychophysics to Describe Perception and Cognition</h3>
+<p>
+We design controlled behavioural experiments that precisely measure perceptual thresholds, biases, and decision rules.  
+These methods provide the foundation for all of our work, ensuring that our models are constrained by high-quality data.  
+My contributions include the development of paradigms that separate perceptual sensitivity from decision criteria, allowing us to map specific computations in sensory and cognitive domains.
+</p>
 
-Visual Perception
-Projects include crowding in peripheral vision, illusory contours, attentional cueing, and
-the interaction between eye movements and moment-to-moment perception.
+<h3>Eye Tracking to Understand Active Exploration</h3>
+<p>
+Perception is not passive: we move our eyes to sample the world.  
+Using high-resolution eye tracking, we study how gaze patterns reveal the strategies people use to extract information.  
+My work has linked oculomotor behaviour with moment-to-moment perception, showing how active sampling is tuned to both task demands and neural coding constraints.
+</p>
 
-Working Memory & Decision Processes
-We study short-term memory capacity limits, precision-resource trade-offs, and how noisy
-evidence is integrated over time to guide choices.
+<h3>Working Memory Models to Understand Storage Limits</h3>
+<p>
+Visual working memory has strict capacity and precision limits.  
+I develop and test models that explain how information is stored, degraded, and lost over time.  
+This work has clarified trade-offs between the number of items remembered and the fidelity with which they are represented, providing a mechanistic understanding of memory constraints.
+</p>
 
-Methods
-• Psychophysics (thresholds, reverse correlation, confidence/readouts)
-• Eye tracking & oculomotor paradigms
-• Computational modeling (Bayesian observers, diffusion/accumulator models)
-• Model-based inference & parameter recovery
-• (Optional) EEG/MEG collaborations for population-level signals
+<h3>Peripheral Vision to Understand Lossy Encoding</h3>
+<p>
+The periphery encodes information less precisely than the fovea, but in structured and lawful ways.  
+My research has shown how crowding, pooling, and other encoding limitations shape perception outside the centre of gaze.  
+These findings highlight the principles of lossy compression in visual encoding, linking retinal and cortical organisation to everyday perceptual experience.
+</p>
 
-Translational Links
-We aim to map computational deficits to clinical phenotypes and inform assessment and
-intervention for disorders of vision, attention, and decision making.
+<h3>Meta-Cognition to Understand How We Think About Thinking</h3>
+<p>
+We do not only perceive and remember — we also evaluate the quality of those processes.  
+My work investigates how confidence judgements are formed and how they relate to objective performance.  
+By measuring both decisions and their accompanying confidence, I seek to uncover the computations that allow people to monitor and control their own cognition.
+</p>
+
+<h3>Computational Modelling to Understand Brain Algorithms</h3>
+<p>
+At the core of our program is the development of computational models that formalise hypotheses about brain function.  
+I build Bayesian observer models, accumulator models, and efficient coding frameworks to test how neural populations might represent and combine information.  
+These models allow us to bridge behaviour, neural coding, and environmental statistics in a unified framework.
+</p>
+
+<h3>Neuro-Imaging to Quantify Uncertainty in Neural Encoding</h3>
+<p>
+To connect behavioural models with neural data, we use imaging approaches to estimate the fidelity and uncertainty of neural population codes.  
+I have collaborated on EEG and MEG projects to decode stimulus representations and link them with psychophysical measures of uncertainty.  
+This work aims to show how the brain’s probabilistic computations manifest both in the cortex and in perception.
+</p>
