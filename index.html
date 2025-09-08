@@ -30,7 +30,16 @@
     }
     .title{ font-size:var(--title-size); margin:0 0 var(--gap) 0; }
     .subtitle{ font-size:var(--subtitle-size); color:var(--muted); margin:0 0 var(--gap) 0; }
-    .actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    .actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.btn {
+  flex: 1 1 auto;   /* allow buttons to shrink */
+  min-width: max-content; /* prevent text from breaking */
+}
     .btn{ padding:10px 16px; border:1px solid var(--fg); border-radius:6px; text-decoration:none; color:var(--fg); cursor:pointer; background:transparent; }
     .btn:hover{ background:var(--accent); color:#000; }
     .btn.active {
