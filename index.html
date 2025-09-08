@@ -33,7 +33,11 @@
     .actions{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
     .btn{ padding:10px 16px; border:1px solid var(--fg); border-radius:6px; text-decoration:none; color:var(--fg); cursor:pointer; background:transparent; }
     .btn:hover{ background:var(--accent); color:#000; }
-
+    .btn.active {
+        background: var(--accent);
+        color: #EB7878;
+        font-weight: bold;
+    }
     main{ flex:1; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad-x); }
     #content{ margin-top:calc(var(--gap)*2); text-align:left; max-width:700px; margin-left:auto; margin-right:auto; white-space:pre-wrap; line-height:1.4; }
 
@@ -118,7 +122,7 @@
         }
       }
       contentEl.classList.remove('hidden');
-      contentEl.innerHTML = `<h2>${label}</h2>\n` + (txt || `(No content in ${path})`);
+      contentEl.innerHTML = txt || `(No content in ${path})`;
     }
 
     function handleClick(ev){
@@ -127,6 +131,13 @@
       const label = a.getAttribute('data-title') || a.textContent.trim();
       ev.preventDefault();
       history.replaceState(null, '', a.getAttribute('href'));
+    
+      // Remove active class from all buttons
+      buttons.forEach(btn => btn.classList.remove('active'));
+    
+      // Add active class to the clicked button
+      a.classList.add('active');
+    
       loadText(file, label);
     }
 
