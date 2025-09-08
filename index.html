@@ -7,6 +7,24 @@
   <meta name="description" content="Sensory Intelligence Research Group — minimal, responsive landing page." />
 
   <style>
+
+    :root { --mx: 50vw; --my: 50vh; --glow-size: 26vmax; --glow-strength: 0.12; }
+
+body::before{
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:5;
+  background:
+    radial-gradient(
+      circle var(--glow-size) at var(--mx) var(--my),
+      rgba(122,191,164, var(--glow-strength)), /* uses your --accent hue */
+      transparent 60%
+    );
+  mix-blend-mode: multiply; /* try 'soft-light' or 'overlay' too */
+}
+@media (prefers-reduced-motion: reduce){
+  body::before{ display:none; }
+}
+    
     :root{
       --bg: #F5F5F5;
       --fg: #523D3D;
@@ -153,5 +171,18 @@
     window.addEventListener('hashchange', bootFromHash);
     prefetchAll().then(() => bootFromHash());
   </script>
+  <script>
+  const r = document.documentElement;
+  window.addEventListener('mousemove', e => {
+    r.style.setProperty('--mx', e.clientX + 'px');
+    r.style.setProperty('--my', e.clientY + 'px');
+  });
+  // Fallback: center on touch
+  window.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    r.style.setProperty('--mx', t.clientX + 'px');
+    r.style.setProperty('--my', t.clientY + 'px');
+  }, {passive:true});
+</script>
 </body>
 </html>
