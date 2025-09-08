@@ -150,7 +150,18 @@
       contentEl.classList.remove('hidden');
       contentEl.textContent = `Loading ${label}…`;
     }
-
+    
+    function wireAccordion(root){
+      const items = root.querySelectorAll('details');
+      if (!items.length) return;
+      items.forEach(d => {
+        d.addEventListener('toggle', () => {
+          if (!d.open) return;
+          items.forEach(other => { if (other !== d) other.removeAttribute('open'); });
+        });
+      });
+    }
+    
     async function loadText(path, label){
       let txt;
       if (TXT_CACHE.has(path)){
@@ -169,6 +180,7 @@
       }
       contentEl.classList.remove('hidden');
       contentEl.innerHTML = txt || `(No content in ${path})`;
+      wireAccordion(contentEl);  // <- ensures only one details stays open
     }
 
     function handleClick(ev){
