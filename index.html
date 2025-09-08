@@ -8,10 +8,22 @@
 
   <style>
     :root{
+      /* Core palette */
       --bg: #F5F5F5;
       --fg: #523D3D;
       --accent: #7ABFA4;
       --muted: #A64B32;
+
+      /* Menu colours */
+      --menu-fg: var(--fg);                /* button text */
+      --menu-border: var(--fg);            /* button border */
+      --menu-bg: transparent;              /* default background */
+      --menu-hover-bg: var(--accent);      /* background on hover */
+      --menu-hover-fg: #000;               /* text on hover */
+      --menu-active-bg: var(--accent);     /* background when active */
+      --menu-active-fg: #D1FFEC;           /* text when active */
+
+      /* Fonts and sizing */
       --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       --title-size: clamp(2rem, 4vw, 3rem);
       --subtitle-size: clamp(1rem, 2.4vw, 1.35rem);
@@ -20,14 +32,11 @@
       --gap: 22px;
     }
 
-    /* Base */
-    *{ box-sizing: border-box; }
     body{
       margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-main);
       display:flex; flex-direction:column; min-height:100vh;
     }
 
-    /* Header + Nav */
     header{
       position:sticky; top:0; z-index:10; background:var(--bg);
       padding: var(--pad-x) var(--pad-x) calc(var(--gap) * 1.2);
@@ -36,21 +45,34 @@
     .title{ font-size:var(--title-size); margin:0 0 var(--gap) 0; }
     .subtitle{ font-size:var(--subtitle-size); color:var(--muted); margin:0 0 var(--gap) 0; }
 
+    /* Menu buttons */
     .actions{
       display:flex; gap:8px; justify-content:center; flex-wrap:nowrap;
       overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin;
       padding-bottom:2px;
     }
     .btn{
-      flex:0 0 auto; /* keep one row */
-      padding:10px 16px; border:1px solid var(--fg); border-radius:6px;
-      text-decoration:none; color:var(--fg); background:transparent; cursor:pointer;
+      flex:0 0 auto;
+      padding:10px 16px;
+      border:1px solid var(--menu-border);
+      border-radius:6px;
+      text-decoration:none;
+      color:var(--menu-fg);
+      background:var(--menu-bg);
+      cursor:pointer;
       white-space:nowrap;
+      transition: background .2s, color .2s;
     }
-    .btn:hover{ background:var(--accent); color:#000; }
-    .btn.active{ background:var(--accent); color:#D1FFEC; font-weight:bold; }
+    .btn:hover{
+      background:var(--menu-hover-bg);
+      color:var(--menu-hover-fg);
+    }
+    .btn.active{
+      background:var(--menu-active-bg);
+      color:var(--menu-active-fg);
+      font-weight:bold;
+    }
 
-    /* Main content area */
     main{ flex:1; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad-x); }
     #content{
       margin-top:calc(var(--gap)*1.5);
@@ -58,15 +80,12 @@
       white-space:normal; line-height:1.45;
     }
 
-    /* Headings inside loaded content */
     #content h1, #content h2, #content h3{
       text-align:center; font-weight:700; margin: 1em 0 0.5em;
     }
-
-    /* Paragraph spacing inside loaded content */
     #content p{ margin: 0.35em 0 0.5em; }
 
-    /* Details/Summary (collapsible) — TIGHT */
+    /* Collapsibles */
     #content details{
       margin: 0.5em 0;
       border: 1px solid color-mix(in srgb, var(--muted) 70%, transparent);
@@ -75,26 +94,15 @@
       background: color-mix(in srgb, var(--accent) 10%, transparent);
     }
     #content details[open]{ background: color-mix(in srgb, var(--accent) 18%, transparent); }
-
-    /* Tighten the gap between summary and the first element after it */
     #content details > summary{
-      cursor:pointer; font-weight:700; list-style:revert; /* keep default marker */
-      margin:0; padding: 0.15em 0;
+      cursor:pointer; font-weight:700; list-style:revert;
+      margin:0; padding:0.15em 0;
     }
-    #content details > summary + *{
-      margin-top: 0.25em !important; /* << key line that collapses the big gap */
-    }
-
-    /* Paragraphs inside details */
+    #content details > summary + *{ margin-top:0.25em !important; }
     #content details p{ margin: 0.25em 0 0.5em; }
 
-    /* Footer */
     footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
     .hidden{ display:none; }
-
-    @media (prefers-reduced-motion: reduce){
-      *{ scroll-behavior:auto; }
-    }
   </style>
 </head>
 <body>
@@ -120,15 +128,12 @@
   </footer>
 
   <script>
-    // Year
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    // Elements + cache
     const contentEl = document.getElementById('content');
     const buttons   = document.querySelectorAll('.actions .btn[data-file]');
     const TXT_CACHE = new Map();
 
-    // Prefetch text files for snappy clicks
     async function prefetchAll(){
       const unique = [...new Set(Array.from(buttons, b => b.getAttribute('data-file')))].filter(Boolean);
       await Promise.all(unique.map(async (path) => {
@@ -173,7 +178,6 @@
       ev.preventDefault();
       history.replaceState(null, '', a.getAttribute('href'));
 
-      // Highlight active
       buttons.forEach(btn => btn.classList.remove('active'));
       a.classList.add('active');
 
@@ -182,7 +186,6 @@
 
     buttons.forEach(a => a.addEventListener('click', handleClick));
 
-    // Load deep-link on open and when hash changes
     function bootFromHash(){
       const hash = location.hash.replace('#','');
       if(!hash) return;
