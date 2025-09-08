@@ -7,8 +7,8 @@
   <meta name="description" content="Sensory Intelligence Research Group — minimal, responsive landing page." />
 
   <style>
-
-    :root { --mx: 50vw; --my: 50vh; --glow-size: 12vmax; --glow-strength: 0.12; }
+<!--
+     :root { --mx: 50vw; --my: 50vh; --glow-size: 12vmax; --glow-strength: 0.12; }
 body::before{
   content:"";
   position:fixed; inset:0; pointer-events:none; z-index:5;
@@ -22,7 +22,7 @@ body::before{
 }
 @media (prefers-reduced-motion: reduce){
   body::before{ display:none; }
-}
+} -->
     
     :root{
       --bg: #F5F5F5;
@@ -84,6 +84,7 @@ body::before{
     <nav class="actions" aria-label="Primary">
       <a class="btn" href="#about" data-file="about.txt" data-title="About">About</a>
       <a class="btn" href="#research" data-file="research-topics.txt" data-title="Research">Research Themes</a>
+      <a class="btn" href="#pushingback" data-file="pushingback.txt" data-title="Pushing back on AI">Pushing Back On A.I.</a>
       <a class="btn" href="#publications" data-file="publications.txt" data-title="Publications">Publications</a>
       <a class="btn" href="#collaborators" data-file="collaborators.txt" data-title="Collaborators">Collaborators</a>
       <a class="btn" href="#opportunities" data-file="opportunities.txt" data-title="Opportunities">Opportunities</a>
