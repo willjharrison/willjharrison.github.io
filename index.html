@@ -8,15 +8,14 @@
 
   <style>
 
-    :root { --mx: 50vw; --my: 50vh; --glow-size: 26vmax; --glow-strength: 0.12; }
-
+    :root { --mx: 50vw; --my: 50vh; --glow-size: 12vmax; --glow-strength: 0.12; }
 body::before{
   content:"";
   position:fixed; inset:0; pointer-events:none; z-index:5;
   background:
     radial-gradient(
       circle var(--glow-size) at var(--mx) var(--my),
-      rgba(122,191,164, var(--glow-strength)), /* uses your --accent hue */
+      rgba(100,191,124, var(--glow-strength)), /* uses your --accent hue */
       transparent 60%
     );
   mix-blend-mode: multiply; /* try 'soft-light' or 'overlay' too */
