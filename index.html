@@ -23,6 +23,14 @@
       --menu-active-bg: #274D75;
       --menu-active-fg: #A6D1FF;
 
+      /* Publications filter bar */
+      --filter-bg: color-mix(in srgb, var(--accent) 14%, transparent);
+      --filter-border: color-mix(in srgb, var(--fg) 25%, transparent);
+      --pill-bg: #fff;
+      --pill-fg: var(--fg);
+      --pill-active-bg: var(--menu-active-bg);
+      --pill-active-fg: var(--menu-active-fg);
+
       /* Fonts and sizing */
       --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       --title-size: clamp(2rem, 4vw, 3rem);
@@ -30,8 +38,10 @@
       --max-w: 1200px;
       --pad-x: clamp(16px, 4vw, 40px);
       --gap: 22px;
+      --radius: 10px;
     }
 
+    *{ box-sizing: border-box; }
     body{
       margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-main);
       display:flex; flex-direction:column; min-height:100vh;
@@ -61,9 +71,10 @@
       background:var(--menu-bg);
       cursor:pointer;
       white-space:nowrap;
-      transition: background .2s, color .2s;
+      transition: background .2s, color .2s, transform .05s ease-out;
     }
     .btn:hover{ background:var(--menu-hover-bg); color:var(--menu-hover-fg); }
+    .btn:active{ transform: translateY(1px); }
     .btn.active{ background:var(--menu-active-bg); color:var(--menu-active-fg); font-weight:bold; }
 
     main{ flex:1; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad-x); }
@@ -93,11 +104,43 @@
     #content details > summary + *{ margin-top:0.25em !important; }
     #content details p{ margin: 0.25em 0 0.5em; }
 
-    footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
-    .hidden{ display:none; }
-
+    /* Publications UI */
+    .pubs-bar{
+      display:flex; flex-direction:column; gap:.6rem;
+      background: var(--filter-bg);
+      border: 1px solid var(--filter-border);
+      border-radius: var(--radius);
+      padding: .8rem .9rem;
+      margin: .2rem 0 1.1rem;
+    }
+    .pubs-bar__row{
+      display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;
+    }
+    .pubs-pills{
+      display:flex; gap:.4rem; flex-wrap:wrap;
+    }
+    .pill{
+      appearance:none; border:1px solid var(--filter-border);
+      background: var(--pill-bg); color: var(--pill-fg);
+      padding:.28rem .6rem; border-radius: 999px; cursor:pointer;
+      font-size:.95rem; line-height:1;
+      transition: background .15s, color .15s, border-color .15s, transform .05s;
+    }
+    .pill:hover{ border-color: var(--menu-active-bg); }
+    .pill[aria-pressed="true"]{
+      background: var(--pill-active-bg);
+      color: var(--pill-active-fg);
+      border-color: var(--pill-active-bg);
+      font-weight:600;
+    }
+    .pubs-sort{
+      margin-left:auto;
+    }
     #pubs-list { padding-left: 1.2rem; }
     #pubs-list li { margin: 0.4em 0; }
+
+    footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
+    .hidden{ display:none; }
   </style>
 </head>
 <body>
@@ -123,232 +166,246 @@
   </footer>
 
   <script>
-  // Year
-  document.getElementById('y').textContent = new Date().getFullYear();
+    // Year
+    document.getElementById('y').textContent = new Date().getFullYear();
 
-  const contentEl = document.getElementById('content');
-  const buttons   = document.querySelectorAll('.actions .btn[data-file]');
-  const TXT_CACHE = new Map();
+    const contentEl = document.getElementById('content');
+    const buttons   = document.querySelectorAll('.actions .btn[data-file]');
+    const TXT_CACHE = new Map();
 
-  // Prefetch linked text files
-  async function prefetchAll(){
-    const unique = [...new Set(Array.from(buttons, b => b.getAttribute('data-file')))].filter(Boolean);
-    await Promise.all(unique.map(async (path) => {
-      try{
-        const res = await fetch(path, {cache: 'no-store'});
-        if (!res.ok) return;
-        const txt = (await res.text()).trim();
-        TXT_CACHE.set(path, txt);
-      }catch(_){}
-    }));
-  }
-
-  // Accordion: only one <details> open at a time
-  function wireAccordion(root){
-    const items = root.querySelectorAll('details');
-    if (!items.length) return;
-    items.forEach(d => {
-      d.addEventListener('toggle', () => {
-        if (!d.open) return;
-        items.forEach(other => { if (other !== d) other.removeAttribute('open'); });
-      });
-    });
-  }
-
-  // ---------- Publications (CSL-JSON) — APA 7th ----------
-  function renderPublications(){
-    contentEl.innerHTML = `
-      <h2>Publications</h2>
-      <div id="pubs-root">
-        <div id="pubs-controls">
-          <label style="font-weight:600;">Filter by topic:</label>
-          <select id="pubs-topic"></select>
-          <button id="pubs-sort" class="btn">Sort: Newest → Oldest</button>
-        </div>
-        <ol id="pubs-list"></ol>
-      </div>
-    `;
-
-    const topicSel = document.getElementById('pubs-topic');
-    const sortBtn  = document.getElementById('pubs-sort');
-    const listEl   = document.getElementById('pubs-list');
-
-    let DATA = [];
-    let TOPICS = [];
-    let currentTopic = 'All';
-    let sortDir = 'desc';
-
-    const getYear = it =>
-      (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
-
-    const initials = given => (given || '')
-      .split(/[\s-]+/)
-      .filter(Boolean)
-      .map(part => part[0] ? (part[0].toUpperCase() + '.') : '')
-      .join(' ');
-
-    const formatAuthorsAPA = it => {
-      const authors = Array.isArray(it.author) ? it.author : [];
-      if (!authors.length) return '';
-      const formatted = authors.map(a => {
-        const fam = (a.family || '').trim();
-        const init = initials(a.given);
-        return fam && init ? `${fam}, ${init}` : fam || init || '';
-      }).filter(Boolean);
-
-      if (formatted.length <= 20) {
-        if (formatted.length === 1) return `${formatted[0]}.`;
-        return `${formatted.slice(0, -1).join(', ')}, & ${formatted.slice(-1)[0]}.`;
-      } else {
-        const first19 = formatted.slice(0, 19).join(', ');
-        const last = formatted.slice(-1)[0];
-        return `${first19}, …, & ${last}.`;
-      }
-    };
-
-    const sentenceCase = s => {
-      if (!s) return '';
-      const t = s.replace(/\s+/g,' ').trim();
-      if (!t) return '';
-      let out = t.toLowerCase();
-      out = out.charAt(0).toUpperCase() + out.slice(1);
-      out = out.replace(/: (\w)/g, (_, c) => `: ${c.toUpperCase()}`);
-      return out;
-    };
-
-    const titleCase = s => {
-      if (!s) return '';
-      return s.replace(/\w[^\s-]*/g, w => {
-        const lower = w.toLowerCase();
-        const small = ['a','an','the','and','but','or','nor','for','so','yet','on','in','to','of','by','at','vs','via'];
-        if (small.includes(lower)) return lower;
-        return w.charAt(0).toUpperCase() + w.slice(1);
-      }).replace(/(^|\s)([a-z])/g, (m, sp, ch) => sp + ch.toUpperCase());
-    };
-
-    const firstLink = it => it.URL || (it.DOI ? `https://doi.org/${it.DOI}` : '');
-
-    const formatAPA = it => {
-      const year = getYear(it);
-      const authors = formatAuthorsAPA(it);
-      const title = sentenceCase(it.title || '');
-      const link = firstLink(it);
-      const doiStr = it.DOI ? `https://doi.org/${it.DOI}` : '';
-      const urlStr = (!it.DOI && it.URL) ? it.URL : '';
-
-      if ((it.type || '').includes('article')) {
-        const journal = titleCase(it['container-title'] || '');
-        const vol = it.volume ? `<em>${it.volume}</em>` : '';
-        const iss = it.issue ? `(${it.issue})` : '';
-        const pages = it.page ? it.page : '';
-        const volIssue = vol || iss ? `${vol}${iss}` : '';
-        const trailing = doiStr || urlStr ? ` ${doiStr || urlStr}` : '';
-        return `${authors} (${year}). ${title}. <em>${journal}</em>, ${volIssue}${pages ? `, ${pages}` : ''}.${trailing}`;
-      }
-
-      const container = it['container-title'] ? ` <em>${titleCase(it['container-title'])}</em>` : '';
-      const trailing = doiStr || urlStr ? ` ${doiStr || urlStr}` : '';
-      return `${authors} (${year}). ${title}.${container}.${trailing}`;
-    };
-
-    const getTopics = it => {
-      if (Array.isArray(it.tags) && it.tags.length) {
-        return it.tags.map(t => (t.tag || '').trim()).filter(Boolean);
-      }
-      return ['Uncategorised'];
-    };
-
-    const renderList = rows => {
-      listEl.innerHTML = rows.map(it => `<li>${formatAPA(it)}</li>`).join('');
-    };
-
-    const apply = () => {
-      let rows = DATA.slice();
-      if(currentTopic !== 'All'){
-        rows = rows.filter(it => getTopics(it).includes(currentTopic));
-      }
-      rows.sort((a,b) => {
-        const ya = +getYear(a) || 0, yb = +getYear(b) || 0;
-        return sortDir === 'desc' ? (yb - ya) : (ya - yb);
-      });
-      renderList(rows);
-    };
-
-    const buildTopics = () => {
-      const set = new Set();
-      DATA.forEach(it => getTopics(it).forEach(t => set.add(t)));
-      TOPICS = Array.from(set).sort((a,b) => a.localeCompare(b));
-      topicSel.innerHTML = `<option>All</option>` + TOPICS.map(t => `<option>${t}</option>`).join('');
-    };
-
-    topicSel.addEventListener('change', e => { currentTopic = e.target.value; apply(); });
-    sortBtn.addEventListener('click', () => {
-      sortDir = (sortDir === 'desc') ? 'asc' : 'desc';
-      sortBtn.textContent = `Sort: ${sortDir === 'desc' ? 'Newest → Oldest' : 'Oldest → Newest'}`;
-      apply();
-    });
-
-    fetch('publications.json', {cache:'no-store'})
-      .then(r => r.json())
-      .then(json => {
-        DATA = Array.isArray(json) ? json : [];
-        buildTopics();
-        apply();
-      })
-      .catch(err => {
-        listEl.innerHTML = `<li>Could not load publications. (${err.message})</li>`;
-      });
-  }
-  // --------------------------------------------------------
-
-  async function loadText(path, label){
-    if (path.endsWith('publications.txt')) {
-      contentEl.classList.remove('hidden');
-      renderPublications();
-      return;
+    // Prefetch linked text files
+    async function prefetchAll(){
+      const unique = [...new Set(Array.from(buttons, b => b.getAttribute('data-file')))].filter(Boolean);
+      await Promise.all(unique.map(async (path) => {
+        try{
+          const res = await fetch(path, {cache: 'no-store'});
+          if (!res.ok) return;
+          const txt = (await res.text()).trim();
+          TXT_CACHE.set(path, txt);
+        }catch(_){}
+      }));
     }
-    let txt;
-    if (TXT_CACHE.has(path)){
-      txt = TXT_CACHE.get(path);
-    } else {
-      try{
+
+    // Accordion: only one <details> open at a time
+    function wireAccordion(root){
+      const items = root.querySelectorAll('details');
+      if (!items.length) return;
+      items.forEach(d => {
+        d.addEventListener('toggle', () => {
+          if (!d.open) return;
+          items.forEach(other => { if (other !== d) other.removeAttribute('open'); });
+        });
+      });
+    }
+
+    // ---------- Publications (CSL-JSON) — APA 7th with sleek filter ----------
+    function renderPublications(){
+      contentEl.innerHTML = `
+        <h2>Publications</h2>
+        <div id="pubs-root">
+          <div class="pubs-bar" id="pubs-controls" role="region" aria-label="Publications filter">
+            <div class="pubs-bar__row">
+              <strong>Browse by theme:</strong>
+              <div class="pubs-pills" id="pubs-pills"></div>
+              <button id="pubs-clear" class="pill" type="button" aria-pressed="false" title="Show all">All</button>
+              <button id="pubs-sort" class="pill pubs-sort" type="button">Newest → Oldest</button>
+            </div>
+          </div>
+          <ol id="pubs-list"></ol>
+        </div>
+      `;
+
+      const pillsWrap = document.getElementById('pubs-pills');
+      const clearBtn  = document.getElementById('pubs-clear');
+      const sortBtn   = document.getElementById('pubs-sort');
+      const listEl    = document.getElementById('pubs-list');
+
+      let DATA = [];
+      let TOPICS = [];
+      let currentTopic = 'All';
+      let sortDir = 'desc';
+
+      const getYear = it =>
+        (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
+
+      const initials = given => (given || '')
+        .split(/[\s-]+/)
+        .filter(Boolean)
+        .map(part => part[0] ? (part[0].toUpperCase() + '.') : '')
+        .join(' ');
+
+      const formatAuthorsAPA = it => {
+        const authors = Array.isArray(it.author) ? it.author : [];
+        if (!authors.length) return '';
+        const formatted = authors.map(a => {
+          const fam = (a.family || '').trim();
+          const init = initials(a.given);
+          return fam && init ? `${fam}, ${init}` : fam || init || '';
+        }).filter(Boolean);
+
+        if (formatted.length <= 20) {
+          if (formatted.length === 1) return `${formatted[0]}.`;
+          return `${formatted.slice(0, -1).join(', ')}, & ${formatted.slice(-1)[0]}.`;
+        } else {
+          const first19 = formatted.slice(0, 19).join(', ');
+          const last = formatted.slice(-1)[0];
+          return `${first19}, …, & ${last}.`;
+        }
+      };
+
+      const sentenceCase = s => {
+        if (!s) return '';
+        const t = s.replace(/\s+/g,' ').trim();
+        if (!t) return '';
+        let out = t.toLowerCase();
+        out = out.charAt(0).toUpperCase() + out.slice(1);
+        out = out.replace(/: (\w)/g, (_, c) => `: ${c.toUpperCase()}`);
+        return out;
+      };
+
+      const titleCase = s => {
+        if (!s) return '';
+        return s.replace(/\w[^\s-]*/g, w => {
+          const lower = w.toLowerCase();
+          const small = ['a','an','the','and','but','or','nor','for','so','yet','on','in','to','of','by','at','vs','via'];
+          if (small.includes(lower)) return lower;
+          return w.charAt(0).toUpperCase() + w.slice(1);
+        }).replace(/(^|\s)([a-z])/g, (m, sp, ch) => sp + ch.toUpperCase());
+      };
+
+      const firstLink = it => it.URL || (it.DOI ? `https://doi.org/${it.DOI}` : '');
+
+      const formatAPA = it => {
+        const year = getYear(it);
+        const authors = formatAuthorsAPA(it);
+        const title = sentenceCase(it.title || '');
+        const doiStr = it.DOI ? `https://doi.org/${it.DOI}` : '';
+        const urlStr = (!it.DOI && it.URL) ? it.URL : '';
+
+        if ((it.type || '').includes('article')) {
+          const journal = titleCase(it['container-title'] || '');
+          const vol = it.volume ? `<em>${it.volume}</em>` : '';
+          const iss = it.issue ? `(${it.issue})` : '';
+          const pages = it.page ? it.page : '';
+          const volIssue = vol || iss ? `${vol}${iss}` : '';
+          const trailing = doiStr || urlStr ? ` ${doiStr || urlStr}` : '';
+          return `${authors} (${year}). ${title}. <em>${journal}</em>, ${volIssue}${pages ? `, ${pages}` : ''}.${trailing}`;
+        }
+        const container = it['container-title'] ? ` <em>${titleCase(it['container-title'])}</em>` : '';
+        const trailing = doiStr || urlStr ? ` ${doiStr || urlStr}` : '';
+        return `${authors} (${year}). ${title}.${container}.${trailing}`;
+      };
+
+      const getTopics = it => {
+        if (Array.isArray(it.tags) && it.tags.length) {
+          return it.tags.map(t => (t.tag || '').trim()).filter(Boolean);
+        }
+        return ['Uncategorised'];
+      };
+
+      const renderList = rows => {
+        listEl.innerHTML = rows.map(it => `<li>${formatAPA(it)}</li>`).join('');
+      };
+
+      const apply = () => {
+        let rows = DATA.slice();
+        if(currentTopic !== 'All'){
+          rows = rows.filter(it => getTopics(it).includes(currentTopic));
+        }
+        rows.sort((a,b) => {
+          const ya = +getYear(a) || 0, yb = +getYear(b) || 0;
+          return sortDir === 'desc' ? (yb - ya) : (ya - yb);
+        });
+        renderList(rows);
+
+        // update pill states
+        [...pillsWrap.querySelectorAll('.pill')].forEach(p => {
+          p.setAttribute('aria-pressed', String(p.dataset.topic === currentTopic));
+        });
+        clearBtn.setAttribute('aria-pressed', String(currentTopic === 'All'));
+      };
+
+      const buildPills = () => {
+        const set = new Set();
+        DATA.forEach(it => getTopics(it).forEach(t => set.add(t)));
+        TOPICS = Array.from(set).sort((a,b) => a.localeCompare(b));
+        pillsWrap.innerHTML = TOPICS.map(t => `<button type="button" class="pill" data-topic="${t}" aria-pressed="false">${t}</button>`).join('');
+        pillsWrap.addEventListener('click', e => {
+          const btn = e.target.closest('.pill');
+          if (!btn || !btn.dataset.topic) return;
+          currentTopic = btn.dataset.topic;
+          apply();
+        });
+        clearBtn.addEventListener('click', () => { currentTopic = 'All'; apply(); });
+      };
+
+      sortBtn.addEventListener('click', () => {
+        sortDir = (sortDir === 'desc') ? 'asc' : 'desc';
+        sortBtn.textContent = (sortDir === 'desc') ? 'Newest → Oldest' : 'Oldest → Newest';
+        apply();
+      });
+
+      fetch('publications.json', {cache:'no-store'})
+        .then(r => r.json())
+        .then(json => {
+          DATA = Array.isArray(json) ? json : [];
+          buildPills();
+          apply();
+        })
+        .catch(err => {
+          listEl.innerHTML = `<li>Could not load publications. (${err.message})</li>`;
+        });
+    }
+    // ------------------------------------------------------------------------
+
+    async function loadText(path, label){
+      if (path.endsWith('publications.txt')) {
         contentEl.classList.remove('hidden');
-        contentEl.textContent = `Loading ${label}…`;
-        const res = await fetch(path, {cache: 'no-store'});
-        if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-        txt = (await res.text()).trim();
-        TXT_CACHE.set(path, txt);
-      }catch(err){
-        contentEl.textContent = `Could not load ${label}. (${err.message})`;
+        renderPublications();
         return;
       }
+      let txt;
+      if (TXT_CACHE.has(path)){
+        txt = TXT_CACHE.get(path);
+      } else {
+        try{
+          contentEl.classList.remove('hidden');
+          contentEl.textContent = `Loading ${label}…`;
+          const res = await fetch(path, {cache: 'no-store'});
+          if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+          txt = (await res.text()).trim();
+          TXT_CACHE.set(path, txt);
+        }catch(err){
+          contentEl.textContent = `Could not load ${label}. (${err.message})`;
+          return;
+        }
+      }
+      contentEl.classList.remove('hidden');
+      contentEl.innerHTML = txt || `(No content in ${path})`;
+      wireAccordion(contentEl);
     }
-    contentEl.classList.remove('hidden');
-    contentEl.innerHTML = txt || `(No content in ${path})`;
-    wireAccordion(contentEl);
-  }
 
-  function handleClick(ev){
-    const a = ev.currentTarget;
-    const file  = a.getAttribute('data-file');
-    ev.preventDefault();
-    history.replaceState(null, '', a.getAttribute('href'));
-    buttons.forEach(btn => btn.classList.remove('active'));
-    a.classList.add('active');
-    loadText(file, a.getAttribute('data-title') || a.textContent.trim());
-  }
+    function handleClick(ev){
+      const a = ev.currentTarget;
+      const file  = a.getAttribute('data-file');
+      ev.preventDefault();
+      history.replaceState(null, '', a.getAttribute('href'));
+      buttons.forEach(btn => btn.classList.remove('active'));
+      a.classList.add('active');
+      loadText(file, a.getAttribute('data-title') || a.textContent.trim());
+    }
 
-  buttons.forEach(a => a.addEventListener('click', handleClick));
+    buttons.forEach(a => a.addEventListener('click', handleClick));
 
-  function bootFromHash(){
-    const hash = location.hash.replace('#','');
-    if(!hash) return;
-    const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
-    if (target) target.click();
-  }
-  window.addEventListener('hashchange', bootFromHash);
+    function bootFromHash(){
+      const hash = location.hash.replace('#','');
+      if(!hash) return;
+      const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
+      if (target) target.click();
+    }
+    window.addEventListener('hashchange', bootFromHash);
 
-  prefetchAll().then(bootFromHash);
-</script>
+    prefetchAll().then(bootFromHash);
+  </script>
 </body>
 </html>
