@@ -1,11 +1,34 @@
-Collaborators
+<p>
+The Sensory Intelligence Research Group collaborates across neuroscience, psychology, engineering, and computer science.
+</p>
 
-The Sensory Intelligence Research Group is a team of researchers across neuroscience, psychology, engineering, and computer science.
+<ul>
+  <li>
+    <strong>Dr Reuben Rideaux</strong>, University of Sydney — 
+    <a href="https://www.sydney.edu.au/science/our-research/research-areas/psychology/rideaux-lab.html" target="_blank" rel="noopener">Rideaux Lab</a> ·
+    <a href="https://reubenrideaux.github.io/" target="_blank" rel="noopener">Personal site</a>.
+  </li>
+  <li>
+    <strong>Dr Anthony M. Harris</strong>, The University of Queensland — 
+    <a href="https://anthonymharris.com/" target="_blank" rel="noopener">Lab website</a> ·
+    <a href="https://qbi.uq.edu.au/research/area/attention" target="_blank" rel="noopener">QBI attention area</a>.
+  </li>
+  <li>
+    <strong>Professor Paul Bays</strong>, University of Cambridge — 
+    <a href="https://www.psychol.cam.ac.uk/people/paul-bays" target="_blank" rel="noopener">Department profile</a> ·
+    <a href="https://www.paulbays.com/" target="_blank" rel="noopener">Bays Lab</a>.
+  </li>
+  <li>
+    <strong>Mr Henry Beale</strong>, The University of Queensland — 
+    <a href="https://qbi.uq.edu.au/profile/14347/henry-beale" target="_blank" rel="noopener">QBI profile</a> ·
+    <a href="https://mattingley-lab.uq-qbi-cogneuro.com/home/people/henry-beale" target="_blank" rel="noopener">Mattingley Lab page</a>.
+  </li>
+  <li>
+    <strong>Ms Ruoying (Laura) Wang</strong>, Queensland University of Technology — 
+    <a href="https://orcid.org/0009-0007-6690-0166" target="_blank" rel="noopener">ORCID record</a>.
+  </li>
+</ul>
 
-• Dr Reuben Rideaux, University of Sydney
-• Dr Anthony Harrison, University of Queensland
-• Professor Paul Bays, University of Cambridge
-• Mr Henry Beale, University of Queensland
-• Ms Laura Wang, Queensland University of Technology
-
-If you’d like to collaborate, please get in touch with Will: wharrison@usc.edu.au
+<p>
+If you’d like to collaborate, please get in touch with Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>
+</p>
