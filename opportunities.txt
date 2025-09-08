@@ -1,11 +1,17 @@
-We welcome expressions of interest from anyone, from prospective undergrad and PhD students, to postdoctoral researchers and clinical collaborators. Backgrounds spanning psychology, neuroscience, computer science, biomedical engineering, or related fields are encouraged.
+<p>
+We welcome expressions of interest from anyone — from prospective undergrad and PhD students, to postdoctoral researchers and clinical collaborators. Backgrounds spanning psychology, neuroscience, computer science, biomedical engineering, or related fields are encouraged.
+</p>
 
-Example directions
-• Probabilistic models of perception and decision making
-• Eye movement control and dynamic perceptual inference
-• Resource-limited coding: crowding, attention, memory precision
-• The impact of disorders on sensory function, and impact of sensory function on disorders
+<h3>Example Directions</h3>
+<ul>
+  <li>Probabilistic models of perception and decision making</li>
+  <li>Eye movement control and dynamic perceptual inference</li>
+  <li>Resource-limited coding: crowding, attention, memory precision</li>
+  <li>The impact of disorders on sensory function, and impact of sensory function on disorders</li>
+</ul>
 
-How to contact us:
-• Email a brief statement of interests to Will: wharrison@usc.edu.au
-• I'm always keen to jump on zoom for a chat to see what's possible!
+<h3>How to Contact Us</h3>
+<ul>
+  <li>Email a brief statement of interests to Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a></li>
+  <li>I'm always keen to jump on Zoom for a chat to see what's possible!</li>
+</ul>
