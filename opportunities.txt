@@ -1,12 +1,10 @@
-Opportunities
-
-We welcome expressions of interest from honours, PhD, and postdoctoral researchers, as well as clinical collaborators. Backgrounds spanning psychology, neuroscience, computer science, biomedical engineering, or related fields are encouraged.
+We welcome expressions of interest from anyone, from prospective undergrad and PhD students, to postdoctoral researchers and clinical collaborators. Backgrounds spanning psychology, neuroscience, computer science, biomedical engineering, or related fields are encouraged.
 
 Example directions
 • Probabilistic models of perception and decision making
 • Eye movement control and dynamic perceptual inference
 • Resource-limited coding: crowding, attention, memory precision
-• Computational psychiatry / neurology links to sensory function
+• The impact of disorders on sensory function, and impact of sensory function on disorders
 
 How to contact us:
 • Email a brief statement of interests to Will: wharrison@usc.edu.au
