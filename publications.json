@@ -1,0 +1,1104 @@
+[
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/G3R2ZKBN",
+		"type": "article-journal",
+		"container-title": "Current Biology",
+		"DOI": "10.1016/j.cub.2016.03.024",
+		"issue": "9",
+		"language": "English",
+		"page": "R353–R354",
+		"title": "Reply to Pachai et al.",
+		"URL": "http://linkinghub.elsevier.com/retrieve/pii/S0960982216302007",
+		"volume": "26",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2016",
+					5
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/M2CM7P3G",
+		"type": "article-journal",
+		"abstract": "Humans make smooth pursuit eye movements to foveate moving objects of interest. It is known that smooth pursuit alters visual processing, but there is currently no consensus on whether changes in vision are contingent on the direction the eyes are moving. We recently showed that visual crowding can be used as a sensitive measure of changes in visual processing, resulting from involvement of the saccadic eye movement system. The present paper extends these results by examining the effect of smooth pursuit eye movements on the spatial extent of visual crowding-the area over which visual stimuli are integrated. We found systematic changes in crowding that depended on the direction of pursuit and the distance of stimuli from the pursuit target. Relative to when no eye movement was made, the spatial extent of crowding increased for objects located contraversive to the direction of pursuit at an eccentricity of approximately 3<sup>\\circ$</sup>. By contrast, crowding for objects located ipsiversive to the direction of pursuit remained unchanged. There was no change in crowding during smooth pursuit for objects located approximately 7<sup>\\circ$</sup> from the fovea. The increased size of the crowding zone for the contraversive direction may be related to the distance that the fovea lags behind the pursuit target during smooth eye movements. Overall, our results reveal that visual perception is altered dynamically according to the intended destination of oculomotor commands.",
+		"container-title": "Journal of Vision",
+		"DOI": "10.1167/14.1.21",
+		"issue": "1",
+		"journalAbbreviation": "J Vision",
+		"language": "English",
+		"note": "PMID: 24453347",
+		"title": "Visual crowding is anisotropic along the horizontal meridian during smooth pursuit.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=24453347&retmode=ref&cmd=prlinks",
+		"volume": "14",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Remington",
+				"given": "Roger W"
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2014"
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/NADGMQTT",
+		"type": "article-journal",
+		"abstract": "OBJECTIVE:The aim of this study was to assess how background visual motion and the relative movement of sound affect a head-mounted display (HMD) wearer's performance at a task requiring integration of auditory and visual information. BACKGROUND:HMD users are often mobile. A commercially available speaker in a fixed location delivers auditory information affordably to the HMD user. However, previous research has shown that mobile HMD users perform poorly at tasks that require integration of visual and auditory information when sound comes from a free-field speaker. The specific cause of the poor task performance is unknown. METHOD:Participants counted audiovisual events that required integration of sounds delivered via a free-field speaker and vision on an HMD. Participants completed the task while either walking around a room, sitting in the room, or sitting inside a mobile room that allowed separate manipulation of background visual motion and speaker motion. RESULTS:Participants' accuracy at counting target audiovisual events was worse when participants were walking than when sitting at a desk, p = .032. Compared with when they were sitting at a desk, participants' accuracy at counting target audiovisual events showed a trend to be worse when they experienced a combination of background visual motion and the relative movement of sound, p = .058. CONCLUSION:Multisensory integration performance is least effective when HMD users experience a combination of background visual motion and relative movement of sound. Eye reflexes may play an important role. APPLICATION:Results apply to situations in which HMD wearers are mobile when receiving multimodal information, as in health care and military contexts.",
+		"container-title": "Human factors",
+		"DOI": "10.1177/0018720810367790",
+		"issue": "1",
+		"language": "English",
+		"note": "PMID: 20653227",
+		"page": "78–91",
+		"title": "Multisensory integration with a head-mounted display: background visual motion and sound motion.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=20653227&retmode=ref&cmd=prlinks",
+		"volume": "52",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Thompson",
+				"given": "Matthew B"
+			},
+			{
+				"family": "Sanderson",
+				"given": "Penelope M"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2010"
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/2PTLBRG7",
+		"type": "article-journal",
+		"abstract": "The receptive fields of early visual neurons are anchored in retinotopic coordinates (Hubel and Wiesel, 1962). Eye movements shift these receptive fields and therefore require that different populations of neurons encode an object's constituent features across saccades. Whether feature groupings are preserved across successive fixations or processing starts anew with each fixation has been hotly debated (Melcher and Morrone, 2003; Melcher, 2005; Knapen et al., 2009; Cavanagh et al., 2010a; 2010b; Melcher, 2010; Morris et al., 2010). Here we show that feature integration initially occurs within retinotopic coordinates, but is then conserved within a spatiotopic coordinate frame independent of where the features fall on the retinas. With human observers, we first found that the relative timing of visual features plays a critical role in determining the spatial area over which features are grouped. We exploited this temporal dependence of feature integration to show that features co-occurring within 45 ms remain grouped across eye movements. Our results thus challenge purely feed-forward models of feature integration (Pelli, 2008; Freeman and Simoncelli, 2011) that begin de novo after every eye movement, and implicate the involvement of brain areas beyond early visual cortex. The strong temporal dependence we quantify, and its link with trans-saccadic object perception, instead suggest that feature integration depends, at least in part, on feedback from higher brain areas (Mumford, 1992; Rao and Ballard, 1999; Di Lollo et al., 2000; Moore and Armstrong, 2003; Stanford et al., 2010).",
+		"container-title": "Journal of Neuroscience",
+		"DOI": "10.1523/JNEUROSCI.5252-13.2014",
+		"issue": "21",
+		"journalAbbreviation": "J Neuroscience",
+		"language": "English",
+		"page": "7351–7360",
+		"title": "Integrating retinotopic features in spatiotopic coordinates",
+		"URL": "http://www.jneurosci.org/cgi/doi/10.1523/JNEUROSCI.5252-13.2014",
+		"volume": "34",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Bex",
+				"given": "P J"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2014",
+					5
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/ITGK3CLS",
+		"type": "article-journal",
+		"abstract": "Most eye movements in the real-world redirect the foveae to objects at a new depth and thus require the co-ordination of monocular saccade amplitudes and binocular vergence eye movements. Additionally to maintain the accuracy of these oculomotor control processes across the lifespan, ongoing calibration is required to compensate for errors in foveal landing positions. Such oculomotor plasticity has generally been studied under conditions in which both eyes receive a common error signal, which cannot resolve the long-standing debate regarding whether both eyes are innervated by a common cortical signal or by a separate signal for each eye. Here we examine oculomotor plasticity when error signals are independently manipulated in each eye, which can occur naturally owing to aging changes in each eye's orbit and extra-ocular muscles, or in oculomotor dysfunctions. We nd that both rapid saccades and slow vergence eye movements are continuously recalibrated independently of one another and corrections can occur in opposite directions in each eye. Whereas existing models assume a single cortical representation of space employed for the control of both eyes, our ndings provide evidence for independent monoculomotor and binoculomotor plasticities and dissociable spatial mapping for each eye.",
+		"container-title": "Scientific Reports",
+		"DOI": "10.1038/srep31861",
+		"page": "31861",
+		"title": "Monocular and binocular contributions to oculomotor plasticity",
+		"URL": "http://www.nature.com/articles/srep31861",
+		"volume": "6",
+		"author": [
+			{
+				"family": "Maiello",
+				"given": "Guido"
+			},
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2016",
+					8
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/D2DGPCJK",
+		"type": "article-journal",
+		"abstract": "Our ability to recognize objects in peripheral vision is impaired when other objects are nearby (Bouma, 1970). This phenomenon, known as crowding, is often linked to interactions in early visual processing that depend primarily on the retinal position of visual stimuli (Pelli, 2008; Pelli and Tillman, 2008). Here we tested a new account that suggests crowding is influenced by spatial information derived from an extraretinal signal involved in eye movement preparation. We had human observers execute eye movements to crowded targets and measured their ability to identify those targets just before the eyes began to move. Beginning ∼50 ms before a saccade toward a crowded object, we found that not only was there a dramatic reduction in the magnitude of crowding, but the spatial area within which crowding occurred was almost halved. These changes in crowding occurred despite no change in the retinal position of target or flanking stimuli. Contrary to the notion that crowding depends on retinal signals alone, our findings reveal an important role for eye movement signals. Eye movement preparation effectively enhances object discrimination in peripheral vision at the goal of the intended saccade. These presaccadic changes may enable enhanced recognition of visual objects in the periphery during active search of visually cluttered environments.",
+		"container-title": "Journal of Neuroscience",
+		"DOI": "10.1523/JNEUROSCI.4172-12.2013",
+		"issue": "7",
+		"journalAbbreviation": "J Neuroscience",
+		"language": "English",
+		"note": "PMID: 23407951",
+		"page": "2927–2933",
+		"title": "Eye movement targets are released from visual crowding.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=23407951&retmode=ref&cmd=prlinks",
+		"volume": "33",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B"
+			},
+			{
+				"family": "Remington",
+				"given": "Roger W"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2013"
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/P7QXXQ9M",
+		"type": "article-journal",
+		"abstract": "When we move our eyes, images of objects are displaced on the retina, yet the visual world appears stable. Oculomotor activity just prior to an eye movement contributes to perceptual stability by providing information about the predicted location of a relevant object on the retina following a saccade [1, 2]. It remains unclear, however, whether an object's features are represented at the remapped location. Here, we exploited the phenomenon of visual crowding [3] to show that presaccadic remapping preserves the elementary features of objects at their predicted postsaccadic locations. Observers executed an eye movement and identified a letter probe flashed just before the saccade. Flanking stimuli were flashed around the location that would be occupied by the probe immediately following the saccade. Despite being positioned in the opposite visual field to the probe, these flankers disrupted observers' ability to identify the probe. Crucially, this \"remapped crowding\" interference was stronger when the flankers were visually similar to the probe than when the flanker and probe stimuli were distinct. Our findings suggest that visual processing at remapped locations is featurally dependent, providing a mechanism for achieving perceptual continuity of objects across saccades.",
+		"container-title": "Current Biology",
+		"DOI": "10.1016/j.cub.2013.03.050",
+		"issue": "9",
+		"language": "English",
+		"note": "PMID: 23562269",
+		"page": "793–798",
+		"title": "Visual crowding at a distance during predictive remapping.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=23562269&retmode=ref&cmd=prlinks",
+		"volume": "23",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Retell",
+				"given": "James D"
+			},
+			{
+				"family": "Remington",
+				"given": "Roger W"
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2013",
+					4
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/XWE86JK9",
+		"type": "article-journal",
+		"abstract": "Although we perceive a richly detailed visual world, our ability to identify individual objects is severely limited in clutter, particularly in peripheral vision. Models of such \"crowding\" have generally been driven by the phenomenological misidentifications of crowded targets: using stimuli that do not easily combine to form a unique symbol (e.g. letters or objects), observers typically confuse the source of objects and report either the target or a distractor, but when continuous features are used (e.g. orientated gratings or line positions) observers report a feature somewhere between the target and distractor. To reconcile these accounts, we develop a hybrid method of adjustment that allows detailed analysis of these multiple error categories. Observers reported the orientation of a target, under several distractor conditions, by adjusting an identical foveal target. We apply new modelling to quantify whether perceptual reports show evidence of positional uncertainty, source confusion, and featural averaging on a trial-by-trial basis. Our results show that observers make a large proportion of source-confusion errors. However, our study also reveals the distribution of perceptual reports that underlie performance in this crowding task more generally: aggregate errors cannot be neatly labelled because they are heterogeneous and their structure depends on target-distractor distance.",
+		"container-title": "Scientific Reports",
+		"DOI": "10.1038/srep45551",
+		"language": "English",
+		"note": "PMID: 28378781",
+		"page": "45551",
+		"title": "Visual crowding is a combination of an increase of positional uncertainty, source confusion, and featural averaging.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=28378781&retmode=ref&cmd=prlinks",
+		"volume": "7",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2017",
+					4
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/C2B24RZ8",
+		"type": "article-journal",
+		"container-title": "Journal of Neuroscience",
+		"DOI": "10.1523/JNEUROSCI.1567-13.2013",
+		"issue": "28",
+		"journalAbbreviation": "J Neuroscience",
+		"language": "English",
+		"title": "Releasing crowding prior to a saccade requires more than “attention”: response to van Koningsbruggen and Buonocore",
+		"URL": "http://www.jneurosci.org/cgi/doi/10.1523/JNEUROSCI.1567-13.2013",
+		"volume": "33",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B"
+			},
+			{
+				"family": "Remington",
+				"given": "Roger W"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2013",
+					7
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/XPG8P7F6",
+		"type": "article-journal",
+		"abstract": "The locations of visual objects to which we attend are initially mapped in a retinotopic frame of reference. Because each saccade results in a shift of images on the retina, however, the retinotopic mapping of spatial attention must be updated around the time of each eye movement. Mathôt and Theeuwes [1] recently demonstrated that a visual cue draws attention not only to the cue's current retinotopic location, but also to a location shifted in the direction of the saccade, the \"future-field\". Here we asked whether retinotopic and future-field locations have special status, or whether cue-related attention benefits exist between these locations. We measured responses to targets that appeared either at the retinotopic or future-field location of a brief, non-predictive visual cue, or at various intermediate locations between them. Attentional cues facilitated performance at both the retinotopic and future-field locations for cued relative to uncued targets, as expected. Critically, this cueing effect also occurred at intermediate locations. Our results, and those reported previously [1], imply a systematic bias of attention in the direction of the saccade, independent of any predictive remapping of attention that compensates for retinal displacements of objects across saccades [2].",
+		"container-title": "PLoS ONE",
+		"DOI": "10.1371/journal.pone.0045670",
+		"issue": "9",
+		"language": "English",
+		"note": "PMID: 23029175",
+		"page": "e45670",
+		"title": "Pre-saccadic shifts of visual attention.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=23029175&retmode=ref&cmd=prlinks",
+		"volume": "7",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B"
+			},
+			{
+				"family": "Remington",
+				"given": "Roger W"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2012"
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/5T255ME9",
+		"type": "article-journal",
+		"abstract": "Frontal dynamic aphasia is characterised by a profound reduction in spontaneous speech despite well-preserved naming, repetition and comprehension. Since Luria (1966, 1970) designated this term, two main forms of dynamic aphasia have been identified: one, a language-specific selection deficit at the level of word/sentence generation, associated with left inferior frontal lesions; and two, a domain-general impairment in generating multiple responses or connected speech, associated with more extensive bilateral frontal and/or frontostriatal damage. Both forms of dynamic aphasia have been interpreted as arising due to disturbances in early prelinguistic conceptual preparation mechanisms that are critical for language production. We investigate language-specific and domain-general accounts of dynamic aphasia and address two issues: one, whether deficits in multiple conceptual preparation mechanisms can co-occur; and two, the contribution of broader cognitive processes such as energization, the ability to initiate and sustain response generation over time, to language generation failure. Thus, we report patient WAL who presented with frontal dynamic aphasia in the context of progressive supranuclear palsy (PSP). WAL was given a series of experimental tests that showed that his dynamic aphasia was not underpinned by a language-specific deficit in selection or in microplanning. By contrast, WAL presented with a domain-general deficit in fluent sequencing of novel thoughts. The latter replicated the pattern documented in a previous PSP patient (Robinson, et al., 2006); however, unique to WAL, generating novel thoughts was impaired but there was no evidence of a sequencing deficit because perseveration was absent. Thus, WAL is the first unequivocal case to show a distinction between novel thought generation and subsequent fluent sequencing. Moreover, WAL's generation deficit encompassed verbal and non-verbal responses, showing a similar (but more profoundly reduced) pattern of performance to frontal patients with an energization deficit. In addition to impaired generation of novel thoughts, WAL presented with a concurrent strategy generation deficit, both falling within the second form of dynamic aphasia comprised of domain-general conceptual preparation mechanisms. Thus, within this second form of dynamic aphasia, concurrent deficits can co-occur. Overall, WAL presented with the second form of dynamic aphasia and was impaired in the generation of novel thoughts and internally-generated strategies, in the context of PSP and bilateral frontostriatal damage.",
+		"container-title": "Neuropsychologia",
+		"DOI": "10.1016/j.neuropsychologia.2015.08.001",
+		"language": "English",
+		"note": "PMID: 26247320",
+		"page": "62–75",
+		"title": "Frontal dynamic aphasia in progressive supranuclear palsy: Distinguishing between generation and fluent sequencing of novel thoughts.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=26247320&retmode=ref&cmd=prlinks",
+		"volume": "77",
+		"author": [
+			{
+				"family": "Robinson",
+				"given": "Gail A"
+			},
+			{
+				"family": "Spooner",
+				"given": "Donna"
+			},
+			{
+				"family": "Harrison",
+				"given": "William J"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2015",
+					8
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/VNZ2ECVF",
+		"type": "article-journal",
+		"abstract": "Peripheral vision is fundamentally limited not by the visibility of features, but by the spacing between them [1]. When too close together, visual features can become \"crowded\" and perceptually indistinguishable. Crowding interferes with basic tasks such as letter and face identification and thus informs our understanding of object recognition breakdown in peripheral vision [2]. Multiple proposals have attempted to explain crowding [3], and each is supported by compelling psychophysical and neuroimaging data [4-6] that are incompatible with competing proposals. In general, perceptual failures have variously been attributed to the averaging of nearby visual signals [7-10], confusion between target and distractor elements [11, 12], and a limited resolution of visual spatial attention [13]. Here we introduce a psychophysical paradigm that allows systematic study of crowded perception within the orientation domain, and we present a unifying computational model of crowding phenomena that reconciles conflicting explanations. Our results show that our single measure produces a variety of perceptual errors that are reported across the crowding literature. Critically, a simple model of the responses of populations of orientation-selective visual neurons accurately predicts all perceptual errors. We thus provide a unifying mechanistic explanation for orientation crowding in peripheral vision. Our simple model accounts for several perceptual phenomena produced by crowding of orientation and raises the possibility that multiple classes of object recognition failures in peripheral vision can be accounted for by a single mechanism.",
+		"container-title": "Current Biology",
+		"DOI": "10.1016/j.cub.2015.10.052",
+		"issue": "24",
+		"language": "English",
+		"note": "PMID: 26628010",
+		"page": "3213–3219",
+		"title": "A unifying model of orientation crowding in peripheral vision.",
+		"URL": "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&id=26628010&retmode=ref&cmd=prlinks",
+		"volume": "25",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J"
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J"
+			}
+		],
+		"issued": {
+			"date-parts": [
+				[
+					"2015",
+					12
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/9CUFQGWW",
+		"type": "article-journal",
+		"abstract": "The sensory recruitment hypothesis states that visual short-term memory is maintained in the same visual cortical areas that initially encode a stimulus' features. Although it is well established that the distance between features in visual cortex determines their visibility, a limitation known as crowding, it is unknown whether short-term memory is similarly constrained by the cortical spacing of memory items. Here, we investigated whether the cortical spacing between sequentially presented memoranda affects the fidelity of memory in humans (of both sexes). In a first experiment, we varied cortical spacing by taking advantage of the log-scaling of visual cortex with eccentricity, presenting memoranda in peripheral vision sequentially along either the radial or tangential visual axis with respect to the fovea. In a second experiment, we presented memoranda sequentially either within or beyond the critical spacing of visual crowding, a distance within which visual features cannot be perceptually distinguished due to their nearby cortical representations. In both experiments and across multiple measures, we found strong evidence that the ability to maintain visual features in memory is unaffected by cortical spacing. These results indicate that the neural architecture underpinning working memory has properties inconsistent with the known behavior of sensory neurons in visual cortex. Instead, the dissociation between perceptual and memory representations supports a role of higher cortical areas such as posterior parietal or prefrontal regions or may involve an as yet unspecified mechanism in visual cortex in which stimulus features are bound to their temporal order.\nSIGNIFICANCE STATEMENT Although much is known about the resolution with which we can remember visual objects, the cortical representation of items held in short-term memory remains contentious. A popular hypothesis suggests that memory of visual features is maintained via the recruitment of the same neural architecture in sensory cortex that encodes stimuli. We investigated this claim by manipulating the spacing in visual cortex between sequentially presented memoranda such that some items shared cortical representations more than others while preventing perceptual interference between stimuli. We found clear evidence that short-term memory is independent of the intracortical spacing of memoranda, revealing a dissociation between perceptual and memory representations. Our data indicate that working memory relies on different neural mechanisms from sensory perception.",
+		"container-title": "Journal of Neuroscience",
+		"DOI": "10.1523/JNEUROSCI.2645-17.2017",
+		"ISSN": "0270-6474, 1529-2401",
+		"issue": "12",
+		"journalAbbreviation": "J Neuroscience",
+		"language": "en",
+		"license": "Copyright © 2018 Harrison and Bays. This is an open-access article distributed under the terms of the Creative Commons Attribution License Creative Commons Attribution 4.0 International, which permits unrestricted use, distribution and reproduction in any medium provided that the original work is properly attributed.",
+		"note": "PMID: 29459370",
+		"page": "3116-3123",
+		"source": "www.jneurosci.org",
+		"title": "Visual working memory is independent of the cortical spacing between memoranda",
+		"URL": "http://www.jneurosci.org/content/38/12/3116",
+		"volume": "38",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Bays",
+				"given": "Paul M."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2018",
+					3,
+					23
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2018",
+					3,
+					21
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/CPB8RR84",
+		"type": "article-journal",
+		"abstract": "The visual system is required to compute objects from partial image structure so that figures can be segmented from their backgrounds. Although early clinical, behavioral, and modeling data suggested that such computations are performed pre-attentively, recent neurophysiological evidence suggests that surface filling-in is influenced by attention. In the present study we developed a variant of the classical Kanizsa illusory triangle to investigate whether voluntary attention modulates perceptual filling-in. Our figure consists of “pacmen” positioned at the tips of an illusory 6-point star and alternating in polarity such that two illusory triangles are implied to compete with one another within the figure. On each trial, observers were cued to attend to only one triangle, and then compared its lightness with a matching texture-defined triangle. We found that perceived lightness of the illusory shape depended on the polarity of pacmen framing the attended triangle. Our findings thus reveal that, for overlapping illusory surfaces, lightness judgements can depend on voluntary attention. Our novel stimulus may prove useful in future attempts to link neurophysiological effects to phenomenology.",
+		"container-title": "Scientific Reports",
+		"DOI": "10.1038/s41598-018-37084-7",
+		"ISSN": "2045-2322",
+		"issue": "1",
+		"language": "En",
+		"license": "2019 The Author(s)",
+		"page": "2227",
+		"source": "www.nature.com",
+		"title": "Attentional selection and illusory surface appearance",
+		"URL": "https://www.nature.com/articles/s41598-018-37084-7",
+		"volume": "9",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Ayeni",
+				"given": "Alvin J."
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2019",
+					3,
+					12
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2019",
+					2,
+					18
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/R87JR2EH",
+		"type": "article-journal",
+		"abstract": "New and evolving technologies provide great opportunities for learning. With these opportunities, though, come questions about the impact of new ways of acquiring information on our brain and mind. Many commentators argue that access to the Internet is having a persistent detrimental impact on the brain. In particular, attention has been implicated as a cognitive function that has been negatively impacted by use of digital technologies for learning. In this paper, we critique this claim by analyzing the current understanding of the cognitive neuroscience of attention and research in educational settings on how technologies are influencing learning. Across the two bodies of literature, a complex situation emerges placing doubt on the claim that the use of digital technologies for learning is negatively affecting the brain. We suggest therefore that a more systemic approach to understanding the relationship between technologies and attention involving researchers examining the relationship at different levels from the laboratory to the real world.",
+		"container-title": "The Yale Journal of Biology and Medicine",
+		"ISSN": "0044-0086",
+		"issue": "1",
+		"journalAbbreviation": "Yale J Biol Med",
+		"note": "PMID: 30923470\nPMCID: PMC6430174",
+		"page": "21-28",
+		"source": "PubMed Central",
+		"title": "The role of attention in learning in the digital age",
+		"URL": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6430174/",
+		"volume": "92",
+		"author": [
+			{
+				"family": "Lodge",
+				"given": "Jason M."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2019",
+					4,
+					9
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2019",
+					3,
+					25
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/L53ZVF4C",
+		"type": "article-journal",
+		"abstract": "I analyse the visibility of “groomed” ski runs under different lighting conditions. A model of human contrast sensitivity predicts that the spatial period of groomed snow may render it invisible in the shade or on overcast days. I confirm this prediction with visual demonstrations and make a suggestion to improve visibility.",
+		"container-title": "i-Perception",
+		"DOI": "10.1177/2041669519842895",
+		"ISSN": "2041-6695",
+		"issue": "2",
+		"journalAbbreviation": "i-Perception",
+		"language": "en",
+		"page": "2041669519842895",
+		"source": "SAGE Journals",
+		"title": "The (in)visibility of groomed ski runs",
+		"URL": "https://doi.org/10.1177/2041669519842895",
+		"volume": "10",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2019",
+					5,
+					15
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2019",
+					3,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/ZF9Y8RKE",
+		"type": "article-journal",
+		"abstract": "Discerning objects from their surrounds (i.e., figure-ground segmentation) in a way that guides adaptive behaviors is a fundamental task of the brain. Neurophysiological work has revealed a class of cells in the macaque visual cortex that may be ideally suited to support this neural computation: border ownership cells (Zhou H, Friedman HS, von der Heydt R. J Neurosci 20: 6594–6611, 2000). These orientation-tuned cells appear to respond conditionally to the borders of objects. A behavioral correlate supporting the existence of these cells in humans was demonstrated with two-dimensional luminance-defined objects (von der Heydt R, Macuda T, Qiu FT. J Opt Soc Am A Opt Image Sci Vis 22: 2222–2229, 2005). However, objects in our natural visual environments are often signaled by complex cues, such as motion and binocular disparity. Thus for border ownership systems to effectively support figure-ground segmentation and object depth ordering, they must have access to information from multiple depth cues with strict depth order selectivity. Here we measured in humans (of both sexes) border ownership-dependent tilt aftereffects after adaptation to figures defined by either motion parallax or binocular disparity. We find that both depth cues produce a tilt aftereffect that is selective for figure-ground depth order. Furthermore, we find that the effects of adaptation are transferable between cues, suggesting that these systems may combine depth cues to reduce uncertainty (Bülthoff HH, Mallot HA. J Opt Soc Am A 5: 1749–1758, 1988). These results suggest that border ownership mechanisms have strict depth order selectivity and access to multiple depth cues that are jointly encoded, providing compelling psychophysical support for their role in figure-ground segmentation in natural visual environments.NEW & NOTEWORTHY Figure-ground segmentation is a critical function that may be supported by “border ownership” neural systems that conditionally respond to object borders. We measured border ownership-dependent tilt aftereffects to figures defined by motion parallax or binocular disparity and found aftereffects for both cues. These effects were transferable between cues but selective for figure-ground depth order, suggesting that the neural systems supporting figure-ground segmentation have strict depth order selectivity and access to multiple depth cues that are jointly encoded.",
+		"container-title": "Journal of Neurophysiology",
+		"DOI": "10.1152/jn.00111.2019",
+		"ISSN": "0022-3077",
+		"issue": "5",
+		"journalAbbreviation": "Journal of Neurophysiology",
+		"page": "1917-1923",
+		"source": "physiology.org (Atypon)",
+		"title": "Border ownership-dependent tilt aftereffect for shape defined by binocular disparity and motion parallax",
+		"URL": "https://www.physiology.org/doi/full/10.1152/jn.00111.2019",
+		"volume": "121",
+		"author": [
+			{
+				"family": "Rideaux",
+				"given": "Reuben"
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2019",
+					6,
+					25
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2019",
+					3,
+					27
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/JP5KPLT5",
+		"type": "article-journal",
+		"abstract": "The extent to which visual inference is shaped by attentional goals is unclear. Voluntary attention may simply modulate the priority with which information is accessed by the higher cognitive functions involved in perceptual decision making. Alternatively, voluntary attention may influence fundamental visual processes, such as those involved in segmenting an incoming retinal signal into a structured scene of coherent objects, thereby determining perceptual organization. Here we tested whether the segmentation and integration of visual form can be determined by an observer’s goals, by exploiting a novel variant of the classical Kanizsa figure. We generated predictions about the influence of attention with a machine classifier and tested these predictions with a psychophysical response classification technique. Despite seeing the same image on each trial, observers’ perception of illusory spatial structure depended on their attentional goals. These attention-contingent illusory contours directly conflicted with other, equally plausible visual forms implied by the geometry of the stimulus, revealing that attentional selection can determine the perceived layout of a fragmented scene. Attentional goals, therefore, not only select precomputed features or regions of space for prioritized processing, but under certain conditions also greatly influence perceptual organization, and thus visual appearance.",
+		"container-title": "Attention, Perception, and Psychophysics",
+		"DOI": "10.3758/s13414-019-01678-8",
+		"ISSN": "1943-393X",
+		"issue": "5",
+		"journalAbbreviation": "Atten Percept Psychophys",
+		"language": "en",
+		"page": "1522-1531",
+		"source": "Springer Link",
+		"title": "Voluntary control of illusory contour formation",
+		"URL": "https://doi.org/10.3758/s13414-019-01678-8",
+		"volume": "81",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Rideaux",
+				"given": "Reuben"
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2019",
+					7,
+					18
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2019",
+					7,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/Y9FPXGFW",
+		"type": "article-journal",
+		"container-title": "Cortex",
+		"DOI": "10.1016/j.cortex.2019.07.011",
+		"ISSN": "0010-9452",
+		"journalAbbreviation": "Cortex",
+		"language": "en",
+		"page": "485-487",
+		"source": "ScienceDirect",
+		"title": "Segmenting processes in the human lateral geniculate nucleus",
+		"URL": "http://www.sciencedirect.com/science/article/pii/S0010945219302795",
+		"volume": "121",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2020",
+					2,
+					14
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2019",
+					12,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/A98V799L",
+		"type": "article-journal",
+		"abstract": "Accounts of working memory based on independent item representations may overlook a possible contribution of ensemble statistics, higher-order regularities of a scene such as the mean or variance of a visual attribute. Here we used change detection tasks to investigate the hypothesis that observers store ensemble statistics in working memory and use them to detect changes in the visual environment. We controlled changes to the ensemble mean or variance between memory and test displays across six experiments. We made specific predictions of observers' sensitivity using an optimal summation model that integrates evidence across separate items but does not detect changes in ensemble statistics. We found strong evidence that observers outperformed this model, but only when task difficulty was high, and only for changes in stimulus variance. Under these conditions, we estimated that the variance of items contributed to change detection sensitivity more strongly than any individual item in this case. In contrast, however, we found strong evidence against the hypothesis that the average feature value is stored in working memory: when the mean of memoranda changed, sensitivity did not differ from the optimal summation model, which was blind to the ensemble mean, in five out of six experiments. Our results reveal that change detection is primarily limited by uncertainty in the memory of individual features, but that memory for the variance of items can facilitate detection under a limited set of conditions that involve relatively high working memory demands.",
+		"container-title": "Cognition",
+		"DOI": "10.1016/j.cognition.2021.104763",
+		"ISSN": "0010-0277",
+		"journalAbbreviation": "Cognition",
+		"language": "en",
+		"page": "104763",
+		"source": "ScienceDirect",
+		"title": "Limited memory for ensemble statistics in visual change detection",
+		"URL": "https://www.sciencedirect.com/science/article/pii/S0010027721001827",
+		"volume": "214",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "McMaster",
+				"given": "Jessica M. V."
+			},
+			{
+				"family": "Bays",
+				"given": "Paul M."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2021",
+					11,
+					3
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2021",
+					9,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/X79EKUQ7",
+		"type": "article-journal",
+		"abstract": "A person's ability to recognise familiar faces is critical to their participation in many aspects of society. Following an acquired brain injury or retinal disease, however, faces can appear distorted, a phenomenon known as prosopometamorphopsia. Although case reports have described a variety of changes in the appearance of faces during prosopometamorphopsia, the inﬂuence of the disorder on face recognition has not been rigorously investigated. In the present report, we quantify how well healthy observers can recognise familiar faces that have been distorted using a parametric model of prosopometamorphopsia. Our results reveal that face recognition varies systematically with the parameters of visual distortion, which, importantly, interact with the size of the face in a nonlinear but highly predictable manner. Our ﬁndings demonstrate that prosopometamorphopsia can lead to a surprising range of changes in the appearance of faces. The impact of visual distortion on face recognition thus depends critically on the distance at which the face is viewed, which is likely to change across social and clinical contexts.",
+		"container-title": "Cortex",
+		"DOI": "10.1016/j.cortex.2021.10.008",
+		"ISSN": "00109452",
+		"journalAbbreviation": "Cortex",
+		"language": "en",
+		"page": "238-249",
+		"source": "DOI.org (Crossref)",
+		"title": "The influence of visual distortion on face recognition",
+		"URL": "https://linkinghub.elsevier.com/retrieve/pii/S0010945221003440",
+		"volume": "146",
+		"author": [
+			{
+				"family": "Dear",
+				"given": "Micaela"
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2021",
+					12,
+					14
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2022",
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/J77NUVBP",
+		"type": "article-journal",
+		"abstract": "The sensitivity of the human visual system is thought to be shaped by environmental statistics. A major endeavor in vision science, therefore, is to uncover the image statistics that predict perceptual and cognitive function. When searching for targets in natural images, for example, it has recently been proposed that target detection is inversely related to the spatial similarity of the target to its local background. We tested this hypothesis by measuring observers’ sensitivity to targets that were blended with natural image backgrounds. Targets were designed to have a spatial structure that was either similar or dissimilar to the background. Contrary to masking from similarity, we found that observers were most sensitive to targets that were most similar to their backgrounds. We hypothesized that a coincidence of phase alignment between target and background results in a local contrast signal that facilitates detection when target-background similarity is high. We confirmed this prediction in a second experiment. Indeed, we show that, by solely manipulating the phase of a target relative to its background, the target can be rendered easily visible or undetectable. Our study thus reveals that, in addition to its structural similarity, the phase of the target relative to the background must be considered when predicting detection sensitivity in natural images.",
+		"container-title": "Journal of Vision",
+		"DOI": "10.1167/jov.22.1.4",
+		"ISSN": "1534-7362",
+		"issue": "1",
+		"journalAbbreviation": "J Vision",
+		"page": "1-19",
+		"source": "Silverchair",
+		"title": "Spatial structure, phase, and the contrast of natural images",
+		"URL": "https://doi.org/10.1167/jov.22.1.4",
+		"volume": "22",
+		"author": [
+			{
+				"family": "Rideaux",
+				"given": "Reuben"
+			},
+			{
+				"family": "West",
+				"given": "Rebecca K."
+			},
+			{
+				"family": "Wallis",
+				"given": "Thomas S. A."
+			},
+			{
+				"family": "Bex",
+				"given": "Peter J."
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2022",
+					1,
+					11
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2022",
+					1,
+					10
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/JQBZHLI4",
+		"type": "article-journal",
+		"abstract": "Spatial location is believed to have a privileged role in binding features held in visual working memory. Supporting this view, Pertzov and Husain (Attention, Perception, & Psychophysics, 76(7), 1914–1924, 2014) reported that recall of bindings between visual features was selectively impaired when items were presented sequentially at the same location compared to sequentially at different locations. We replicated their experiment, but additionally tested whether the observed impairment could be explained by perceptual interference during encoding. Participants viewed four oriented bars in highly discriminable colors presented sequentially either at the same or different locations, and after a brief delay were cued with one color to reproduce the associated orientation. When we used the same timing as the original study, we reproduced its key finding of impaired binding memory in the same-location condition. Critically, however, this effect was significantly modulated by the duration of the inter-stimulus interval, and disappeared if memoranda were presented with longer delays between them. In a second experiment, we tested whether the effect generalized to other visual features, namely reporting of colors cued by stimulus shape. While we found performance deficits in the same-location condition, these did not selectively affect binding memory. We argue that the observed effects are best explained by encoding interference, and that memory for feature binding is not necessarily impaired when memoranda share the same location.",
+		"container-title": "Attention, Perception, & Psychophysics",
+		"DOI": "10.3758/s13414-021-02245-w",
+		"ISSN": "1943-393X",
+		"issue": "6",
+		"journalAbbreviation": "Atten Percept Psychophys",
+		"language": "en",
+		"page": "2377-2393",
+		"source": "Springer Link",
+		"title": "Location-independent feature binding in visual working memory for sequentially presented objects",
+		"URL": "https://doi.org/10.3758/s13414-021-02245-w",
+		"volume": "83",
+		"author": [
+			{
+				"family": "Schneegans",
+				"given": "Sebastian"
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Bays",
+				"given": "Paul M."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2022",
+					3,
+					7
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2021",
+					8,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/IC9NKMDT",
+		"type": "article-journal",
+		"abstract": "The THINGS database is a freely available stimulus set that has the potential to facilitate the generation of theory that bridges multiple areas within cognitiv...",
+		"archive_location": "Sage UK: London, England",
+		"container-title": "Perception",
+		"DOI": "10.1177/03010066221083397",
+		"issue": "4",
+		"language": "en",
+		"license": "© The Author(s) 2022",
+		"note": "publisher: SAGE PublicationsSage UK: London, England",
+		"page": "244-262",
+		"source": "journals.sagepub.com",
+		"title": "Luminance and Contrast of Images in the THINGS Database:",
+		"title-short": "Luminance and Contrast of Images in the THINGS Database",
+		"URL": "https://journals.sagepub.com/eprint/9CPFR9QQ5JJPYDFEUABR/full",
+		"volume": "51",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2022",
+					3,
+					29
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2022",
+					3,
+					16
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/3FSZP2HA",
+		"type": "article-journal",
+		"abstract": "Perception is often modelled as a process of active inference, whereby prior expectations are combined with noisy sensory measurements to estimate the structure of the world. This mathematical framework has proven critical to understanding perception, cognition, motor control, and social interaction. While theoretical work has shown how priors can be computed from environmental statistics, their neural instantiation could be realised through multiple competing encoding schemes. Using a data-driven approach, here we extract the brain’s representation of visual orientation and compare this with simulations from different sensory coding schemes. We found that the tuning of the human visual system is highly conditional on stimulus-specific variations in a way that is not predicted by previous proposals. We further show that the adopted encoding scheme effectively embeds an environmental prior for natural image statistics within the sensory measurement, providing the functional architecture necessary for optimal inference in the earliest stages of cortical processing.",
+		"container-title": "Nature Communications",
+		"DOI": "10.1038/s41467-023-41027-w",
+		"ISSN": "2041-1723",
+		"issue": "1",
+		"journalAbbreviation": "Nat Commun",
+		"language": "en",
+		"license": "2023 Springer Nature Limited",
+		"note": "number: 1\npublisher: Nature Publishing Group",
+		"page": "5320",
+		"source": "www.nature.com",
+		"title": "Neural tuning instantiates prior expectations in the human visual system",
+		"URL": "https://www.nature.com/articles/s41467-023-41027-w",
+		"volume": "14",
+		"author": [
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Bays",
+				"given": "Paul M."
+			},
+			{
+				"family": "Rideaux",
+				"given": "Reuben"
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					9,
+					19
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2023",
+					9,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/589QNSVC",
+		"type": "article-journal",
+		"abstract": "Humans have well-documented priors for many features present in nature that guide visual perception. Despite being putatively grounded in the statistical regularities of the environment, scene priors are frequently violated due to the inherent variability of visual features from one scene to the next. However, these repeated violations do not appreciably challenge visuo-cognitive function, necessitating the broad use of priors in conjunction with context-specific information. We investigated the trade-off between participants' internal expectations formed from both longer-term priors and those formed from immediate contextual information using a perceptual inference task and naturalistic stimuli. Notably, our task required participants to make perceptual inferences about naturalistic images using their own internal criteria, rather than making comparative judgements. Nonetheless, we show that observers' performance is well approximated by a model that makes inferences using a prior for low-level image statistics, aggregated over many images. We further show that the dependence on this prior is rapidly re-weighted against contextual information, even when misleading. Our results therefore provide insight into how apparent high-level interpretations of scene appearances follow from the most basic of perceptual processes, which are grounded in the statistics of natural images.",
+		"container-title": "Cognition",
+		"DOI": "10.1016/j.cognition.2023.105631",
+		"ISSN": "0010-0277",
+		"journalAbbreviation": "Cognition",
+		"page": "105631",
+		"source": "ScienceDirect",
+		"title": "The influence of natural image statistics on upright orientation judgements",
+		"URL": "https://www.sciencedirect.com/science/article/pii/S0010027723002652",
+		"volume": "242",
+		"author": [
+			{
+				"family": "A-Izzeddin",
+				"given": "Emily J."
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					10,
+					10
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2024",
+					1,
+					1
+				]
+			]
+		}
+	},
+	{
+		"id": "http://zotero.org/users/local/JnHi4aWq/items/YPMSL9I7",
+		"type": "article-journal",
+		"abstract": "The mechanisms that enable humans to evaluate their confidence across a range of different decisions remain poorly understood. To bridge this gap in understanding, we used computational modelling to investigate the processes that underlie confidence judgements for perceptual decisions and the extent to which these computations are the same in the visual and auditory modalities. Participants completed two versions of a categorisation task with visual or auditory stimuli and made confidence judgements about their category decisions. In each modality, we varied both evidence strength, (i.e., the strength of the evidence for a particular category) and sensory uncertainty (i.e., the intensity of the sensory signal). We evaluated several classes of computational models which formalise the mapping of evidence strength and sensory uncertainty to confidence in different ways: 1) unscaled evidence strength models, 2) scaled evidence strength models, and 3) Bayesian models. Our model comparison results showed that across tasks and modalities, participants take evidence strength and sensory uncertainty into account in a way that is consistent with the scaled evidence strength class. Notably, the Bayesian class provided a relatively poor account of the data across modalities, particularly in the more complex categorisation task. Our findings suggest that a common process is used for evaluating confidence in perceptual decisions across domains, but that the parameter settings governing the process are tuned differently in each modality. Overall, our results highlight the impact of sensory uncertainty on confidence and the unity of metacognitive processing across sensory modalities.",
+		"container-title": "PLOS Computational Biology",
+		"DOI": "10.1371/journal.pcbi.1011245",
+		"ISSN": "1553-7358",
+		"issue": "7",
+		"journalAbbreviation": "PLOS Computational Biology",
+		"language": "en",
+		"note": "publisher: Public Library of Science",
+		"page": "e1011245",
+		"source": "PLoS Journals",
+		"title": "Modality independent or modality specific? Common computations underlie confidence judgements in visual and auditory decisions",
+		"title-short": "Modality independent or modality specific?",
+		"URL": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1011245",
+		"volume": "19",
+		"author": [
+			{
+				"family": "West",
+				"given": "Rebecca K."
+			},
+			{
+				"family": "Harrison",
+				"given": "William J."
+			},
+			{
+				"family": "Matthews",
+				"given": "Natasha"
+			},
+			{
+				"family": "Mattingley",
+				"given": "Jason B."
+			},
+			{
+				"family": "Sewell",
+				"given": "David K."
+			}
+		],
+		"accessed": {
+			"date-parts": [
+				[
+					"2023",
+					11,
+					3
+				]
+			]
+		},
+		"issued": {
+			"date-parts": [
+				[
+					"2023",
+					7,
+					14
+				]
+			]
+		}
+	}
+]

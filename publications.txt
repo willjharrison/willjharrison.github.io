@@ -1,3 +1,4 @@
-Publications
-
-Coming soon
+<div id="pubs-root">
+  <div id="pubs-controls"></div>
+  <ol id="pubs-list"></ol>
+</div>
