@@ -19,84 +19,82 @@
       --pad-x: clamp(16px, 4vw, 40px);
       --gap: 22px;
     }
+
+    /* Base */
+    *{ box-sizing: border-box; }
     body{
       margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-main);
       display:flex; flex-direction:column; min-height:100vh;
     }
+
+    /* Header + Nav */
     header{
       position:sticky; top:0; z-index:10; background:var(--bg);
-      padding: var(--pad-x) var(--pad-x) calc(var(--gap) * 1.5);
+      padding: var(--pad-x) var(--pad-x) calc(var(--gap) * 1.2);
       text-align:center;
     }
     .title{ font-size:var(--title-size); margin:0 0 var(--gap) 0; }
     .subtitle{ font-size:var(--subtitle-size); color:var(--muted); margin:0 0 var(--gap) 0; }
-    .actions {
-  display: flex;
-  gap: 8px;
-  justify-content: center;
-  flex-wrap: nowrap;
-}
-.btn {
-  flex: 1 1 auto;   /* allow buttons to shrink */
-  min-width: max-content; /* prevent text from breaking */
-}
-    .btn{ padding:10px 16px; border:1px solid var(--fg); border-radius:6px; text-decoration:none; color:var(--fg); cursor:pointer; background:transparent; }
+
+    .actions{
+      display:flex; gap:8px; justify-content:center; flex-wrap:nowrap;
+      overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin;
+      padding-bottom:2px;
+    }
+    .btn{
+      flex:0 0 auto; /* keep one row */
+      padding:10px 16px; border:1px solid var(--fg); border-radius:6px;
+      text-decoration:none; color:var(--fg); background:transparent; cursor:pointer;
+      white-space:nowrap;
+    }
     .btn:hover{ background:var(--accent); color:#000; }
-    .btn.active {
-        background: var(--accent);
-        color: #D1FFEC;
-        font-weight: bold;
-    }
+    .btn.active{ background:var(--accent); color:#D1FFEC; font-weight:bold; }
+
+    /* Main content area */
     main{ flex:1; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad-x); }
-    #content{ margin-top:calc(var(--gap)*2); text-align:left; max-width:700px; margin-left:auto; margin-right:auto; white-space:pre-wrap; line-height:1.4; }
-
-    #content h1, #content h2, #content h3{
-      text-align:center; font-weight:700; margin: 1.1em 0 0.6em;
+    #content{
+      margin-top:calc(var(--gap)*1.5);
+      text-align:left; max-width:760px; margin-left:auto; margin-right:auto;
+      white-space:normal; line-height:1.45;
     }
-    
-/* Standardize paragraph spacing: only add a bottom margin if followed by another paragraph */
-#content p {
-  margin-top: 0;
-  margin-bottom: 0.1em;
-  line-height: 1.25;
-}
 
-/* Remove extra space between headings and following paragraphs */
-#content h2 + p, #content h3 + p {
-  margin-top: 0;
-}
+    /* Headings inside loaded content */
+    #content h1, #content h2, #content h3{
+      text-align:center; font-weight:700; margin: 1em 0 0.5em;
+    }
+
+    /* Paragraph spacing inside loaded content */
+    #content p{ margin: 0.35em 0 0.5em; }
+
+    /* Details/Summary (collapsible) — TIGHT */
+    #content details{
+      margin: 0.5em 0;
+      border: 1px solid color-mix(in srgb, var(--muted) 70%, transparent);
+      border-radius:6px;
+      padding: 0.35em 0.55em;
+      background: color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+    #content details[open]{ background: color-mix(in srgb, var(--accent) 18%, transparent); }
+
+    /* Tighten the gap between summary and the first element after it */
+    #content details > summary{
+      cursor:pointer; font-weight:700; list-style:revert; /* keep default marker */
+      margin:0; padding: 0.15em 0;
+    }
+    #content details > summary + *{
+      margin-top: 0.25em !important; /* << key line that collapses the big gap */
+    }
+
+    /* Paragraphs inside details */
+    #content details p{ margin: 0.25em 0 0.5em; }
+
+    /* Footer */
     footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
     .hidden{ display:none; }
 
-  
-summary {
-  cursor: pointer;
-  font-weight: bold;
-}
-details[open] {
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
-}
-    details {
-  margin: 0.4em 0;              /* less outer margin */
-  border: 1px solid var(--muted);
-  border-radius: 6px;
-  padding: 0.4em 0.2em;         /* less padding */
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
-}
-
-details[open] {
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
-}
-
-summary {
-  cursor: pointer;
-  font-weight: bold;
-  margin: 0;                    /* remove extra spacing */
-}
-
-details p {
-  margin: 0.2em 0 0.2em;        /* tighter paragraph spacing inside */
-}
+    @media (prefers-reduced-motion: reduce){
+      *{ scroll-behavior:auto; }
+    }
   </style>
 </head>
 <body>
@@ -104,12 +102,12 @@ details p {
     <h1 class="title">Sensory Intelligence Research Group</h1>
     <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
     <nav class="actions" aria-label="Primary">
-      <a class="btn" href="#about" data-file="about.txt" data-title="About">About</a>
-      <a class="btn" href="#research" data-file="research-topics.txt" data-title="Research">Research Themes</a>
-      <a class="btn" href="#pushingback" data-file="pushingback.txt" data-title="Pushing back on AI">Pushing Back On A.I.</a>
-      <a class="btn" href="#publications" data-file="publications.txt" data-title="Publications">Publications</a>
-      <a class="btn" href="#collaborators" data-file="collaborators.txt" data-title="Collaborators">Collaborators</a>
-      <a class="btn" href="#opportunities" data-file="opportunities.txt" data-title="Opportunities">Opportunities</a>
+      <a class="btn" href="#about"        data-file="about.txt"           data-title="About">About</a>
+      <a class="btn" href="#research"     data-file="research-topics.txt" data-title="Research Themes">Research Themes</a>
+      <a class="btn" href="#pushingback"  data-file="pushingback.txt"     data-title="Pushing back on AI">Pushing Back On A.I.</a>
+      <a class="btn" href="#publications" data-file="publications.txt"    data-title="Publications">Publications</a>
+      <a class="btn" href="#collaborators"data-file="collaborators.txt"   data-title="Collaborators">Collaborators</a>
+      <a class="btn" href="#opportunities"data-file="opportunities.txt"   data-title="Opportunities">Opportunities</a>
     </nav>
   </header>
 
@@ -122,21 +120,24 @@ details p {
   </footer>
 
   <script>
+    // Year
     document.getElementById('y').textContent = new Date().getFullYear();
 
+    // Elements + cache
     const contentEl = document.getElementById('content');
-    const buttons = document.querySelectorAll('.actions .btn[data-file]');
+    const buttons   = document.querySelectorAll('.actions .btn[data-file]');
     const TXT_CACHE = new Map();
 
+    // Prefetch text files for snappy clicks
     async function prefetchAll(){
       const unique = [...new Set(Array.from(buttons, b => b.getAttribute('data-file')))].filter(Boolean);
       await Promise.all(unique.map(async (path) => {
         try{
           const res = await fetch(path, {cache: 'no-store'});
-          if(!res.ok) return;
+          if (!res.ok) return;
           const txt = (await res.text()).trim();
           TXT_CACHE.set(path, txt);
-        }catch(_){ }
+        }catch(_){}
       }));
     }
 
@@ -167,31 +168,30 @@ details p {
 
     function handleClick(ev){
       const a = ev.currentTarget;
-      const file = a.getAttribute('data-file');
+      const file  = a.getAttribute('data-file');
       const label = a.getAttribute('data-title') || a.textContent.trim();
       ev.preventDefault();
       history.replaceState(null, '', a.getAttribute('href'));
-    
-      // Remove active class from all buttons
+
+      // Highlight active
       buttons.forEach(btn => btn.classList.remove('active'));
-    
-      // Add active class to the clicked button
       a.classList.add('active');
-    
+
       loadText(file, label);
     }
 
     buttons.forEach(a => a.addEventListener('click', handleClick));
 
+    // Load deep-link on open and when hash changes
     function bootFromHash(){
       const hash = location.hash.replace('#','');
       if(!hash) return;
       const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
-      if(target) target.click();
+      if (target) target.click();
     }
-
     window.addEventListener('hashchange', bootFromHash);
-    prefetchAll().then(() => bootFromHash());
+
+    prefetchAll().then(bootFromHash);
   </script>
 </body>
 </html>
