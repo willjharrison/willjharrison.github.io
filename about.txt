@@ -7,7 +7,7 @@ You can read more on his <a href="https://www.usc.edu.au/staff/dr-will-harrison"
 </p>
 <h3>What We Study</h3>
 <p>
-We are fascinated by the <em>phenomenological experience</em> of our senses. For example, there is <i>feeling<i/> of seeing, a qualia. We ask how these rich experiences emerge from neural populations: how groups of neurons encode and combine information sensed from the environment, and how these computations shape both <strong>perception</strong> and <strong>decision making</strong>. By studying how neural codes determine perception and cognition, we aim to explain not just the mechanics of the brain, but the very nature of how the world is experienced.
+We are fascinated by the <em>phenomenological experience</em> of our senses. For example, there is <i>feeling</i> of seeing, a qualia. We ask how these rich experiences emerge from neural populations: how groups of neurons encode and combine information sensed from the environment, and how these computations shape both <strong>perception</strong> and <strong>decision making</strong>. By studying how neural codes determine perception and cognition, we aim to explain not just the mechanics of the brain, but the very nature of how the world is experienced.
 </p>
 <h3>Why It Matters</h3>
 <p>
