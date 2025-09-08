@@ -1,13 +1,30 @@
-Sensory Intelligence Research Group
-School of Health, University of the Sunshine Coast
+<h2>About</h2>
 
-We are an interdisciplinary group led by Dr Will Harrison, PhD, drawing on cognitive science, neuroscience, and mathematical modelling to understand how biological sensory systems construct useful representations of the world. We study the algorithms that populations of neurons might use to encode and combine information, and how those computations manifest in perception and decision making. We also aim to translate these insights to health—seeking principled ways to understand, detect, and improve sensory and cognitive disorders.
+<p>
+The human brain is the most complex machine in the known universe.  
+Yet, thanks to advances in neuroscience, psychology, and computation, we now have the tools to begin understanding it at every level.  
+At the <strong>Sensory Intelligence Research Group</strong>, we see human experience as a kind of problem solving — stretching all the way from the activity of single neurons to the choices people make in daily life.
+</p>
 
-Focus themes
-• Neural population coding and uncertainty
-• Perception under resource limits (e.g., crowding, attention, working memory)
-• Dynamic inference across eye movements
-• Bayesian models of perceptual decision making
-• Scary psychophysics (coming soon!)
+<p>
+Our mission is to work across levels of explanation — empirical, theoretical, and even philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.
+</p>
 
-Contact: wharrison@usc.edu.au
+<p>
+The group is led by <strong>Dr Will Harrison</strong> at the University of the Sunshine Coast.  
+You can read more on his <a href="https://www.usc.edu.au/staff/dr-will-harrison" target="_blank" rel="noopener">staff profile</a>.
+</p>
+
+<h3>What We Study</h3>
+<p>
+We are fascinated by the <em>phenomenological experience</em> of our senses — what it feels like to see, hear, and perceive the world around us.  
+We ask how these rich experiences emerge from neural populations: how groups of neurons encode and combine information, and how these computations shape both <strong>perception</strong> and <strong>decision making</strong>.  
+By studying this link between neural code and lived experience, we aim to explain not just the mechanics of the brain, but the very nature of how the world is experienced.
+</p>
+
+<h3>Why It Matters</h3>
+<p>
+Understanding these computations is not just a scientific challenge — it is also a path to impact.  
+We aim to translate our insights to health, seeking principled ways to understand, detect, and improve sensory and cognitive disorders.  
+By bridging basic science and application, we hope to contribute to healthier minds and more informed approaches to human well-being.
+</p>
