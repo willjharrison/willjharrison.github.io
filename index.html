@@ -172,10 +172,16 @@
     const contentEl = document.getElementById('content');
     const buttons   = document.querySelectorAll('.actions .btn[data-file]');
     const TXT_CACHE = new Map();
-
+const HIDDEN_ROUTES = {
+  honours: { file: 'Honours at UniSC.txt', title: 'Honours at UniSC' }
+};
     // Prefetch linked text files
     async function prefetchAll(){
-      const unique = [...new Set(Array.from(buttons, b => b.getAttribute('data-file')))].filter(Boolean);
+      const unique = [
+  ...new Set(Array.from(buttons, b => b.getAttribute('data-file'))).filter(Boolean)),
+  ...Object.values(HIDDEN_ROUTES).map(r => r.file)
+];
+      
       await Promise.all(unique.map(async (path) => {
         try{
           const res = await fetch(path, {cache: 'no-store'});
@@ -398,11 +404,21 @@
     buttons.forEach(a => a.addEventListener('click', handleClick));
 
     function bootFromHash(){
-      const hash = location.hash.replace('#','');
-      if(!hash) return;
-      const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
-      if (target) target.click();
-    }
+  const hash = location.hash.replace('#','');
+  if(!hash) return;
+
+  // Try visible buttons first
+  const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
+  if (target) { target.click(); return; }
+
+  // Fallback: hidden routes
+  if (HIDDEN_ROUTES[hash]){
+    const { file, title } = HIDDEN_ROUTES[hash];
+    contentEl.classList.remove('hidden');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    loadText(file, title);
+  }
+}
     window.addEventListener('hashchange', bootFromHash);
 
     prefetchAll().then(bootFromHash);
