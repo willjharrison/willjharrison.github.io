@@ -1,0 +1,58 @@
+<section id="honours-with-will">
+  <header>
+    <h1>Thinking of doing your Honours thesis with me?</h1>
+    <p>
+      I supervise Honours students in the Psychology program at the
+      <strong>University of the Sunshine Coast (UniSC)</strong>.
+      If you choose to work with me, your Honours research will be conducted under the
+      <a href="https://www.usc.edu.au/study/courses-and-programs/courses/course-library/psy/psy408a-research-dissertation-a" target="_blank" rel="noopener">PSY408A</a> /
+      <a href="https://www.usc.edu.au/study/courses-and-programs/courses/course-library/psy/psy408b-research-dissertation-b" target="_blank" rel="noopener">PSY408B</a>
+      Research Dissertation sequence, which is the core of the Honours thesis at UniSC.
+    </p>
+    <p>
+      In <strong>PSY408A</strong> (first trimester), you will develop and begin your research proposal:
+      reviewing literature, choosing measures, planning methods, seeking ethical approval, and defining your question.
+      In <strong>PSY408B</strong> (second trimester), you will collect data, perform the analyses, and write up your dissertation.
+    </p>
+  </header>
+
+  <article>
+    <h2>FAQs</h2>
+
+    <h3>How many students do you take?</h3>
+    <p>
+      Each year I supervise between <strong>3 and 5</strong> Honours students. This allows me to give
+      each student plenty of individual attention while also building a small, supportive peer group.
+    </p>
+
+    <h3>What kinds of projects have students done before?</h3>
+    <p>
+      Past projects have covered perception, cognition, and statistics—for example:
+      detecting patterns in noisy environments, how memory limits shape decision-making,
+      and how eye movements influence what we see. Projects typically involve behavioural experiments
+      with careful analysis, and sometimes computational modelling.
+    </p>
+
+    <h3>Will you give me a project, or do I design my own?</h3>
+    <p>
+      I can provide a project idea if you’d like a clear starting point. However, the best projects usually
+      come from a conversation between us. I like to explore options and refine the idea together so the project
+      feels genuinely collaborative and yours.
+    </p>
+
+    <h3>Do I need coding or maths skills?</h3>
+    <p>
+      Not at all. Some projects use coding or statistics more heavily, but I will guide you through anything
+      you need to learn. You don’t need to be a programmer or a maths expert to do well.
+    </p>
+
+    <h3>Will I get to publish my thesis?</h3>
+    <p>
+      Some Honours theses I’ve supervised have been published as journal articles. That said, Honours is
+      already demanding—there’s no expectation to publish during the year. If a paper is appropriate,
+      we can work on it <em>after</em> Honours, and publication typically takes <strong>1–2 years</strong>.
+      Your priority should be producing a solid piece of research and developing your skills; any publication
+      later is a fantastic bonus.
+    </p>
+  </article>
+</section>
