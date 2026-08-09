@@ -132,7 +132,7 @@
       margin-bottom: 60px;
     }
 
-        /* Kanizsa Illusion Frame for Subheadings */
+    /* Kanizsa Illusion Frame for Subheadings */
     h2 {
       position: relative;
       display: inline-block;
@@ -302,6 +302,7 @@
       <li><a href="#pushingback">Pushing Back</a></li>
       <li><a href="#research">Research</a></li>
       <li><a href="#publications">Publications</a></li>
+      <li><a href="#funding">Funding</a></li>
       <li><a href="#people">Collaborators</a></li>
     </ul>
   </nav>
@@ -368,6 +369,15 @@
       <div id="pubs-container">Loading publications...</div>
     </section>
 
+    <!-- Funding Section -->
+    <section id="funding">
+      <h2>Funding</h2>
+      <ul>
+        <li><strong>2026–2028:</strong> Australian Research Council (ARC) Discovery Project ($438,000) — Exploring how high-dimensional visual experience arises from low-dimensional retinal images.</li>
+        <li><strong>2026:</strong> UniSC LAUNCH Grant — Supporting interdisciplinary research initiatives including projects investigating creativity, movement, and cultural productions.</li>
+      </ul>
+    </section>
+
     <!-- Collaborators & Opportunities -->
     <section id="people">
       <h2>Collaborators & Opportunities</h2>
@@ -402,7 +412,7 @@
         this.cx = Math.random() * (window.innerWidth - 300) + 150;
         this.cy = Math.random() * (window.innerHeight - 300) + 150;
         this.radius = Math.random() * 120 + 50;
-        this.discSize = Math.random() * 147 + 8;
+        this.discSize = Math.random() * 47 + 8;
         this.softness = Math.random() * 0.8 + 0.1; 
 
         this.speed = (Math.random() * 0.02 + 0.008) * (Math.random() < 0.5 ? 1 : -1);
@@ -453,7 +463,7 @@
     }
 
     const pairs = [];
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       pairs.push(new DiscPair());
     }
 
