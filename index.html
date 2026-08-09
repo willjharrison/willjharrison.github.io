@@ -42,6 +42,62 @@
       opacity: 0.35;
     }
 
+    /* Floating Navigation Shortcut Menu */
+    .shortcut-nav {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+    }
+
+    .shortcut-nav span {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .shortcut-nav ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .shortcut-nav li {
+      margin-bottom: 6px;
+    }
+
+    .shortcut-nav li:last-child {
+      margin-bottom: 0;
+    }
+
+    .shortcut-nav a {
+      font-size: 0.9rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .shortcut-nav a:hover {
+      text-decoration: underline;
+    }
+
+    /* Hide shortcut menu gracefully on small mobile screens */
+    @media (max-width: 1100px) {
+      .shortcut-nav {
+        display: none;
+      }
+    }
+
     header {
       max-width: var(--max-w);
       margin: 60px auto 40px;
@@ -185,6 +241,18 @@
 
   <canvas id="bg-canvas"></canvas>
 
+  <!-- Floating Shortcut Menu -->
+  <nav class="shortcut-nav">
+    <span>Jump to</span>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#pushingback">Pushing Back</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#publications">Publications</a></li>
+      <li><a href="#people">Collaborators</a></li>
+    </ul>
+  </nav>
+
   <header>
     <h1 class="title">Sensory Intelligence Research Group</h1>
     <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
@@ -260,7 +328,7 @@
   </footer>
 
   <!-- Background Discs Animation Script -->
-       <script>
+  <script>
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
 
