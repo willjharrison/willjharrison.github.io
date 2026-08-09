@@ -4,424 +4,303 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Sensory Intelligence Research Group</title>
-  <meta name="description" content="Sensory Intelligence Research Group — minimal, responsive landing page." />
+  <meta name="description" content="Sensory Intelligence Research Group — University of the Sunshine Coast." />
 
   <style>
-    :root{
-      /* Core palette */
-      --bg: #F5F5F5;
-      --fg: #274D75;
-      --accent: #4B0066;
-      --muted: #A64B32;
-
-      /* Menu colours */
-      --menu-fg: #006CBD;
-      --menu-border: #172E3B;
-      --menu-bg: transparent;
-      --menu-hover-bg: #A6D1FF;
-      --menu-hover-fg: #274D75;
-      --menu-active-bg: #274D75;
-      --menu-active-fg: #A6D1FF;
-
-      /* Publications filter bar */
-      --filter-bg: color-mix(in srgb, var(--accent) 14%, transparent);
-      --filter-border: color-mix(in srgb, var(--fg) 25%, transparent);
-      --pill-bg: #fff;
-      --pill-fg: var(--fg);
-      --pill-active-bg: var(--menu-active-bg);
-      --pill-active-fg: var(--menu-active-fg);
-
-      /* Fonts and sizing */
-      --font-main: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      --title-size: clamp(2rem, 4vw, 3rem);
-      --subtitle-size: clamp(1rem, 2.4vw, 1.35rem);
-      --max-w: 1200px;
-      --pad-x: clamp(16px, 4vw, 40px);
-      --gap: 22px;
-      --radius: 10px;
+    :root {
+      --bg: #FAFAFA;
+      --fg: #1a1a1a;
+      --muted: #555555;
+      --accent: #274D75;
+      --border: #e0e0e0;
+      --max-w: 900px;
+      --pad-x: 24px;
+      --font-main: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    *{ box-sizing: border-box; }
-    body{
-      margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-main);
-      display:flex; flex-direction:column; min-height:100vh;
+    * { box-sizing: border-box; }
+    
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-main);
+      line-height: 1.6;
+      padding: 0 var(--pad-x);
     }
 
-    header{
-      position:sticky; top:0; z-index:10; background:var(--bg);
-      padding: var(--pad-x) var(--pad-x) calc(var(--gap) * 1);
-      text-align:center;
+    header {
+      max-width: var(--max-w);
+      margin: 60px auto 40px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 30px;
     }
-    .title{ font-size:var(--title-size); margin:0 0 var(--gap) 0; }
-    .subtitle{ font-size:var(--subtitle-size); color:var(--muted); margin:0 0 var(--gap) 0; }
 
-    /* Menu buttons */
-    .actions{
-      display:flex; gap:8px; justify-content:center; flex-wrap:nowrap;
-      overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin;
-      padding-bottom:2px;
+    h1.title {
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--accent);
+      margin: 0 0 10px 0;
     }
-    .btn{
-      flex:0 0 auto;
-      padding:10px 16px;
-      border:1px solid var(--menu-border);
-      border-radius:6px;
-      text-decoration:none;
-      color:var(--menu-fg);
-      background:var(--menu-bg);
-      cursor:pointer;
-      white-space:nowrap;
-      transition: background .2s, color .2s, transform .05s ease-out;
-    }
-    .btn:hover{ background:var(--menu-hover-bg); color:var(--menu-hover-fg); }
-    .btn:active{ transform: translateY(1px); }
-    .btn.active{ background:var(--menu-active-bg); color:var(--menu-active-fg); font-weight:bold; }
 
-    main{ flex:1; max-width:var(--max-w); margin:0 auto; padding:0 var(--pad-x); }
-    #content{
-      margin-top:calc(var(--gap)*1.5);
-      text-align:justify; max-width:760px; margin-left:auto; margin-right:auto;
-      white-space:normal; line-height:1.45;
+    p.subtitle {
+      font-size: clamp(1.1rem, 2vw, 1.25rem);
+      color: var(--muted);
+      margin: 0;
     }
-    #content h1, #content h2, #content h3{
-      text-align:center; font-weight:700; margin: 1em 0 0.5em;
-    }
-    #content p{ margin: 0.35em 0 0.5em; }
 
-    /* Collapsibles */
-    #content details{
-      margin: 0.5em 0;
-      border: 1px solid color-mix(in srgb, var(--muted) 70%, transparent);
-      border-radius:6px;
-      padding: 0.35em 0.55em;
-      background: color-mix(in srgb, var(--accent) 10%, transparent);
+    main {
+      max-width: var(--max-w);
+      margin: 0 auto;
     }
-    #content details[open]{ background: color-mix(in srgb, var(--accent) 10%, transparent); }
-    #content details > summary{
-      cursor:pointer; font-weight:700; list-style:revert;
-      margin:0; padding:0.15em 0;
-    }
-    #content details > summary + *{ margin-top:0.25em !important; }
-    #content details p{ margin: 0.25em 0 0.5em; }
 
-    /* Publications UI */
-    .pubs-bar{
-      display:flex; flex-direction:column; gap:.6rem;
-      background: var(--filter-bg);
-      border: 1px solid var(--filter-border);
-      border-radius: var(--radius);
-      padding: .8rem .9rem;
-      margin: .2rem 0 1.1rem;
+    section {
+      margin-bottom: 60px;
     }
-    .pubs-bar__row{
-      display:flex; gap:.5rem; align-items:center; flex-wrap:wrap;
-    }
-    .pubs-pills{
-      display:flex; gap:.4rem; flex-wrap:wrap;
-    }
-    .pill{
-      appearance:none; border:1px solid var(--filter-border);
-      background: var(--pill-bg); color: var(--pill-fg);
-      padding:.28rem .6rem; border-radius: 999px; cursor:pointer;
-      font-size:.95rem; line-height:1;
-      transition: background .15s, color .15s, border-color .15s, transform .05s;
-    }
-    .pill:hover{ border-color: var(--menu-active-bg); }
-    .pill[aria-pressed="true"]{
-      background: var(--pill-active-bg);
-      color: var(--pill-active-fg);
-      border-color: var(--pill-active-bg);
-      font-weight:600;
-    }
-    .pubs-sort{
-      margin-left:auto;
-    }
-    #pubs-list { padding-left: 1.2rem; }
-    #pubs-list li { margin: 0.4em 0; }
 
-    footer{ text-align:center; padding:20px; font-size:.9rem; opacity:.7; margin-top:auto; }
-    .hidden{ display:none; }
+    h2 {
+      font-size: 1.5rem;
+      border-bottom: 2px solid var(--fg);
+      padding-bottom: 6px;
+      margin-top: 50px;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    p, li {
+      font-size: 1.05rem;
+      color: #333;
+    }
+
+    /* Research Grid */
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .research-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .research-card h3 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .research-card p {
+      font-size: 0.95rem;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    /* Callout box for Pushing Back on AI */
+    .callout {
+      background: #f0f4f8;
+      border-left: 4px solid var(--accent);
+      padding: 24px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+
+    /* Publications Styling */
+    .pubs-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button.sort-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.sort-btn:hover {
+      background: #eee;
+    }
+
+    #pubs-list {
+      padding-left: 20px;
+    }
+
+    #pubs-list li {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      max-width: var(--max-w);
+      margin: 0 auto 60px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
+
   <header>
     <h1 class="title">Sensory Intelligence Research Group</h1>
     <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
-    <nav class="actions" aria-label="Primary">
-      <a class="btn" href="#about"        data-file="about.txt"           data-title="About">About</a>
-      <a class="btn" href="#research"     data-file="research-topics.txt" data-title="Research Themes">Research Themes</a>
-      <a class="btn" href="#pushingback"  data-file="pushingback.txt"     data-title="Pushing back on AI">Pushing Back On A.I.</a>
-      <a class="btn" href="#publications" data-file="publications.txt"    data-title="Publications">Publications</a>
-      <a class="btn" href="#collaborators"data-file="collaborators.txt"   data-title="Collaborators">Collaborators</a>
-      <a class="btn" href="#opportunities"data-file="opportunities.txt"   data-title="Opportunities">Opportunities</a>
-    </nav>
   </header>
 
   <main>
-    <section id="content" class="hidden" aria-live="polite"></section>
+    <!-- About Section -->
+    <section id="about">
+      <h2>About</h2>
+      <p>The <strong>Sensory Intelligence Research Group</strong> is interested in understanding how the brain gives rise to our thoughts, feelings, and actions[span_0](start_span)[span_0](end_span). Led by <strong>Dr Will Harrison</strong> at the University of the Sunshine Coast[span_1](start_span)[span_1](end_span), our mission is to work across levels of explanation — empirical, theoretical, and philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.</p>
+    </section>
+
+    <!-- Pushing Back on AI Callout -->
+    <section id="pushingback">
+      <h2>Pushing Back On A.I.</h2>
+      <div class="callout">
+        <p style="margin-top:0;">Modern artificial intelligence has achieved remarkable feats, but we suggest it is not yet fit for purpose for understanding many topics in neuroscience and cognition[span_2](start_span)[span_2](end_span). <strong>We cannot explain the brain by simply comparing it to another system that is itself opaque and requires entire fields to interpret[span_3](start_span)[span_3](end_span).</strong></p>
+        <p style="margin-bottom:0;">Rather than substituting one black box for another, we ground our explanations in biological data and theoretical principles[span_4](start_span)[span_4](end_span). We study what neurons compute, how populations encode information, and how these processes support human experience[span_5](start_span)[span_5](end_span).</p>
+      </div>
+    </section>
+
+    <!-- Research Themes Grid -->
+    <section id="research">
+      <h2>Research Themes</h2>
+      <div class="research-grid">
+        <div class="research-card">
+          <h3>Robust Psychophysics</h3>
+          <p>Designing controlled behavioural experiments to precisely measure perceptual thresholds, biases, and decision rules[span_6](start_span)[span_6](end_span).</p>
+        </div>
+        <div class="research-card">
+          <h3>Active Exploration</h3>
+          <p>Using high-resolution eye tracking to study how gaze patterns and eye movements reveal strategies for extracting information[span_7](start_span)[span_7](end_span).</p>
+        </div>
+        <div class="research-card">
+          <h3>Working Memory</h3>
+          <p>Developing models to explain storage limits, fidelity, and the trade-offs in how visual information is maintained over time[span_8](start_span)[span_8](end_span).</p>
+        </div>
+        <div class="research-card">
+          <h3>Peripheral Vision</h3>
+          <p>Investigating crowding, pooling, and lossy compression principles that shape perception outside the centre of gaze[span_9](start_span)[span_9](end_span).</p>
+        </div>
+        <div class="research-card">
+          <h3>Meta-Cognition</h3>
+          <p>Examining how confidence judgements are formed and how people monitor and control their own cognitive processes[span_10](start_span)[span_10](end_span).</p>
+        </div>
+        <div class="research-card">
+          <h3>Computational Modelling</h3>
+          <p>Building Bayesian observer models and efficient coding frameworks to bridge behaviour, neural coding, and environment statistics[span_11](start_span)[span_11](end_span).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Publications Section -->
+    <section id="publications">
+      <h2>Publications</h2>
+      <div class="pubs-bar">
+        <span>Peer-reviewed articles and research outputs.</span>
+        <button id="pubs-sort" class="sort-btn" type="button">Newest → Oldest</button>
+      </div>
+      <ol id="pubs-list"><li>Loading publications...</li></ol>
+    </section>
+
+    <!-- Collaborators & Opportunities -->
+    <section id="people">
+      <h2>Collaborators & Opportunities</h2>
+      <p>We regularly collaborate with researchers globally, including Dr Reuben Rideaux (Sydney), Professor Paul Bays (Cambridge), Dr Anthony M. Harris (UQ), Professor Thomas S. A. Wallis (TU Darmstadt), Dr Emily J. A-Izzeddin (Giessen), Dr Rebecca West (LMU), and others.</p>
+      <p><strong>Join Us:</strong> We welcome expressions of interest from prospective undergrad/PhD students, postdocs, and clinical collaborators[span_12](start_span)[span_12](end_span). Email a brief statement of interests to Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>[span_13](start_span)[span_13](end_span).</p>
+    </section>
   </main>
 
   <footer>
     © <span id="y"></span> Sensory Intelligence Research Group · Will Harrison, University of the Sunshine Coast
   </footer>
 
+  <!-- Publication Rendering Script -->
   <script>
-    // Year
     document.getElementById('y').textContent = new Date().getFullYear();
 
-    const contentEl = document.getElementById('content');
-    const buttons   = document.querySelectorAll('.actions .btn[data-file]');
-    const TXT_CACHE = new Map();
-const HIDDEN_ROUTES = {
-  honours: { file: 'Honours at UniSC.txt', title: 'Honours at UniSC' }
-};
-    // Prefetch linked text files
-    async function prefetchAll(){
-      const unique = [
-  ...new Set(Array.from(buttons, b => b.getAttribute('data-file'))).filter(Boolean)),
-  ...Object.values(HIDDEN_ROUTES).map(r => r.file)
-];
-      
-      await Promise.all(unique.map(async (path) => {
-        try{
-          const res = await fetch(path, {cache: 'no-store'});
-          if (!res.ok) return;
-          const txt = (await res.text()).trim();
-          TXT_CACHE.set(path, txt);
-        }catch(_){}
-      }));
-    }
+    fetch('publications.json', {cache:'no-store'})
+      .then(r => r.json())
+      .then(json => {
+        let DATA = Array.isArray(json) ? json : [];
+        let sortDir = 'desc';
+        const listEl = document.getElementById('pubs-list');
+        const sortBtn = document.getElementById('pubs-sort');
 
-    // Accordion: only one <details> open at a time
-    function wireAccordion(root){
-      const items = root.querySelectorAll('details');
-      if (!items.length) return;
-      items.forEach(d => {
-        d.addEventListener('toggle', () => {
-          if (!d.open) return;
-          items.forEach(other => { if (other !== d) other.removeAttribute('open'); });
+        const getYear = it => (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
+        const initials = given => (given || '').split(/[\s-]+/).filter(Boolean).map(p => p[0] ? p[0].toUpperCase()+'.' : '').join(' ');
+        
+        const formatAuthors = it => {
+          const authors = Array.isArray(it.author) ? it.author : [];
+          if (!authors.length) return '';
+          const formatted = authors.map(a => {
+            const fam = (a.family || '').trim();
+            const init = initials(a.given);
+            return fam && init ? `${fam}, ${init}` : fam || init || '';
+          }).filter(Boolean);
+          if (formatted.length <= 20) {
+            if (formatted.length === 1) return `${formatted[0]}.`;
+            return `${formatted.slice(0, -1).join(', ')}, & ${formatted.slice(-1)[0]}.`;
+          }
+          return `${formatted.slice(0, 19).join(', ')}, …, & ${formatted.slice(-1)[0]}.`;
+        };
+
+        const formatAPA = it => {
+          const year = getYear(it);
+          const authors = formatAuthors(it);
+          const title = it.title || '';
+          const doi = it.DOI ? `https://doi.org/${it.DOI}` : '';
+          const url = (!it.DOI && it.URL) ? it.URL : '';
+          const link = doi || url;
+          const linkHtml = link ? ` <a href="${link}" target="_blank" rel="noopener">${link}</a>` : '';
+          
+          if ((it.type || '').includes('article')) {
+            const journal = it['container-title'] || '';
+            const vol = it.volume ? `<em>${it.volume}</em>` : '';
+            const iss = it.issue ? `(${it.issue})` : '';
+            const pages = it.page ? it.page : '';
+            return `${authors} (${year}). ${title}. <em>${journal}</em>, ${vol}${iss}, ${pages}.${linkHtml}`;
+          }
+          return `${authors} (${year}). ${title}.${linkHtml}`;
+        };
+
+        const render = () => {
+          DATA.sort((a,b) => sortDir === 'desc' ? (+getYear(b) - +getYear(a)) : (+getYear(a) - +getYear(b)));
+          listEl.innerHTML = DATA.map(it => `<li>${formatAPA(it)}</li>`).join('');
+        };
+
+        sortBtn.addEventListener('click', () => {
+          sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+          sortBtn.textContent = sortDir === 'desc' ? 'Newest → Oldest' : 'Oldest → Newest';
+          render();
         });
+
+        render();
+      })
+      .catch(err => {
+        document.getElementById('pubs-list').innerHTML = `<li>Could not load publications.</li>`;
       });
-    }
-
-    // ---------- Publications (CSL-JSON) — APA 7th with sleek filter ----------
-    function renderPublications(){
-      contentEl.innerHTML = `
-        <h2>Publications</h2>
-        <div id="pubs-root">
-          <div class="pubs-bar" id="pubs-controls" role="region" aria-label="Publications filter">
-            <div class="pubs-bar__row">
-              <strong>Browse by theme:</strong>
-              <div class="pubs-pills" id="pubs-pills"></div>
-              <button id="pubs-clear" class="pill" type="button" aria-pressed="false" title="Show all">All</button>
-              <button id="pubs-sort" class="pill pubs-sort" type="button">Newest → Oldest</button>
-            </div>
-          </div>
-          <ol id="pubs-list"></ol>
-        </div>
-      `;
-
-      const pillsWrap = document.getElementById('pubs-pills');
-      const clearBtn  = document.getElementById('pubs-clear');
-      const sortBtn   = document.getElementById('pubs-sort');
-      const listEl    = document.getElementById('pubs-list');
-
-      let DATA = [];
-      let TOPICS = [];
-      let currentTopic = 'All';
-      let sortDir = 'desc';
-
-      const getYear = it =>
-        (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
-
-      const initials = given => (given || '')
-        .split(/[\s-]+/)
-        .filter(Boolean)
-        .map(part => part[0] ? (part[0].toUpperCase() + '.') : '')
-        .join(' ');
-
-      const formatAuthorsAPA = it => {
-        const authors = Array.isArray(it.author) ? it.author : [];
-        if (!authors.length) return '';
-        const formatted = authors.map(a => {
-          const fam = (a.family || '').trim();
-          const init = initials(a.given);
-          return fam && init ? `${fam}, ${init}` : fam || init || '';
-        }).filter(Boolean);
-
-        if (formatted.length <= 20) {
-          if (formatted.length === 1) return `${formatted[0]}.`;
-          return `${formatted.slice(0, -1).join(', ')}, & ${formatted.slice(-1)[0]}.`;
-        } else {
-          const first19 = formatted.slice(0, 19).join(', ');
-          const last = formatted.slice(-1)[0];
-          return `${first19}, …, & ${last}.`;
-        }
-      };
-
-      const sentenceCase = s => {
-        if (!s) return '';
-        const t = s.replace(/\s+/g,' ').trim();
-        if (!t) return '';
-        let out = t.toLowerCase();
-        out = out.charAt(0).toUpperCase() + out.slice(1);
-        out = out.replace(/: (\w)/g, (_, c) => `: ${c.toUpperCase()}`);
-        return out;
-      };
-
-      const titleCase = s => {
-        if (!s) return '';
-        return s.replace(/\w[^\s-]*/g, w => {
-          const lower = w.toLowerCase();
-          const small = ['a','an','the','and','but','or','nor','for','so','yet','on','in','to','of','by','at','vs','via'];
-          if (small.includes(lower)) return lower;
-          return w.charAt(0).toUpperCase() + w.slice(1);
-        }).replace(/(^|\s)([a-z])/g, (m, sp, ch) => sp + ch.toUpperCase());
-      };
-
-      const firstLink = it => it.URL || (it.DOI ? `https://doi.org/${it.DOI}` : '');
-
-      const formatAPA = it => {
-        const year = getYear(it);
-        const authors = formatAuthorsAPA(it);
-        const title = sentenceCase(it.title || '');
-        const doiStr = it.DOI ? `https://doi.org/${it.DOI}` : '';
-        const urlStr = (!it.DOI && it.URL) ? it.URL : '';
-
-        if ((it.type || '').includes('article')) {
-          const journal = titleCase(it['container-title'] || '');
-          const vol = it.volume ? `<em>${it.volume}</em>` : '';
-          const iss = it.issue ? `(${it.issue})` : '';
-          const pages = it.page ? it.page : '';
-          const volIssue = vol || iss ? `${vol}${iss}` : '';
-          const trailing = doiStr || urlStr ? ` ${doiStr || urlStr}` : '';
-          return `${authors} (${year}). ${title}. <em>${journal}</em>, ${volIssue}${pages ? `, ${pages}` : ''}.${trailing}`;
-        }
-        const container = it['container-title'] ? ` <em>${titleCase(it['container-title'])}</em>` : '';
-        const trailing = doiStr || urlStr ? ` ${doiStr || urlStr}` : '';
-        return `${authors} (${year}). ${title}.${container}.${trailing}`;
-      };
-
-      const getTopics = it => {
-        if (Array.isArray(it.tags) && it.tags.length) {
-          return it.tags.map(t => (t.tag || '').trim()).filter(Boolean);
-        }
-        return ['Uncategorised'];
-      };
-
-      const renderList = rows => {
-        listEl.innerHTML = rows.map(it => `<li>${formatAPA(it)}</li>`).join('');
-      };
-
-      const apply = () => {
-        let rows = DATA.slice();
-        if(currentTopic !== 'All'){
-          rows = rows.filter(it => getTopics(it).includes(currentTopic));
-        }
-        rows.sort((a,b) => {
-          const ya = +getYear(a) || 0, yb = +getYear(b) || 0;
-          return sortDir === 'desc' ? (yb - ya) : (ya - yb);
-        });
-        renderList(rows);
-
-        // update pill states
-        [...pillsWrap.querySelectorAll('.pill')].forEach(p => {
-          p.setAttribute('aria-pressed', String(p.dataset.topic === currentTopic));
-        });
-        clearBtn.setAttribute('aria-pressed', String(currentTopic === 'All'));
-      };
-
-      const buildPills = () => {
-        const set = new Set();
-        DATA.forEach(it => getTopics(it).forEach(t => set.add(t)));
-        TOPICS = Array.from(set).sort((a,b) => a.localeCompare(b));
-        pillsWrap.innerHTML = TOPICS.map(t => `<button type="button" class="pill" data-topic="${t}" aria-pressed="false">${t}</button>`).join('');
-        pillsWrap.addEventListener('click', e => {
-          const btn = e.target.closest('.pill');
-          if (!btn || !btn.dataset.topic) return;
-          currentTopic = btn.dataset.topic;
-          apply();
-        });
-        clearBtn.addEventListener('click', () => { currentTopic = 'All'; apply(); });
-      };
-
-      sortBtn.addEventListener('click', () => {
-        sortDir = (sortDir === 'desc') ? 'asc' : 'desc';
-        sortBtn.textContent = (sortDir === 'desc') ? 'Newest → Oldest' : 'Oldest → Newest';
-        apply();
-      });
-
-      fetch('publications.json', {cache:'no-store'})
-        .then(r => r.json())
-        .then(json => {
-          DATA = Array.isArray(json) ? json : [];
-          buildPills();
-          apply();
-        })
-        .catch(err => {
-          listEl.innerHTML = `<li>Could not load publications. (${err.message})</li>`;
-        });
-    }
-    // ------------------------------------------------------------------------
-
-    async function loadText(path, label){
-      if (path.endsWith('publications.txt')) {
-        contentEl.classList.remove('hidden');
-        renderPublications();
-        return;
-      }
-      let txt;
-      if (TXT_CACHE.has(path)){
-        txt = TXT_CACHE.get(path);
-      } else {
-        try{
-          contentEl.classList.remove('hidden');
-          contentEl.textContent = `Loading ${label}…`;
-          const res = await fetch(path, {cache: 'no-store'});
-          if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-          txt = (await res.text()).trim();
-          TXT_CACHE.set(path, txt);
-        }catch(err){
-          contentEl.textContent = `Could not load ${label}. (${err.message})`;
-          return;
-        }
-      }
-      contentEl.classList.remove('hidden');
-      contentEl.innerHTML = txt || `(No content in ${path})`;
-      wireAccordion(contentEl);
-    }
-
-    function handleClick(ev){
-      const a = ev.currentTarget;
-      const file  = a.getAttribute('data-file');
-      ev.preventDefault();
-      history.replaceState(null, '', a.getAttribute('href'));
-      buttons.forEach(btn => btn.classList.remove('active'));
-      a.classList.add('active');
-      loadText(file, a.getAttribute('data-title') || a.textContent.trim());
-    }
-
-    buttons.forEach(a => a.addEventListener('click', handleClick));
-
-    function bootFromHash(){
-  const hash = location.hash.replace('#','');
-  if(!hash) return;
-
-  // Try visible buttons first
-  const target = Array.from(buttons).find(a => a.getAttribute('href') === `#${hash}`);
-  if (target) { target.click(); return; }
-
-  // Fallback: hidden routes
-  if (HIDDEN_ROUTES[hash]){
-    const { file, title } = HIDDEN_ROUTES[hash];
-    contentEl.classList.remove('hidden');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    loadText(file, title);
-  }
-}
-    window.addEventListener('hashchange', bootFromHash);
-
-    prefetchAll().then(bootFromHash);
   </script>
 </body>
 </html>
