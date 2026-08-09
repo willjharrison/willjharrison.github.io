@@ -272,7 +272,7 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    class IndependentDisc {
+    class OrbitingDisc {
       constructor() {
         this.reset();
       }
@@ -284,77 +284,31 @@
         this.radius = Math.random() * 80 + 40; // Radius of its circular path
         this.discSize = Math.random() * 16 + 12; // Disc size
 
-        // Total rotation between 360 and 1440 degrees
-        const totalDeg = Math.random() * (1440 - 360) + 360;
-        this.targetDistance = (totalDeg * Math.PI) / 180;
-        this.traveledDistance = 0;
-
-        this.currentSpeed = 0;
-        this.maxSpeed = Math.random() * 0.04 + 0.02;
-        this.accelerationPhase = 0.3;
-        this.decelerationPhase = 0.7;
-
+        // Constant angular velocity per frame
+        this.speed = (Math.random() * 0.03 + 0.015) * (Math.random() < 0.5 ? 1 : -1);
         this.angle = Math.random() * Math.PI * 2;
 
         // Circular color space shifting
         this.hue = Math.random() * 360;
-        this.hueSpeed = (Math.random() - 0.5) * 3;
-
-        this.opacity = 0;
-        this.state = 'fadeIn';
+        this.hueSpeed = (Math.random() - 0.5) * 2;
       }
 
       update() {
-        const progress = this.targetDistance > 0 ? (this.traveledDistance / this.targetDistance) : 1;
-
-        // Acceleration and deceleration profile
-        if (progress < this.accelerationPhase) {
-          let p = progress / this.accelerationPhase;
-          this.currentSpeed = this.maxSpeed * Math.sin(p * Math.PI / 2);
-        } else if (progress > this.decelerationPhase) {
-          let p = (progress - this.decelerationPhase) / (1 - this.decelerationPhase);
-          this.currentSpeed = this.maxSpeed * Math.cos(p * Math.PI / 2);
-        } else {
-          this.currentSpeed = this.maxSpeed;
-        }
-
-        this.angle += this.currentSpeed;
-        this.traveledDistance += this.currentSpeed;
+        // Continuous circular motion on each frame
+        this.angle += this.speed;
 
         // Shift color around circular color space
         this.hue = (this.hue + this.hueSpeed + 360) % 360;
-
-        // Fade state handling
-        if (this.state === 'fadeIn') {
-          this.opacity += 0.03;
-          if (this.opacity >= 1) {
-            this.opacity = 1;
-            this.state = 'spinning';
-          }
-        } else if (this.state === 'spinning') {
-          if (progress >= 1.0) {
-            this.state = 'fadeOut';
-          }
-        } else if (this.state === 'fadeOut') {
-          this.opacity -= 0.03;
-          if (this.opacity <= 0) {
-            this.opacity = 0;
-            this.reset();
-          }
-        }
       }
 
       draw() {
-        if (this.opacity <= 0) return;
-
         // Calculate spatial position moving in a circle around (cx, cy)
         const x = this.cx + Math.cos(this.angle) * this.radius;
         const y = this.cy + Math.sin(this.angle) * this.radius;
 
         ctx.save();
-        ctx.globalAlpha = this.opacity;
+        ctx.globalAlpha = 0.4; // Soft background presence
 
-        // Draw the moving disc (no connecting line!)
         ctx.beginPath();
         ctx.arc(x, y, this.discSize, 0, Math.PI * 2);
         ctx.fillStyle = `hsl(${this.hue}, 75%, 55%)`;
@@ -364,10 +318,10 @@
       }
     }
 
-    // Create a pool of independent moving discs (e.g. 6 discs = 3 pairs)
+    // Create a pool of independently orbiting discs
     const discs = [];
     for (let i = 0; i < 6; i++) {
-      discs.push(new IndependentDisc());
+      discs.push(new OrbitingDisc());
     }
 
     function animate() {
