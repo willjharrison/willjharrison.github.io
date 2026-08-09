@@ -327,7 +327,7 @@
     © <span id="y"></span> Sensory Intelligence Research Group · Will Harrison, University of the Sunshine Coast
   </footer>
 
-  <!-- Background Discs Animation Script -->
+    <!-- Background Discs Animation Script -->
   <script>
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
@@ -347,23 +347,27 @@
 
       reset() {
         // Center and radius of the imaginary circle for this pair
-        this.cx = Math.random() * (window.innerWidth - 200) + 100;
-        this.cy = Math.random() * (window.innerHeight - 200) + 100;
-        this.radius = Math.random() * 80 + 40;
+        this.cx = Math.random() * (window.innerWidth - 300) + 150;
+        this.cy = Math.random() * (window.innerHeight - 300) + 150;
+        this.radius = Math.random() * 120 + 50;
 
-        // Discs have the same size as each other within each pair
-        this.discSize = Math.random() * 16 + 12;
+        // Much more variability in absolute size (ranging from small 8px to large 55px discs)
+        this.discSize = Math.random() * 47 + 8;
+
+        // Variable Gaussian soft-edge profile (softness factor determines the gradient spread)
+        // Lower numbers = sharper edges, higher numbers = softer gaussian blur look
+        this.softness = Math.random() * 0.8 + 0.1; 
 
         // Angular speed and starting angle
-        this.speed = (Math.random() * 0.03 + 0.015) * (Math.random() < 0.5 ? 1 : -1);
+        this.speed = (Math.random() * 0.02 + 0.008) * (Math.random() < 0.5 ? 1 : -1);
         this.angle1 = Math.random() * Math.PI * 2;
         this.angle2 = this.angle1 - Math.PI * 0.7; // Chase offset for partner
 
         // Circular colour space shifts
         this.hue1 = Math.random() * 360;
         this.hue2 = Math.random() * 360;
-        this.hueSpeed1 = (Math.random() - 0.5) * 2;
-        this.hueSpeed2 = (Math.random() - 0.5) * 2;
+        this.hueSpeed1 = (Math.random() - 0.5) * 1.5;
+        this.hueSpeed2 = (Math.random() - 0.5) * 1.5;
       }
 
       update() {
@@ -376,6 +380,26 @@
         this.hue2 = (this.hue2 + this.hueSpeed2 + 360) % 360;
       }
 
+      drawDisc(x, y, hue) {
+        ctx.save();
+        ctx.globalAlpha = 0.45;
+
+        // Create radial gradient to simulate a Gaussian smoothed edge
+        const innerRadius = this.discSize * (1 - this.softness);
+        const outerRadius = this.discSize;
+
+        const grad = ctx.createRadialGradient(x, y, Math.max(0, innerRadius), x, y, outerRadius);
+        grad.addColorStop(0, `hsl(${hue}, 75%, 55%)`);
+        grad.addColorStop(1, `hsla(${hue}, 75%, 55%, 0)`);
+
+        ctx.beginPath();
+        ctx.arc(x, y, outerRadius, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        ctx.restore();
+      }
+
       draw() {
         // Calculate spatial positions for both partner discs
         const x1 = this.cx + Math.cos(this.angle1) * this.radius;
@@ -383,28 +407,14 @@
         const x2 = this.cx + Math.cos(this.angle2) * this.radius;
         const y2 = this.cy + Math.sin(this.angle2) * this.radius;
 
-        ctx.save();
-        ctx.globalAlpha = 0.4;
-
-        // Disc 1
-        ctx.beginPath();
-        ctx.arc(x1, y1, this.discSize, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${this.hue1}, 75%, 55%)`;
-        ctx.fill();
-
-        // Disc 2 (Partner)
-        ctx.beginPath();
-        ctx.arc(x2, y2, this.discSize, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${this.hue2}, 75%, 55%)`;
-        ctx.fill();
-
-        ctx.restore();
+        this.drawDisc(x1, y1, this.hue1);
+        this.drawDisc(x2, y2, this.hue2);
       }
     }
 
     // Create a pool of independent pairs
     const pairs = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 4; i++) {
       pairs.push(new DiscPair());
     }
 
