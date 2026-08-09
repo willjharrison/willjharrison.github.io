@@ -19,7 +19,7 @@
     }
 
     * { box-sizing: border-box; }
-    
+
     body {
       margin: 0;
       background: var(--bg);
@@ -250,7 +250,7 @@
 
         const getYear = it => (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
         const initials = given => (given || '').split(/[\s-]+/).filter(Boolean).map(p => p[0] ? p[0].toUpperCase()+'.' : '').join(' ');
-        
+
         const formatAuthors = it => {
           const authors = Array.isArray(it.author) ? it.author : [];
           if (!authors.length) return '';
@@ -274,7 +274,7 @@
           const url = (!it.DOI && it.URL) ? it.URL : '';
           const link = doi || url;
           const linkHtml = link ? ` <a href="${link}" target="_blank" rel="noopener">${link}</a>` : '';
-          
+
           if ((it.type || '').includes('article')) {
             const journal = it['container-title'] || '';
             const vol = it.volume ? `<em>${it.volume}</em>` : '';
