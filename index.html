@@ -171,15 +171,15 @@
     <!-- About Section -->
     <section id="about">
       <h2>About</h2>
-      <p>The <strong>Sensory Intelligence Research Group</strong> is interested in understanding how the brain gives rise to our thoughts, feelings, and actions[span_0](start_span)[span_0](end_span). Led by <strong>Dr Will Harrison</strong> at the University of the Sunshine Coast[span_1](start_span)[span_1](end_span), our mission is to work across levels of explanation — empirical, theoretical, and philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.</p>
+      <p>The <strong>Sensory Intelligence Research Group</strong> is interested in understanding how the brain gives rise to our thoughts, feelings, and actions. Led by <strong>Dr Will Harrison</strong> at the University of the Sunshine Coast, our mission is to work across levels of explanation — empirical, theoretical, and philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.</p>
     </section>
 
     <!-- Pushing Back on AI Callout -->
     <section id="pushingback">
       <h2>Pushing Back On A.I.</h2>
       <div class="callout">
-        <p style="margin-top:0;">Modern artificial intelligence has achieved remarkable feats, but we suggest it is not yet fit for purpose for understanding many topics in neuroscience and cognition[span_2](start_span)[span_2](end_span). <strong>We cannot explain the brain by simply comparing it to another system that is itself opaque and requires entire fields to interpret[span_3](start_span)[span_3](end_span).</strong></p>
-        <p style="margin-bottom:0;">Rather than substituting one black box for another, we ground our explanations in biological data and theoretical principles[span_4](start_span)[span_4](end_span). We study what neurons compute, how populations encode information, and how these processes support human experience[span_5](start_span)[span_5](end_span).</p>
+        <p style="margin-top:0;">Modern artificial intelligence has achieved remarkable feats, but we suggest it is not yet fit for purpose for understanding many topics in neuroscience and cognition. <strong>We cannot explain the brain by simply comparing it to another system that is itself opaque and requires entire fields to interpret.</strong></p>
+        <p style="margin-bottom:0;">Rather than substituting one black box for another, we ground our explanations in biological data and theoretical principles. We study what neurons compute, how populations encode information, and how these processes support human experience.</p>
       </div>
     </section>
 
@@ -189,27 +189,27 @@
       <div class="research-grid">
         <div class="research-card">
           <h3>Robust Psychophysics</h3>
-          <p>Designing controlled behavioural experiments to precisely measure perceptual thresholds, biases, and decision rules[span_6](start_span)[span_6](end_span).</p>
+          <p>Designing controlled behavioural experiments to precisely measure perceptual thresholds, biases, and decision rules.</p>
         </div>
         <div class="research-card">
           <h3>Active Exploration</h3>
-          <p>Using high-resolution eye tracking to study how gaze patterns and eye movements reveal strategies for extracting information[span_7](start_span)[span_7](end_span).</p>
+          <p>Using high-resolution eye tracking to study how gaze patterns and eye movements reveal strategies for extracting information.</p>
         </div>
         <div class="research-card">
           <h3>Working Memory</h3>
-          <p>Developing models to explain storage limits, fidelity, and the trade-offs in how visual information is maintained over time[span_8](start_span)[span_8](end_span).</p>
+          <p>Developing models to explain storage limits, fidelity, and the trade-offs in how visual information is maintained over time.</p>
         </div>
         <div class="research-card">
           <h3>Peripheral Vision</h3>
-          <p>Investigating crowding, pooling, and lossy compression principles that shape perception outside the centre of gaze[span_9](start_span)[span_9](end_span).</p>
+          <p>Investigating crowding, pooling, and lossy compression principles that shape perception outside the centre of gaze.</p>
         </div>
         <div class="research-card">
           <h3>Meta-Cognition</h3>
-          <p>Examining how confidence judgements are formed and how people monitor and control their own cognitive processes[span_10](start_span)[span_10](end_span).</p>
+          <p>Examining how confidence judgements are formed and how people monitor and control their own cognitive processes.</p>
         </div>
         <div class="research-card">
           <h3>Computational Modelling</h3>
-          <p>Building Bayesian observer models and efficient coding frameworks to bridge behaviour, neural coding, and environment statistics[span_11](start_span)[span_11](end_span).</p>
+          <p>Building Bayesian observer models and efficient coding frameworks to bridge behaviour, neural coding, and environment statistics.</p>
         </div>
       </div>
     </section>
@@ -228,7 +228,7 @@
     <section id="people">
       <h2>Collaborators & Opportunities</h2>
       <p>We regularly collaborate with researchers globally, including Dr Reuben Rideaux (Sydney), Professor Paul Bays (Cambridge), Dr Anthony M. Harris (UQ), Professor Thomas S. A. Wallis (TU Darmstadt), Dr Emily J. A-Izzeddin (Giessen), Dr Rebecca West (LMU), and others.</p>
-      <p><strong>Join Us:</strong> We welcome expressions of interest from prospective undergrad/PhD students, postdocs, and clinical collaborators[span_12](start_span)[span_12](end_span). Email a brief statement of interests to Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>[span_13](start_span)[span_13](end_span).</p>
+      <p><strong>Join Us:</strong> We welcome expressions of interest from prospective undergrad/PhD students, postdocs, and clinical collaborators. Email a brief statement of interests to Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>.</p>
     </section>
   </main>
 
@@ -250,7 +250,7 @@
 
         const getYear = it => (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
         const initials = given => (given || '').split(/[\s-]+/).filter(Boolean).map(p => p[0] ? p[0].toUpperCase()+'.' : '').join(' ');
-
+        
         const formatAuthors = it => {
           const authors = Array.isArray(it.author) ? it.author : [];
           if (!authors.length) return '';
@@ -274,7 +274,7 @@
           const url = (!it.DOI && it.URL) ? it.URL : '';
           const link = doi || url;
           const linkHtml = link ? ` <a href="${link}" target="_blank" rel="noopener">${link}</a>` : '';
-
+          
           if ((it.type || '').includes('article')) {
             const journal = it['container-title'] || '';
             const vol = it.volume ? `<em>${it.volume}</em>` : '';
