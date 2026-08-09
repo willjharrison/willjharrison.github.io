@@ -402,7 +402,7 @@
         this.cx = Math.random() * (window.innerWidth - 300) + 150;
         this.cy = Math.random() * (window.innerHeight - 300) + 150;
         this.radius = Math.random() * 120 + 50;
-        this.discSize = Math.random() * 47 + 8;
+        this.discSize = Math.random() * 147 + 8;
         this.softness = Math.random() * 0.8 + 0.1; 
 
         this.speed = (Math.random() * 0.02 + 0.008) * (Math.random() < 0.5 ? 1 : -1);
@@ -453,7 +453,7 @@
     }
 
     const pairs = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 6; i++) {
       pairs.push(new DiscPair());
     }
 
