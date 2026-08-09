@@ -260,7 +260,7 @@
   </footer>
 
   <!-- Background Discs Animation Script -->
-      <script>
+       <script>
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
 
@@ -272,63 +272,79 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    class OrbitingDisc {
+    class DiscPair {
       constructor() {
         this.reset();
       }
 
       reset() {
-        // Random center for this disc's circular path
+        // Center and radius of the imaginary circle for this pair
         this.cx = Math.random() * (window.innerWidth - 200) + 100;
         this.cy = Math.random() * (window.innerHeight - 200) + 100;
-        this.radius = Math.random() * 80 + 40; // Radius of its circular path
-        this.discSize = Math.random() * 16 + 12; // Disc size
+        this.radius = Math.random() * 80 + 40;
 
-        // Constant angular velocity per frame
+        // Discs have the same size as each other within each pair
+        this.discSize = Math.random() * 16 + 12;
+
+        // Angular speed and starting angle
         this.speed = (Math.random() * 0.03 + 0.015) * (Math.random() < 0.5 ? 1 : -1);
-        this.angle = Math.random() * Math.PI * 2;
+        this.angle1 = Math.random() * Math.PI * 2;
+        this.angle2 = this.angle1 - Math.PI * 0.7; // Chase offset for partner
 
-        // Circular color space shifting
-        this.hue = Math.random() * 360;
-        this.hueSpeed = (Math.random() - 0.5) * 2;
+        // Circular colour space shifts
+        this.hue1 = Math.random() * 360;
+        this.hue2 = Math.random() * 360;
+        this.hueSpeed1 = (Math.random() - 0.5) * 2;
+        this.hueSpeed2 = (Math.random() - 0.5) * 2;
       }
 
       update() {
         // Continuous circular motion on each frame
-        this.angle += this.speed;
+        this.angle1 += this.speed;
+        this.angle2 += this.speed;
 
-        // Shift color around circular color space
-        this.hue = (this.hue + this.hueSpeed + 360) % 360;
+        // Shift color around circular colour space
+        this.hue1 = (this.hue1 + this.hueSpeed1 + 360) % 360;
+        this.hue2 = (this.hue2 + this.hueSpeed2 + 360) % 360;
       }
 
       draw() {
-        // Calculate spatial position moving in a circle around (cx, cy)
-        const x = this.cx + Math.cos(this.angle) * this.radius;
-        const y = this.cy + Math.sin(this.angle) * this.radius;
+        // Calculate spatial positions for both partner discs
+        const x1 = this.cx + Math.cos(this.angle1) * this.radius;
+        const y1 = this.cy + Math.sin(this.angle1) * this.radius;
+        const x2 = this.cx + Math.cos(this.angle2) * this.radius;
+        const y2 = this.cy + Math.sin(this.angle2) * this.radius;
 
         ctx.save();
-        ctx.globalAlpha = 0.4; // Soft background presence
+        ctx.globalAlpha = 0.4;
 
+        // Disc 1
         ctx.beginPath();
-        ctx.arc(x, y, this.discSize, 0, Math.PI * 2);
-        ctx.fillStyle = `hsl(${this.hue}, 75%, 55%)`;
+        ctx.arc(x1, y1, this.discSize, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${this.hue1}, 75%, 55%)`;
+        ctx.fill();
+
+        // Disc 2 (Partner)
+        ctx.beginPath();
+        ctx.arc(x2, y2, this.discSize, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${this.hue2}, 75%, 55%)`;
         ctx.fill();
 
         ctx.restore();
       }
     }
 
-    // Create a pool of independently orbiting discs
-    const discs = [];
-    for (let i = 0; i < 6; i++) {
-      discs.push(new OrbitingDisc());
+    // Create a pool of independent pairs
+    const pairs = [];
+    for (let i = 0; i < 3; i++) {
+      pairs.push(new DiscPair());
     }
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      discs.forEach(disc => {
-        disc.update();
-        disc.draw();
+      pairs.forEach(pair => {
+        pair.update();
+        pair.draw();
       });
       requestAnimationFrame(animate);
     }
