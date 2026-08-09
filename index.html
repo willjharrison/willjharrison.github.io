@@ -132,15 +132,15 @@
       margin-bottom: 60px;
     }
 
-    /* Kanizsa Illusion Frame for Subheadings */
+        /* Kanizsa Illusion Frame for Subheadings */
     h2 {
       position: relative;
       display: inline-block;
       font-size: 1.5rem;
-      margin-top: 50px;
-      margin-bottom: 25px;
+      margin-top: 30px;
+      margin-bottom: 15px;
       letter-spacing: -0.01em;
-      padding: 10px 16px;
+      padding: 6px 12px;
       border-bottom: none;
       z-index: 1;
     }
@@ -149,10 +149,10 @@
     h2::before {
       content: "";
       position: absolute;
-      top: -4px;
-      left: -8px;
-      right: -8px;
-      bottom: -4px;
+      top: -2px;
+      left: -6px;
+      right: -6px;
+      bottom: -2px;
       background: var(--bg);
       border-radius: 4px;
       z-index: -1;
@@ -162,17 +162,17 @@
     h2::after {
       content: "";
       position: absolute;
-      top: -12px;
-      left: -16px;
-      right: -16px;
-      bottom: -12px;
+      top: -8px;
+      left: -12px;
+      right: -12px;
+      bottom: -8px;
       z-index: -2;
       
       background-image: 
-        radial-gradient(circle, #274D75 8px, transparent 8.5px), /* Top-Left */
-        radial-gradient(circle, #274D75 8px, transparent 8.5px), /* Top-Right */
-        radial-gradient(circle, #274D75 8px, transparent 8.5px), /* Bottom-Left */
-        radial-gradient(circle, #274D75 8px, transparent 8.5px); /* Bottom-Right */
+        radial-gradient(circle, #274D75 6px, transparent 6.5px), /* Top-Left */
+        radial-gradient(circle, #274D75 6px, transparent 6.5px), /* Top-Right */
+        radial-gradient(circle, #274D75 6px, transparent 6.5px), /* Bottom-Left */
+        radial-gradient(circle, #274D75 6px, transparent 6.5px); /* Bottom-Right */
       
       background-position: top left, top right, bottom left, bottom right;
       background-repeat: no-repeat;
