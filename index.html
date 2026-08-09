@@ -27,6 +27,19 @@
       font-family: var(--font-main);
       line-height: 1.6;
       padding: 0 var(--pad-x);
+      position: relative;
+    }
+
+    /* Background Animation Canvas */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.35;
     }
 
     header {
@@ -34,6 +47,8 @@
       margin: 60px auto 40px;
       border-bottom: 1px solid var(--border);
       padding-bottom: 30px;
+      position: relative;
+      z-index: 1;
     }
 
     h1.title {
@@ -53,6 +68,8 @@
     main {
       max-width: var(--max-w);
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
     section {
@@ -64,6 +81,400 @@
       border-bottom: 2px solid var(--fg);
       padding-bottom: 6px;
       margin-top: 50px;
+      margin-bottom: 20px;
+      letter-spacing: -0.01em;
+    }
+
+    p, li {
+      font-size: 1.05rem;
+      color: #333;
+    }
+
+    /* Research Grid */
+    .research-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .research-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .research-card h3 {
+      font-size: 1.1rem;
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    .research-card p {
+      font-size: 0.95rem;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    /* Callout box for Pushing Back on AI */
+    .callout {
+      background: rgba(240, 244, 248, 0.9);
+      border-left: 4px solid var(--accent);
+      padding: 24px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Publications Styling */
+    .pubs-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button.sort-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.sort-btn:hover {
+      background: #eee;
+    }
+
+    #pubs-list {
+      padding-left: 20px;
+    }
+
+    #pubs-list li {
+      margin-bottom: 12px;
+      font-size: 0.95rem;
+    }
+
+    footer {
+      max-width: var(--max-w);
+      margin: 0 auto 60px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg-canvas"></canvas>
+
+  <header>
+    <h1 class="title">Sensory Intelligence Research Group</h1>
+    <p class="subtitle">From neurons to behaviour through computation and experiment.</p>
+  </header>
+
+  <main>
+    <!-- About Section -->
+    <section id="about">
+      <h2>About</h2>
+      <p>The <strong>Sensory Intelligence Research Group</strong> is interested in understanding how the brain gives rise to our thoughts, feelings, and actions. Led by <strong>Dr Will Harrison</strong> at the University of the Sunshine Coast, our mission is to work across levels of explanation — empirical, theoretical, and philosophical — to uncover how the brain turns raw sensory signals into meaningful perception and action.</p>
+    </section>
+
+    <!-- Pushing Back on AI Callout -->
+    <section id="pushingback">
+      <h2>Pushing Back On A.I.</h2>
+      <div class="callout">
+        <p style="margin-top:0;">Modern artificial intelligence has achieved remarkable feats, but we suggest it is not yet fit for purpose for understanding many topics in neuroscience and cognition. <strong>We cannot explain the brain by simply comparing it to another system that is itself opaque and requires entire fields to interpret.</strong></p>
+        <p style="margin-bottom:0;">Rather than substituting one black box for another, we ground our explanations in biological data and theoretical principles. We study what neurons compute, how populations encode information, and how these processes support human experience.</p>
+      </div>
+    </section>
+
+    <!-- Research Themes Grid -->
+    <section id="research">
+      <h2>Research Themes</h2>
+      <div class="research-grid">
+        <div class="research-card">
+          <h3>Robust Psychophysics</h3>
+          <p>Designing controlled behavioural experiments to precisely measure perceptual thresholds, biases, and decision rules.</p>
+        </div>
+        <div class="research-card">
+          <h3>Active Exploration</h3>
+          <p>Using high-resolution eye tracking to study how gaze patterns and eye movements reveal strategies for extracting information.</p>
+        </div>
+        <div class="research-card">
+          <h3>Working Memory</h3>
+          <p>Developing models to explain storage limits, fidelity, and the trade-offs in how visual information is maintained over time.</p>
+        </div>
+        <div class="research-card">
+          <h3>Peripheral Vision</h3>
+          <p>Investigating crowding, pooling, and lossy compression principles that shape perception outside the centre of gaze.</p>
+        </div>
+        <div class="research-card">
+          <h3>Meta-Cognition</h3>
+          <p>Examining how confidence judgements are formed and how people monitor and control their own cognitive processes.</p>
+        </div>
+        <div class="research-card">
+          <h3>Computational Modelling</h3>
+          <p>Building Bayesian observer models and efficient coding frameworks to bridge behaviour, neural coding, and environment statistics.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Publications Section -->
+    <section id="publications">
+      <h2>Publications</h2>
+      <div class="pubs-bar">
+        <span>Peer-reviewed articles and research outputs.</span>
+        <button id="pubs-sort" class="sort-btn" type="button">Newest → Oldest</button>
+      </div>
+      <ol id="pubs-list"><li>Loading publications...</li></ol>
+    </section>
+
+    <!-- Collaborators & Opportunities -->
+    <section id="people">
+      <h2>Collaborators & Opportunities</h2>
+      <p>We regularly collaborate with researchers globally, including Dr Reuben Rideaux (Sydney), Professor Paul Bays (Cambridge), Dr Anthony M. Harris (UQ), Professor Thomas S. A. Wallis (TU Darmstadt), Dr Emily J. A-Izzeddin (Giessen), Dr Rebecca West (LMU), and others.</p>
+      <p><strong>Join Us:</strong> We welcome expressions of interest from prospective undergrad/PhD students, postdocs, and clinical collaborators. Email a brief statement of interests to Will: <a href="mailto:wharrison@usc.edu.au">wharrison@usc.edu.au</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    © <span id="y"></span> Sensory Intelligence Research Group · Will Harrison, University of the Sunshine Coast
+  </footer>
+
+  <!-- Background Discs Animation Script -->
+  <script>
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class DiscPairAnimation {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        // Random circle center ensuring it stays reasonably on screen
+        this.cx = Math.random() * (canvas.width - 200) + 100;
+        this.cy = Math.random() * (canvas.height - 200) + 100;
+        this.radius = Math.random() * 100 + 80; // Radius between 80 and 180px
+
+        // Size of discs within the pair (same size per pair, 12 to 28px)
+        this.discSize = Math.random() * 16 + 12;
+
+        // Total target rotation: 360 to 1440 degrees converted to radians
+        const totalDeg = Math.random() * (1440 - 360) + 360;
+        this.targetDistance = (totalDeg * Math.PI) / 180;
+        this.traveledDistance = 0;
+
+        // Kinematics for acceleration and deceleration profile
+        this.currentSpeed = 0;
+        this.maxSpeed = Math.random() * 0.03 + 0.015; 
+        this.accelerationPhase = 0.3; // First 30% speeds up
+        this.decelerationPhase = 0.7; // Last 30% slows down
+
+        // Starting angles for the two discs (chasing each other with an offset)
+        this.angle1 = Math.random() * Math.PI * 2;
+        this.angle2 = this.angle1 - (Math.PI * 0.5); // 90-degree chase offset
+
+        // Random starting hues and shift rates for circular color space
+        this.hue1 = Math.random() * 360;
+        this.hue2 = Math.random() * 360;
+        this.hueSpeed1 = (Math.random() - 0.5) * 1.5;
+        this.hueSpeed2 = (Math.random() - 0.5) * 1.5;
+
+        // Fade state (0 = invisible, 1 = fully visible)
+        this.opacity = 0;
+        this.state = 'fadeIn'; // fadeIn, spinning, fadeOut
+      }
+
+      update() {
+        const progress = this.traveledDistance / this.targetDistance;
+
+        // Velocity profile: acceleration -> linear cruise -> deceleration
+        if (progress < this.accelerationPhase) {
+          let p = progress / this.accelerationPhase;
+          this.currentSpeed = this.maxSpeed * Math.sin(p * Math.PI / 2);
+        } else if (progress > this.decelerationPhase) {
+          let p = (progress - this.decelerationPhase) / (1 - this.decelerationPhase);
+          this.currentSpeed = this.maxSpeed * Math.cos(p * Math.PI / 2);
+        } else {
+          this.currentSpeed = this.maxSpeed;
+        }
+
+        // Advance angles
+        this.angle1 += this.currentSpeed;
+        this.angle2 += this.currentSpeed;
+        this.traveledDistance += this.currentSpeed;
+
+        // Color shifting
+        this.hue1 = (this.hue1 + this.hueSpeed1) % 360;
+        this.hue2 = (this.hue2 + this.hueSpeed2) % 360;
+
+        // Opacity handling (fade in / fade out)
+        if (this.state === 'fadeIn') {
+          this.opacity += 0.02;
+          if (this.opacity >= 1) {
+            this.opacity = 1;
+            this.state = 'spinning';
+          }
+        } else if (this.state === 'spinning') {
+          if (progress >= 0.9) {
+            this.state = 'fadeOut';
+          }
+        } else if (this.state === 'fadeOut') {
+          this.opacity -= 0.02;
+          if (this.opacity <= 0) {
+            this.opacity = 0;
+            this.reset(); // Respawn at a new location with new parameters
+          }
+        }
+      }
+
+      draw() {
+        if (this.opacity <= 0) return;
+
+        // Calculate positions on imaginary circle
+        const x1 = this.cx + Math.cos(this.angle1) * this.radius;
+        const y1 = this.cy + Math.sin(this.angle1) * this.radius;
+        const x2 = this.cx + Math.cos(this.angle2) * this.radius;
+        const y2 = this.cy + Math.sin(this.angle2) * this.radius;
+
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+
+        // Draw connecting subtle path trail between the two chasing discs
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = `hsla(${(this.hue1 + this.hue2)/2}, 60%, 50%, 0.25)`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Disc 1
+        ctx.beginPath();
+        ctx.arc(x1, y1, this.discSize, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${this.hue1}, 70%, 55%)`;
+        ctx.fill();
+
+        // Disc 2
+        ctx.beginPath();
+        ctx.arc(x2, y2, this.discSize, 0, Math.PI * 2);
+        ctx.fillStyle = `hsl(${this.hue2}, 70%, 55%)`;
+        ctx.fill();
+
+        ctx.restore();
+      }
+    }
+
+    // Initialize a couple of active background pairs simultaneously
+    const pairs = [new DiscPairAnimation(), new DiscPairAnimation(), new DiscPairAnimation()];
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      pairs.forEach(pair => {
+        pair.update();
+        pair.draw();
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+
+  <!-- Publication Rendering Script -->
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    fetch('publications.json', {cache:'no-store'})
+      .then(r => r.json())
+      .then(json => {
+        let DATA = Array.isArray(json) ? json : [];
+        let sortDir = 'desc';
+        const listEl = document.getElementById('pubs-list');
+        const sortBtn = document.getElementById('pubs-sort');
+
+        const getYear = it => (it.issued && it.issued['date-parts'] && it.issued['date-parts'][0] && it.issued['date-parts'][0][0]) || '';
+        const initials = given => (given || '').split(/[\s-]+/).filter(Boolean).map(p => p[0] ? p[0].toUpperCase()+'.' : '').join(' ');
+        
+        const formatAuthors = it => {
+          const authors = Array.isArray(it.author) ? it.author : [];
+          if (!authors.length) return '';
+          const formatted = authors.map(a => {
+            const fam = (a.family || '').trim();
+            const init = initials(a.given);
+            return fam && init ? `${fam}, ${init}` : fam || init || '';
+          }).filter(Boolean);
+          if (formatted.length <= 20) {
+            if (formatted.length === 1) return `${formatted[0]}.`;
+            return `${formatted.slice(0, -1).join(', ')}, & ${formatted.slice(-1)[0]}.`;
+          }
+          return `${formatted.slice(0, 19).join(', ')}, …, & ${formatted.slice(-1)[0]}.`;
+        };
+
+        const formatAPA = it => {
+          const year = getYear(it);
+          const authors = formatAuthors(it);
+          const title = it.title || '';
+          const doi = it.DOI ? `https://doi.org/${it.DOI}` : '';
+          const url = (!it.DOI && it.URL) ? it.URL : '';
+          const link = doi || url;
+          const linkHtml = link ? ` <a href="${link}" target="_blank" rel="noopener">${link}</a>` : '';
+          
+          if ((it.type || '').includes('article')) {
+            const journal = it['container-title'] || '';
+            const vol = it.volume ? `<em>${it.volume}</em>` : '';
+            const iss = it.issue ? `(${it.issue})` : '';
+            const pages = it.page ? it.page : '';
+            return `${authors} (${year}). ${title}. <em>${journal}</em>, ${vol}${iss}, ${pages}.${linkHtml}`;
+          }
+          return `${authors} (${year}). ${title}.${linkHtml}`;
+        };
+
+        const render = () => {
+          DATA.sort((a,b) => sortDir === 'desc' ? (+getYear(b) - +getYear(a)) : (+getYear(a) - +getYear(b)));
+          listEl.innerHTML = DATA.map(it => `<li>${formatAPA(it)}</li>`).join('');
+        };
+
+        sortBtn.addEventListener('click', () => {
+          sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+          sortBtn.textContent = sortDir === 'desc' ? 'Newest → Oldest' : 'Oldest → Newest';
+          render();
+        });
+
+        render();
+      })
+      .catch(err => {
+        document.getElementById('pubs-list').innerHTML = `<li>Could not load publications.</li>`;
+      });
+  </script>
+</body>
+</html>      margin-top: 50px;
       margin-bottom: 20px;
       letter-spacing: -0.01em;
     }
