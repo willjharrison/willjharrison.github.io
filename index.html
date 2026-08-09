@@ -141,6 +141,54 @@
       letter-spacing: -0.01em;
     }
 
+        /* Kanizsa Illusion Frame for Subheadings */
+    h2 {
+      position: relative;
+      display: inline-block; /* Wraps tightly around text width */
+      font-size: 1.5rem;
+      margin-top: 60px;
+      margin-bottom: 25px;
+      letter-spacing: -0.01em;
+      padding: 10px 16px;
+      border-bottom: none; /* Remove previous solid line */
+      z-index: 1;
+    }
+
+    /* The Background Occluder Rectangle */
+    h2::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: -12px;
+      right: -12px;
+      bottom: -6px;
+      background: var(--bg); /* Matches page background colour */
+      border-radius: 4px;
+      z-index: -1; /* Sits behind the text */
+    }
+
+    /* The Kanizsa Inducing Discs at the 4 corners */
+    h2::after {
+      content: "";
+      position: absolute;
+      top: -14px;
+      left: -20px;
+      right: -20px;
+      bottom: -14px;
+      z-index: -2; /* Sits behind the occluder rectangle */
+      
+      /* Drawing 4 dark grey discs at the corners using radial gradients or multiple box-shadows */
+      /* A clean CSS trick is using radial-gradients for the 4 corner pacmen circles */
+      background-image: 
+        radial-gradient(circle, #333 8px, transparent 9px), /* Top-Left */
+        radial-gradient(circle, #333 8px, transparent 9px), /* Top-Right */
+        radial-gradient(circle, #333 8px, transparent 9px), /* Bottom-Left */
+        radial-gradient(circle, #333 8px, transparent 9px); /* Bottom-Right */
+      
+      background-position: top left, top right, bottom left, bottom right;
+      background-repeat: no-repeat;
+    }
+    
     p, li {
       font-size: 1.05rem;
       color: #333;
